@@ -1,0 +1,22 @@
+{
+  "apis": [
+    {
+      "id": "1",
+      "name": "Coupons Migration",
+      "path": "/api/v1/coupons-migration",
+      "description": "Migrate coupons data from Fantacy4 to Cartlow Dev",
+      "buttonColor": "blue",
+      "httpMethod": "POST",
+      "status": "active"
+    },
+    {
+      "id": "2",
+      "name": "Categories Migration",
+      "path": "/api/v1/categories-migration",
+      "description": "Migrate categories data from Cartlow Prod to ClickHouse",
+      "buttonColor": "blue",
+      "httpMethod": "POST",
+      "status": "active"
+    }
+  ]
+}

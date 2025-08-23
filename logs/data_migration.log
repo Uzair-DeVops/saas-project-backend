@@ -1,0 +1,506 @@
+2025-08-23 14:55:31 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 14:55:31 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 14:55:34 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 14:55:38 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:62 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 15:06:24 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 15:06:24 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:06:27 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:06:29 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:55 - [92m✅ Database tables created successfully[0m
+2025-08-23 15:13:10 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:13:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:13:14 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - signup:56 - [92mSignup request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 15:13:16 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - create_user:50 - [92mUser created successfully: uzairyasin83@gmail.com[0m
+2025-08-23 15:18:35 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:18:38 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:18:38 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - signup:56 - [92mSignup request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 15:18:39 - data_migration.USER_CONTROLLER - [91m❌ ERROR[0m - get_user_by_email:140 - [91mError getting user by email: (pymysql.err.ProgrammingError) (1146, "Table 'my_database.users' doesn't exist")
+[SQL: SELECT users.email, users.username, users.full_name, users.is_active, users.created_at, users.updated_at, users.id, users.password 
+FROM users 
+WHERE users.email = %(email_1)s]
+[parameters: {'email_1': 'uzairyasin83@gmail.com'}]
+(Background on this error at: https://sqlalche.me/e/20/f405)[0m
+2025-08-23 15:18:39 - data_migration.USER_CONTROLLER - [91m❌ ERROR[0m - get_user_by_username:149 - [91mError getting user by username: (pymysql.err.ProgrammingError) (1146, "Table 'my_database.users' doesn't exist")
+[SQL: SELECT users.email, users.username, users.full_name, users.is_active, users.created_at, users.updated_at, users.id, users.password 
+FROM users 
+WHERE users.username IS NULL]
+(Background on this error at: https://sqlalche.me/e/20/f405)[0m
+2025-08-23 15:18:39 - data_migration.USER_CONTROLLER - [91m❌ ERROR[0m - create_user:66 - [91mUser creation error: (pymysql.err.ProgrammingError) (1146, "Table 'my_database.users' doesn't exist")
+[SQL: INSERT INTO users (email, username, full_name, is_active, created_at, updated_at, id, password) VALUES (%(email)s, %(username)s, %(full_name)s, %(is_active)s, %(created_at)s, %(updated_at)s, %(id)s, %(password)s)]
+[parameters: {'email': 'uzairyasin83@gmail.com', 'username': None, 'full_name': None, 'is_active': 1, 'created_at': datetime.datetime(2025, 8, 23, 10, 18, 39, 518701), 'updated_at': datetime.datetime(2025, 8, 23, 10, 18, 39, 518708), 'id': 'd7693093dc30473197b2dc6c88955dc6', 'password': '$2b$12$N.dkgIPZbT/uJXYTMn8b0ecVft.Np7QRfcpAstjUOLDG9W9nud0ve'}]
+(Background on this error at: https://sqlalche.me/e/20/f405)[0m
+2025-08-23 15:18:40 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 500: Error creating user[0m
+2025-08-23 15:18:50 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:75 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 15:18:51 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 15:18:51 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:18:55 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:18:57 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:55 - [92m✅ Database tables created successfully[0m
+2025-08-23 15:19:51 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:19:54 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:19:54 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - signup:56 - [92mSignup request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 15:19:56 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - create_user:50 - [92mUser created successfully: uzairyasin83@gmail.com[0m
+2025-08-23 15:20:05 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:20:09 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:20:09 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - signup:56 - [92mSignup request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 15:20:09 - data_migration.USER_CONTROLLER - [93m⚠️ WARNING[0m - create_user:20 - [93mUser creation failed: email uzairyasin83@gmail.com already exists[0m
+2025-08-23 15:20:10 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 400: Email already registered[0m
+2025-08-23 15:22:03 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:22:06 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:22:06 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:67 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 15:22:07 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:89 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-23 15:22:07 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:52 - [92mAccess token created for user: uzair[0m
+2025-08-23 15:22:07 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:109 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-23 15:24:03 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 15:24:03 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:24:06 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:24:06 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - get_current_user_info:77 - [92mCurrent user info request for: uzair[0m
+2025-08-23 15:26:16 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 15:26:16 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:26:19 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:26:19 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - get_user:113 - [92mGet user request for ID: 71773ee9-78aa-4301-8e1e-1a2ed45dd537 from: uzair[0m
+2025-08-23 15:26:19 - data_migration.USER_CONTROLLER - [91m❌ ERROR[0m - get_user_by_id:172 - [91mError getting user by ID: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT users.email, users.username, users.full_name, users.is_active, users.created_at, users.updated_at, users.id, users.password 
+FROM users 
+WHERE users.id = %(id_1)s]
+[parameters: [{}]][0m
+2025-08-23 15:26:20 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 404: User not found[0m
+2025-08-23 15:26:37 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 15:26:37 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:26:40 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:26:40 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - get_user:113 - [92mGet user request for ID: 71773ee9-78aa-4301-8e1e-1a2ed45dd537 from: uzair[0m
+2025-08-23 15:26:40 - data_migration.USER_CONTROLLER - [91m❌ ERROR[0m - get_user_by_id:172 - [91mError getting user by ID: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT users.email, users.username, users.full_name, users.is_active, users.created_at, users.updated_at, users.id, users.password 
+FROM users 
+WHERE users.id = %(id_1)s]
+[parameters: [{}]][0m
+2025-08-23 15:26:40 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 404: User not found[0m
+2025-08-23 15:27:51 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 15:27:51 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:27:55 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:27:55 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - get_user:113 - [92mGet user request for ID: 71773ee9-78aa-4301-8e1e-1a2ed45dd537 from: uzair[0m
+2025-08-23 15:27:55 - data_migration.USER_CONTROLLER - [91m❌ ERROR[0m - get_user_by_id:172 - [91mError getting user by ID: (builtins.AttributeError) 'str' object has no attribute 'hex'
+[SQL: SELECT users.email, users.username, users.full_name, users.is_active, users.created_at, users.updated_at, users.id, users.password 
+FROM users 
+WHERE users.id = %(id_1)s]
+[parameters: [{}]][0m
+2025-08-23 15:27:56 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 404: User not found[0m
+2025-08-23 15:29:32 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:75 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 15:29:34 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 15:29:34 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:29:36 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:29:37 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:55 - [92m✅ Database tables created successfully[0m
+2025-08-23 15:29:40 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 15:29:40 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:29:43 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:29:43 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - get_user:113 - [92mGet user request for ID: 71773ee9-78aa-4301-8e1e-1a2ed45dd537 from: uzair[0m
+2025-08-23 15:33:15 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:75 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 15:51:46 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 15:51:46 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:51:49 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:51:50 - data_migration.UZAIR - [91m❌ ERROR[0m - startup_event:57 - [91m❌ Error creating database tables: Foreign key associated with column 'google_oauth_tokens.user_id' could not find table 'qyra_users' with which to generate a foreign key to target column 'id'[0m
+2025-08-23 15:52:44 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:75 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 15:52:45 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 15:52:45 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:52:48 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:52:49 - data_migration.UZAIR - [91m❌ ERROR[0m - startup_event:57 - [91m❌ Error creating database tables: Foreign key associated with column 'google_oauth_tokens.user_id' could not find table 'UserSignUp' with which to generate a foreign key to target column 'id'[0m
+2025-08-23 15:54:07 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:75 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 15:54:08 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 15:54:08 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:54:11 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:54:12 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:56 - [92m✅ Database tables created successfully[0m
+2025-08-23 15:54:42 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:76 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 15:54:43 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 15:54:43 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 15:54:46 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 15:54:47 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:56 - [92m✅ Database tables created successfully[0m
+2025-08-23 16:04:35 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:78 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 16:04:36 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 16:04:36 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:04:39 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:04:40 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:56 - [92m✅ Database tables created successfully[0m
+2025-08-23 16:07:11 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:07:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:07:14 - data_migration.AUTH - [93m⚠️ WARNING[0m - verify_token:72 - [93mToken verification failed: Signature has expired.[0m
+2025-08-23 16:07:14 - data_migration.USER_CONTROLLER - [91m❌ ERROR[0m - get_current_user:39 - [91mToken validation error: 401: Invalid authentication credentials[0m
+2025-08-23 16:07:14 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 401: Invalid authentication credentials[0m
+2025-08-23 16:07:33 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:07:36 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:07:36 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 16:07:37 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-23 16:07:37 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:52 - [92mAccess token created for user: uzair[0m
+2025-08-23 16:07:37 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-23 16:07:50 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:07:53 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:07:53 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 16:08:19 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:08:21 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:08:21 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 'error.html' not found in search path: 'views'[0m
+2025-08-23 16:15:22 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:78 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 16:15:24 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 16:15:24 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:15:27 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:15:28 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:56 - [92m✅ Database tables created successfully[0m
+2025-08-23 16:15:31 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:15:34 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:15:34 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 16:15:54 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:15:57 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:15:58 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:74 - [92mDEBUG: Google token exchange response status: 200[0m
+2025-08-23 16:15:58 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:75 - [92mDEBUG: Google token exchange response: {
+  "access_token": "ya29.A0AS3H6Ny35S1zaGC-xsWQiFroTyysTaJpCSEACypqyH4AB81Mo91XvgnVnA-ic0MatdpQSQi8uRfkL-0rp4VYzYFQgD_qE54FdArzT8qINVdl8GvBAJj4r-L3UAj5_AfjFB8aNCDH_qU4fFR1zXPPrjjO6COwcjxDqttx14Zgroatx4nbrmmqjtD3FhT03CFvywQxhnAaCgYKAeASARQSFQHGX2Mi26PN5r12_JVaJNRwGbGloQ0206",
+  "expires_in": 3599,
+  "refresh_token": "1//03c9drHrKshSyCgYIARAAGAMSNwF-L9IrcxQ7kt0pCQlHzSaETwi5xQS-QfDDY__kdbp6CJhIXRf_9EYB8f9Hk_OEGFwmXNMWoms",
+  "scope": "https://www.googleapis.com/auth/youtube.upload openid https://www.googleapis.com/auth/devstorage.full_control https://www.googleapis.com/auth/bigquery.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/devstorage.read_write https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/devstorage.read_only https://www.googleapis.com/auth/bigquery https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/cloud-platform.read-only",
+  "token_type": "Bearer",
+  "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE0OTljMTU0Y2NjOGEyNWUyNGQ4ZGU4YjFhOWY4NDVhZWZiNmYzY2EiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3MzcwMTk3ODg5MTctdDY5MTZsNDJrYm43aGtrdThvYTBya25nbHVzNWZobDYuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3MzcwMTk3ODg5MTctdDY5MTZsNDJrYm43aGtrdThvYTBya25nbHVzNWZobDYuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTE0MzM5NDYxNDU3NDA0ODAwNzIiLCJlbWFpbCI6InV6YWlyeWFzaW44M0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6InZEU2dkdllDYjVHZ3pTRTFxZE5Hc0EiLCJuYW1lIjoidXphaXIgeWFzaW4iLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jTDZpVmFxYVpMVUlNYkZ5cTRlYnFBMktVbDY0SHpYcEJNOXB3bmdRNXpIZGdBTV9BPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6InV6YWlyIiwiZmFtaWx5X25hbWUiOiJ5YXNpbiIsImlhdCI6MTc1NTk0Nzc1OCwiZXhwIjoxNzU1OTUxMzU4fQ.Si7duk37VzYg6WVWWYR5DQCTBOZDr_TcbqU1y914sOV_lMrTXpxazApxiebG5C8cLYX6AM_4nV-ELXopmMsgAsXbKtktvupioEXlJPtiU_nMRGxxExOei1K0UEsKDFAB5bmbnLY8Gw3KkHzZkK4-bm96SstqMtX-C2qWrhxk77gXGu8d4y3JZr8XbEjBxN2d0uVneZ7aSrMTzA0xcaUtvZK9Rhe-KOZoSQnJXx4fCfwvQwO1miBZotGxuPU7Toec1Eq6lQNv6CF1I9aam_UvMIkSEAjbBiCbn90R5E7AgImMXNljxXrB2aEU3qcuDdgSVXYO2KNtsAiNRHckd7bPfw"
+}[0m
+2025-08-23 16:15:58 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - save_tokens_to_db:106 - [92mDEBUG: Google API response tokens keys: ['access_token', 'expires_in', 'refresh_token', 'scope', 'token_type', 'id_token'][0m
+2025-08-23 16:15:59 - data_migration.YOUTUBE_TOKEN_SERVICE - [91m❌ ERROR[0m - save_tokens_to_db:140 - [91mError saving tokens to database: (pymysql.err.DataError) (1406, "Data too long for column 'scope' at row 1")
+[SQL: INSERT INTO google_oauth_tokens (user_id, access_token, refresh_token, token_type, expires_in, scope, expires_at, refresh_token_expires_in, updated_at) VALUES (%(user_id)s, %(access_token)s, %(refresh_token)s, %(token_type)s, %(expires_in)s, %(scope)s, %(expires_at)s, %(refresh_token_expires_in)s, %(updated_at)s)]
+[parameters: {'user_id': '71773ee978aa43018e1e1a2ed45dd537', 'access_token': 'ya29.A0AS3H6Ny35S1zaGC-xsWQiFroTyysTaJpCSEACypqyH4AB81Mo91XvgnVnA-ic0MatdpQSQi8uRfkL-0rp4VYzYFQgD_qE54FdArzT8qINVdl8GvBAJj4r-L3UAj5_AfjFB8aNCDH_qU4fFR1zXPPrjjO6COwcjxDqttx14Zgroatx4nbrmmqjtD3FhT03CFvywQxhnAaCgYKAeASARQSFQHGX2Mi26PN5r12_JVaJNRwGbGloQ0206', 'refresh_token': '1//03c9drHrKshSyCgYIARAAGAMSNwF-L9IrcxQ7kt0pCQlHzSaETwi5xQS-QfDDY__kdbp6CJhIXRf_9EYB8f9Hk_OEGFwmXNMWoms', 'token_type': 'Bearer', 'expires_in': 3599, 'scope': 'https://www.googleapis.com/auth/youtube.upload openid https://www.googleapis.com/auth/devstorage.full_control https://www.googleapis.com/auth/bigquer ... (348 characters truncated) ... il https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/cloud-platform.read-only', 'expires_at': '2025-08-23T17:15:57.770787', 'refresh_token_expires_in': None, 'updated_at': None}]
+(Background on this error at: https://sqlalche.me/e/20/9h9h)[0m
+2025-08-23 16:15:59 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 500: Failed to save tokens to database[0m
+2025-08-23 16:17:03 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:78 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 16:17:04 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 16:17:04 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:17:07 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:17:08 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:56 - [92m✅ Database tables created successfully[0m
+2025-08-23 16:17:13 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:17:15 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:17:15 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 16:17:28 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:17:31 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:17:32 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:74 - [92mDEBUG: Google token exchange response status: 200[0m
+2025-08-23 16:17:32 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:75 - [92mDEBUG: Google token exchange response: {
+  "access_token": "ya29.A0AS3H6NwkGoLFtWhrLCZNsJGZIsMIUs8lxeuoX98tVGftetRtkFP7MwlC6rCibOjTyQZQudZVlcRAO_SZj9hj_umjocO8vX9XJJ396TcFXeGdKsChdqlk1jlptBdjOnMFSCKhLvRb4zhy_HV7F3eT4x6NJWQnb_2bEMV8lZompULIGhe9Dh9B0c8RgHpOPb30LPoJJeMaCgYKAVMSARQSFQHGX2MiMHqHqqRSiwomRzXMU-83dg0206",
+  "expires_in": 3599,
+  "refresh_token": "1//03DVEC-gS01tHCgYIARAAGAMSNwF-L9Ir9aON0J6WK0WgxDSXubAxDzOv0wCcMPQMQKl5yZdyz_HaF1ZLIeApG7yRT_IEJ7oTz-M",
+  "scope": "https://www.googleapis.com/auth/devstorage.full_control https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/devstorage.read_only https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/bigquery.readonly https://www.googleapis.com/auth/bigquery https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/devstorage.read_write https://www.googleapis.com/auth/cloud-platform.read-only https://www.googleapis.com/auth/youtube.force-ssl openid",
+  "token_type": "Bearer",
+  "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE0OTljMTU0Y2NjOGEyNWUyNGQ4ZGU4YjFhOWY4NDVhZWZiNmYzY2EiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3MzcwMTk3ODg5MTctdDY5MTZsNDJrYm43aGtrdThvYTBya25nbHVzNWZobDYuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3MzcwMTk3ODg5MTctdDY5MTZsNDJrYm43aGtrdThvYTBya25nbHVzNWZobDYuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTE0MzM5NDYxNDU3NDA0ODAwNzIiLCJlbWFpbCI6InV6YWlyeWFzaW44M0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6IkxVZlhja3lMMFQ4d19VZTlfTDg3MGciLCJuYW1lIjoidXphaXIgeWFzaW4iLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jTDZpVmFxYVpMVUlNYkZ5cTRlYnFBMktVbDY0SHpYcEJNOXB3bmdRNXpIZGdBTV9BPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6InV6YWlyIiwiZmFtaWx5X25hbWUiOiJ5YXNpbiIsImlhdCI6MTc1NTk0Nzg1MiwiZXhwIjoxNzU1OTUxNDUyfQ.AFLve1pmIzEIf2j4quJoJArmhANt0CTI4sDDLusDUmm0VuVzJMvxmh8z8mBuIPAo_12CnPkHolgbNCeymKDNdDMhloORB9YvUGZ3XjykGoOUkAmKwPCHeSO7VTBHHURG7Del3br0jyzHy30hh6YCbCMvNT6eBdKf8l4cs_m56AYUYxh2uDEmkeg9KU1qbdo6plfYZnPe7suHTpTd3mT2RUrB1X_VqgxyZjrc0e_nioOnLdRrs2jV6N0u_RqO-8fEEWSX7bUZ-jFNYAips56zbPyAbUkjZ0IPgSAurQNwXXD2JgVZBHlyDKJno1QwuXWGpZ-KcmJSwBiSy_XPiE69zA"
+}[0m
+2025-08-23 16:17:32 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - save_tokens_to_db:106 - [92mDEBUG: Google API response tokens keys: ['access_token', 'expires_in', 'refresh_token', 'scope', 'token_type', 'id_token'][0m
+2025-08-23 16:17:33 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 500: 'oauth_success.html' not found in search path: 'views'[0m
+2025-08-23 16:18:37 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 16:18:37 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:18:39 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:18:40 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:56 - [92m✅ Database tables created successfully[0m
+2025-08-23 16:18:54 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:18:56 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:18:56 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 16:19:11 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:19:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:19:14 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:74 - [92mDEBUG: Google token exchange response status: 200[0m
+2025-08-23 16:19:14 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:75 - [92mDEBUG: Google token exchange response: {
+  "access_token": "ya29.A0AS3H6NzOa4lIOuP-wospMJaC92JJ3Haz8x70UHBAys-Y_rvm_JCND2GZgnTRtXYuyfrJE1Y47byegZegRFAJvNOOiTrx-C7uedLlYiZZZvbq3g3IkCdPWWXMyif8NqrFsceuH7OB3CEGr4_PB1fiURo47Z87nmbeo6-qhgmY545DOhYgp5gGD_B8lL3FW90fCOLoz1saCgYKAa4SARQSFQHGX2MivdnpjjE-G6mdWohQDiXQzg0206",
+  "expires_in": 3599,
+  "refresh_token": "1//03y6QZDXEVThyCgYIARAAGAMSNwF-L9Ir1yT6Sw4sW7xKMy9yduYVgoghj_jgO4karvGS9hVP5EvLk68Ma09ODz6k4jDROQwdfrI",
+  "scope": "https://www.googleapis.com/auth/devstorage.full_control https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/bigquery.readonly https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/devstorage.read_write https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/devstorage.read_only openid https://www.googleapis.com/auth/bigquery https://www.googleapis.com/auth/cloud-platform.read-only",
+  "token_type": "Bearer",
+  "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE0OTljMTU0Y2NjOGEyNWUyNGQ4ZGU4YjFhOWY4NDVhZWZiNmYzY2EiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3MzcwMTk3ODg5MTctdDY5MTZsNDJrYm43aGtrdThvYTBya25nbHVzNWZobDYuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3MzcwMTk3ODg5MTctdDY5MTZsNDJrYm43aGtrdThvYTBya25nbHVzNWZobDYuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMTE0MzM5NDYxNDU3NDA0ODAwNzIiLCJlbWFpbCI6InV6YWlyeWFzaW44M0BnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiYXRfaGFzaCI6InByRW50NkdfRlVpVnM0RFZ5MzJfSmciLCJuYW1lIjoidXphaXIgeWFzaW4iLCJwaWN0dXJlIjoiaHR0cHM6Ly9saDMuZ29vZ2xldXNlcmNvbnRlbnQuY29tL2EvQUNnOG9jTDZpVmFxYVpMVUlNYkZ5cTRlYnFBMktVbDY0SHpYcEJNOXB3bmdRNXpIZGdBTV9BPXM5Ni1jIiwiZ2l2ZW5fbmFtZSI6InV6YWlyIiwiZmFtaWx5X25hbWUiOiJ5YXNpbiIsImlhdCI6MTc1NTk0Nzk1NCwiZXhwIjoxNzU1OTUxNTU0fQ.NIoSXfR5qhetzpcxVlUI7f2gcvK_i-0dUZ4eXuXDdbW7eL1h8QnAlur_JC4VR60Bw-z75dPpbmPK9iHE8tfl8oKo8BDgb4IEOE-j9TsY4aAtIaokX61f7lhu4E-bAhL9e0CpTYhC0ynsVDjA4lS9SROn-oOJrGr_uKQx-M40LUyl4F3EjLteZ5qyAx-xzn13wulUOzFswX7vhgH-JRaW59f5EFUi1w74fkzk2tsJZ3O-8KcfV3bRSoZV9VNjrFjZaj5PoKY4508dWR5WYoR4KYYuGfWnwtT3uKY0YbUiNNRvUROvAjcAQafvUdwxBqI4TH4oiKodWErsNMBJIiSGTA"
+}[0m
+2025-08-23 16:19:14 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - save_tokens_to_db:106 - [92mDEBUG: Google API response tokens keys: ['access_token', 'expires_in', 'refresh_token', 'scope', 'token_type', 'id_token'][0m
+2025-08-23 16:22:57 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:78 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 16:22:59 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 16:22:59 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:23:01 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:23:02 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:56 - [92m✅ Database tables created successfully[0m
+2025-08-23 16:23:16 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:23:19 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:23:19 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:69 - [92mToken verified for user: uzair[0m
+2025-08-23 16:23:40 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:23:43 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:23:49 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:74 - [92mDEBUG: Google token exchange response status: 200[0m
+2025-08-23 16:23:49 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:75 - [92mDEBUG: Google token exchange response: {
+  "access_token": "ya29.A0AS3H6NzifvzmeQNdNsTAQBv6Dpw_o00O0iCY11zvPPTOuRoKcMGSK2SzbqEUNirbDWL0pbv_lvhzU25fd0BcVteRakddxOmZBhtG40idBS5EjTM6OwcBLjEn0odxH_VCKURzQRJsM0zdtWCk4lwkaw5AZciae1KzPBX04fjbaaV4xPmERdQI6Lq4YsjdiX9tsUwVCFoaCgYKAecSARUSFQHGX2MiBnuN9cUZeJwiqR36gaC8Lg0206",
+  "expires_in": 3599,
+  "refresh_token": "1//03x5tI75ih038CgYIARAAGAMSNwF-L9IrFUZCY0pazqzKBGtyeSZmab7ujWighJZjKqwchOyPNi62w7vWMeyienISlihMwDAHNyk",
+  "scope": "https://www.googleapis.com/auth/cloud-platform.read-only https://www.googleapis.com/auth/devstorage.full_control https://www.googleapis.com/auth/devstorage.read_only https://www.googleapis.com/auth/devstorage.read_write https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/youtube.upload openid https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/bigquery.readonly https://www.googleapis.com/auth/bigquery https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/youtube.force-ssl",
+  "token_type": "Bearer",
+  "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE0OTljMTU0Y2NjOGEyNWUyNGQ4ZGU4YjFhOWY4NDVhZWZiNmYzY2EiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI3MzcwMTk3ODg5MTctdDY5MTZsNDJrYm43aGtrdThvYTBya25nbHVzNWZobDYuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI3MzcwMTk3ODg5MTctdDY5MTZsNDJrYm43aGtrdThvYTBya25nbHVzNWZobDYuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDEzNjA3MjExMTg3ODE2OTg4MzQiLCJlbWFpbCI6InV6YWlyeWFzaW4zOTVAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF0X2hhc2giOiJjRnpjV1VCM1JvRkFZUm9fTF8ycjZnIiwibmFtZSI6Ik11aGFtbWFkIFV6YWlyIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0xSeU1DRGFCR00yam1STFdwM0RqMkZUekxVSkRienRfWFQyUlM2aVBDZWZaRk5GMGM9czk2LWMiLCJnaXZlbl9uYW1lIjoiTXVoYW1tYWQgVXphaXIiLCJpYXQiOjE3NTU5NDgyMjksImV4cCI6MTc1NTk1MTgyOX0.hhoPJEpbYBIT2vM5BLbjpFHyYelQudOx7fcGbJdg1fJoHtURw4iMY9Obie_do2arJp1cs4bywNpyY9iax711eCxpkqlBkWTWFQhEGgm6_05sPMIm-0ZQZ_51-WDXPdJaUOLHWXQoMKgtOy-yuqO39PDUMwrpO74B9v1X9v1A09KRVH1P2lTykJYzuQEy7xTjb5SJwH8vqHLOLHqrXqNWddbcYgv2CMp5jg7nZbt3KTXrnJM0XrP_Jm9QM5xSeDneFzvC-7OR965fvtvVDQq4E8CZdcdmEB14HOubx37S4esagtlLIOl8s5BMyRPTAUKWjsGJsMWQ-el1ur-G_EO94Q"
+}[0m
+2025-08-23 16:23:49 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - save_tokens_to_db:106 - [92mDEBUG: Google API response tokens keys: ['access_token', 'expires_in', 'refresh_token', 'scope', 'token_type', 'id_token'][0m
+2025-08-23 16:52:20 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:78 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 16:52:23 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 16:52:23 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:52:26 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:52:28 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 16:55:27 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:81 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 16:55:29 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 16:55:29 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:55:32 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:55:33 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 16:56:25 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:56:28 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:56:28 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 16:56:28 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-23 16:56:28 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: uzair[0m
+2025-08-23 16:56:28 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-23 16:56:52 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 16:56:56 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 16:56:56 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 16:56:57 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - upload_video:50 - [92mVideo uploaded successfully for user 71773ee9-78aa-4301-8e1e-1a2ed45dd537: videos/71773ee9-78aa-4301-8e1e-1a2ed45dd537_01_Python_Setup_VS_Code_Python_Install.mp4.mp4[0m
+2025-08-23 17:11:36 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:81 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 17:12:04 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 17:12:04 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 17:12:07 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 17:12:08 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 17:13:50 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 17:13:52 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 17:13:52 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 17:14:02 - data_migration.VIDEO_CONTROLLER - [91m❌ ERROR[0m - download_youtube_video:154 - [91m❌ yt-dlp error: [0;31mERROR:[0m unable to download video data: HTTP Error 403: Forbidden[0m
+2025-08-23 17:14:03 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 400: Failed to download video from URL[0m
+2025-08-23 17:15:18 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:81 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 17:15:20 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 17:15:20 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 17:15:22 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 17:15:24 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 17:15:26 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 17:15:29 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 17:15:29 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 17:15:39 - data_migration.VIDEO_CONTROLLER - [91m❌ ERROR[0m - download_youtube_video:171 - [91m❌ yt-dlp error: [0;31mERROR:[0m unable to download video data: HTTP Error 403: Forbidden[0m
+2025-08-23 17:15:40 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 400: Failed to download video from URL[0m
+2025-08-23 18:22:01 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 18:22:01 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 18:22:04 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 18:22:06 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 18:22:43 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 18:22:46 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 18:22:46 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 18:22:47 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-23 18:22:47 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: uzair[0m
+2025-08-23 18:22:47 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-23 18:23:35 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 18:23:38 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 18:23:38 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 18:23:51 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - download_youtube_video:153 - [92mDownloaded video: videos/Part NO 19 ｜ Python Step Explained! ｜ Input Func, String , Indexing  #Python #Coding #Shorts #Pro....mp4[0m
+2025-08-23 18:23:52 - data_migration.VIDEO_CLEANUP - [92mℹ️ INFO[0m - schedule_video_cleanup:31 - [92mScheduled cleanup for video 59224510-7d5f-4d2f-a217-30c1302710c9 in 30 minutes[0m
+2025-08-23 18:23:52 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - download_and_store_video:192 - [92mVideo downloaded and stored successfully for user 71773ee9-78aa-4301-8e1e-1a2ed45dd537: videos/Part NO 19 ｜ Python Step Explained! ｜ Input Func, String , Indexing  #Python #Coding #Shorts #Pro....mp4[0m
+2025-08-23 18:23:52 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - download_and_store_video:193 - [92mCleanup scheduled for video 59224510-7d5f-4d2f-a217-30c1302710c9 in 30 minutes[0m
+2025-08-23 18:50:08 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:81 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 18:50:08 - data_migration.VIDEO_CLEANUP - [92mℹ️ INFO[0m - _cleanup_video_after_delay:48 - [92mCleanup task cancelled for video 59224510-7d5f-4d2f-a217-30c1302710c9[0m
+2025-08-23 19:06:21 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 19:06:21 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:06:24 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:06:26 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 19:07:46 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:81 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 19:08:38 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 19:08:38 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:08:41 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:08:43 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 19:10:25 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:81 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 19:10:42 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 19:10:42 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:10:45 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:10:47 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 19:12:57 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:81 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 19:12:59 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 19:12:59 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:13:02 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:13:03 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 19:13:23 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:81 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 19:13:25 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 19:13:25 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:13:28 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:13:30 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 19:14:15 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:81 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 19:15:22 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 19:15:22 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:15:25 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:15:26 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 19:16:43 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:16:46 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:16:46 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 19:16:47 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-23 19:16:47 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: uzair[0m
+2025-08-23 19:16:47 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-23 19:17:00 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:17:03 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:17:03 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 19:17:17 - data_migration.DOWNLOAD_VIDEO - [92mℹ️ INFO[0m - download_youtube_video:33 - [92mDownloaded video: videos/Part NO 19 ｜ Python Step Explained! ｜ Input Func, String , Indexing  #Python #Coding #Shorts #Pro....mp4[0m
+2025-08-23 19:17:18 - data_migration.VIDEO_CLEANUP - [92mℹ️ INFO[0m - schedule_video_cleanup:31 - [92mScheduled cleanup for video adc2b901-b70f-4bff-be64-8c3fccb5cbce in 30 minutes[0m
+2025-08-23 19:17:18 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - download_and_store_video:193 - [92mVideo downloaded and stored successfully for user 71773ee9-78aa-4301-8e1e-1a2ed45dd537: videos/Part NO 19 ｜ Python Step Explained! ｜ Input Func, String , Indexing  #Python #Coding #Shorts #Pro....mp4[0m
+2025-08-23 19:17:18 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - download_and_store_video:194 - [92mCleanup scheduled for video adc2b901-b70f-4bff-be64-8c3fccb5cbce in 30 minutes[0m
+2025-08-23 19:17:18 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - download_and_store_video:195 - [92mTranscript generation scheduled in background for video adc2b901-b70f-4bff-be64-8c3fccb5cbce[0m
+2025-08-23 19:17:18 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - generate_transcript_background:24 - [92mStarting background transcript generation for video: videos/Part NO 19 ｜ Python Step Explained! ｜ Input Func, String , Indexing  #Python #Coding #Shorts #Pro....mp4[0m
+2025-08-23 19:17:39 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - generate_transcript_background:35 - [92mTranscript generated and stored successfully for video: videos/Part NO 19 ｜ Python Step Explained! ｜ Input Func, String , Indexing  #Python #Coding #Shorts #Pro....mp4[0m
+2025-08-23 19:20:42 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:20:45 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:20:45 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 19:21:07 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 19:21:10 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 19:21:10 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 19:28:49 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:86 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 19:28:49 - data_migration.VIDEO_CLEANUP - [92mℹ️ INFO[0m - _cleanup_video_after_delay:48 - [92mCleanup task cancelled for video adc2b901-b70f-4bff-be64-8c3fccb5cbce[0m
+2025-08-23 20:03:47 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 20:03:47 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:03:49 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:03:50 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 20:04:43 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:04:45 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:04:45 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 20:04:46 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-23 20:04:46 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: uzair[0m
+2025-08-23 20:04:46 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-23 20:05:12 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:05:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:05:14 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 20:05:15 - data_migration.VIDEO_CONTROLLER - [91m❌ ERROR[0m - get_user_videos:103 - [91mError fetching videos for user 71773ee9-78aa-4301-8e1e-1a2ed45dd537: (pymysql.err.OperationalError) (1054, "Unknown column 'videos.title' in 'field list'")
+[SQL: SELECT videos.id, videos.user_id, videos.video_path, videos.video_id, videos.transcript, videos.title, videos.created_at 
+FROM videos 
+WHERE videos.user_id = %(user_id_1)s]
+[parameters: {'user_id_1': '71773ee978aa43018e1e1a2ed45dd537'}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)[0m
+2025-08-23 20:05:15 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 500: Failed to fetch videos[0m
+2025-08-23 20:05:58 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:06:00 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:06:00 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 20:06:01 - data_migration.VIDEO_CONTROLLER - [91m❌ ERROR[0m - upload_video:75 - [91mError uploading video: (pymysql.err.OperationalError) (1054, "Unknown column 'title' in 'field list'")
+[SQL: INSERT INTO videos (id, user_id, video_path, video_id, transcript, title, created_at) VALUES (%(id)s, %(user_id)s, %(video_path)s, %(video_id)s, %(transcript)s, %(title)s, %(created_at)s)]
+[parameters: {'id': '2a941e7390754ba2b0123a6b79fedf68', 'user_id': '71773ee978aa43018e1e1a2ed45dd537', 'video_path': 'videos/71773ee9-78aa-4301-8e1e-1a2ed45dd537_01_Python_Setup_VS_Code_Python_Install.mp4.mp4', 'video_id': None, 'transcript': None, 'title': None, 'created_at': datetime.datetime(2025, 8, 23, 15, 6, 1, 141891)}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)[0m
+2025-08-23 20:06:01 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 500: Failed to upload video[0m
+2025-08-23 20:06:16 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:88 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 20:06:37 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 20:06:37 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:06:40 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:06:41 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 20:06:51 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:06:53 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:06:53 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 20:06:54 - data_migration.VIDEO_CLEANUP - [92mℹ️ INFO[0m - schedule_video_cleanup:31 - [92mScheduled cleanup for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3 in 30 minutes[0m
+2025-08-23 20:06:54 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - upload_video:60 - [92mVideo uploaded successfully for user 71773ee9-78aa-4301-8e1e-1a2ed45dd537: videos/71773ee9-78aa-4301-8e1e-1a2ed45dd537_01_Python_Setup_VS_Code_Python_Install.mp4.mp4[0m
+2025-08-23 20:06:54 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - upload_video:61 - [92mCleanup scheduled for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3 in 30 minutes[0m
+2025-08-23 20:06:54 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - upload_video:62 - [92mTranscript generation scheduled in background for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3[0m
+2025-08-23 20:06:55 - data_migration.VIDEO_TRANSCRIPT_GENERATOR - [92mℹ️ INFO[0m - generate_transcript_background:119 - [92mStarting background transcript generation for video: videos/71773ee9-78aa-4301-8e1e-1a2ed45dd537_01_Python_Setup_VS_Code_Python_Install.mp4.mp4[0m
+2025-08-23 20:07:08 - data_migration.VIDEO_TRANSCRIPT_GENERATOR - [92mℹ️ INFO[0m - generate_transcript_background:130 - [92mTranscript generated and stored successfully for video: videos/71773ee9-78aa-4301-8e1e-1a2ed45dd537_01_Python_Setup_VS_Code_Python_Install.mp4.mp4[0m
+2025-08-23 20:07:11 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:07:13 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:07:13 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 20:07:33 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:07:36 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:07:36 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 20:07:36 - data_migration.TITLE_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - generate_title_for_video:25 - [92mGenerating title for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3 by user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-23 20:07:38 - data_migration.TITLE_GENERATOR_CONTROLLER - [91m❌ ERROR[0m - generate_title_for_video:39 - [91mError generating title for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3: 'TitleResponse' object has no attribute 'generated_title'[0m
+2025-08-23 20:07:39 - data_migration.DATABASE - [91m❌ ERROR[0m - get_database_session:23 - [91mDatabase session error: 500: Failed to generate title[0m
+2025-08-23 20:08:30 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:88 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 20:08:30 - data_migration.VIDEO_CLEANUP - [92mℹ️ INFO[0m - _cleanup_video_after_delay:48 - [92mCleanup task cancelled for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3[0m
+2025-08-23 20:08:36 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 20:08:36 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:08:38 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:08:39 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 20:08:42 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:08:44 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:08:44 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 20:08:44 - data_migration.TITLE_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - generate_title_for_video:25 - [92mGenerating title for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3 by user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-23 20:08:47 - data_migration.TITLE_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - generate_title_for_video:33 - [92mTitle generated successfully for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3: ['🚀 Python for Beginners: Setup & First Steps | UET Lahore', '🐍 Learn Python from Zero: VS Code Setup Tutorial', '🎓 Python Masterclass: Environment Setup Guide', '💻 VS Code + Python: The Ultimate Setup (2024)', '✨ Python Coding: Get Started with VS Code (Easy)', '📚 Python Tutorial: Setting Up Your Workspace', '🤔 How to Setup Python on VS Code? | Step-by-Step', '🔥 Python Environment Setup: VS Code Edition', '⚡️ Quick Python Start: VS Code Setup in Minutes', '👨\u200d🏫 Professor Explains: Python Setup for UET Students'][0m
+2025-08-23 20:10:02 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:10:04 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:10:04 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-23 20:10:05 - data_migration.TITLE_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - save_video_title:52 - [92mSaving title for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3 by user 71773ee9-78aa-4301-8e1e-1a2ed45dd537: ⚡️ Quick Python Start: VS Code Setup in Minutes[0m
+2025-08-23 20:10:06 - data_migration.TITLE_GENERATOR - [92mℹ️ INFO[0m - update_video_title:177 - [92mTitle updated for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3: ⚡️ Quick Python Start: VS Code Setup in Minutes[0m
+2025-08-23 20:10:06 - data_migration.TITLE_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - save_video_title:60 - [92mTitle saved successfully for video 0d61110c-b45c-4479-ae3c-2824c6b1b2e3[0m
+2025-08-23 20:31:23 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:88 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 20:31:34 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 20:31:34 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:31:37 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:31:39 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 20:36:18 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:43 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 20:36:18 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:36:21 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:36:22 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:57 - [92m✅ Database tables created successfully[0m
+2025-08-23 20:37:57 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 20:37:57 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:38:00 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:38:01 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:58 - [92m✅ Database tables created successfully[0m
+2025-08-23 20:38:05 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:38:08 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:38:08 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 20:38:08 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-23 20:38:08 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: uzair[0m
+2025-08-23 20:38:08 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-23 20:39:48 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:39:50 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:39:50 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 20:39:51 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-23 20:39:51 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: uzair[0m
+2025-08-23 20:39:51 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-23 20:41:19 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:41:22 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:41:22 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-23 20:41:22 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-23 20:41:22 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: uzair[0m
+2025-08-23 20:41:22 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-23 20:42:23 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 20:42:23 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 20:42:26 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 20:42:27 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:58 - [92m✅ Database tables created successfully[0m
+2025-08-24 01:18:12 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-24 01:18:12 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:18:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:18:15 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:58 - [92m✅ Database tables created successfully[0m
+2025-08-24 01:18:44 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:18:46 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:18:46 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-24 01:18:47 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-24 01:18:47 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: uzair[0m
+2025-08-24 01:18:47 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-24 01:19:16 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:19:18 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:19:18 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-24 01:19:19 - data_migration.VIDEO_CLEANUP - [92mℹ️ INFO[0m - schedule_video_cleanup:31 - [92mScheduled cleanup for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0 in 30 minutes[0m
+2025-08-24 01:19:19 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - upload_video:60 - [92mVideo uploaded successfully for user 71773ee9-78aa-4301-8e1e-1a2ed45dd537: videos/71773ee9-78aa-4301-8e1e-1a2ed45dd537_01_Python_Setup_VS_Code_Python_Install.mp4.mp4[0m
+2025-08-24 01:19:19 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - upload_video:61 - [92mCleanup scheduled for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0 in 30 minutes[0m
+2025-08-24 01:19:19 - data_migration.VIDEO_CONTROLLER - [92mℹ️ INFO[0m - upload_video:62 - [92mTranscript generation scheduled in background for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0[0m
+2025-08-24 01:19:20 - data_migration.VIDEO_TRANSCRIPT_GENERATOR - [92mℹ️ INFO[0m - generate_transcript_background:119 - [92mStarting background transcript generation for video: videos/71773ee9-78aa-4301-8e1e-1a2ed45dd537_01_Python_Setup_VS_Code_Python_Install.mp4.mp4[0m
+2025-08-24 01:19:35 - data_migration.VIDEO_TRANSCRIPT_GENERATOR - [92mℹ️ INFO[0m - generate_transcript_background:130 - [92mTranscript generated and stored successfully for video: videos/71773ee9-78aa-4301-8e1e-1a2ed45dd537_01_Python_Setup_VS_Code_Python_Install.mp4.mp4[0m
+2025-08-24 01:19:35 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:19:38 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:19:38 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-24 01:20:09 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:20:11 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:20:11 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-24 01:20:12 - data_migration.TITLE_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - generate_title_for_video:25 - [92mGenerating title for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0 by user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-24 01:20:14 - data_migration.TITLE_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - generate_title_for_video:33 - [92mTitle generated successfully for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0: ['Python Tutorial for Beginners: Setup VS Code & Start Coding!', "Learn Python from Scratch: A Complete Beginner's Guide 🐍", 'VS Code for Python: The Ultimate Setup Guide (2024)', 'Python Made Easy: Install, Code & Run Your First Program!', 'Python Programming: Zero to Hero with VS Code [Step-by-Step]', 'Master Python Basics: Environment Setup & First Steps 🎓', 'How to Install Python & VS Code: A Quick & Easy Guide', 'Python Coding for Newbies: VS Code Setup Explained!', 'VS Code & Python: Get Started with this FREE Tutorial!', 'Python Development: Setting Up Your Environment (2024)'][0m
+2025-08-24 01:21:20 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:21:22 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:21:22 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-24 01:21:23 - data_migration.TITLE_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - save_video_title:52 - [92mSaving title for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0 by user 71773ee9-78aa-4301-8e1e-1a2ed45dd537: d3180a63-eed0-43e5-8c39-cbb0f7a311e0[0m
+2025-08-24 01:21:23 - data_migration.TITLE_GENERATOR - [92mℹ️ INFO[0m - update_video_title:177 - [92mTitle updated for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0: d3180a63-eed0-43e5-8c39-cbb0f7a311e0[0m
+2025-08-24 01:21:23 - data_migration.TITLE_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - save_video_title:60 - [92mTitle saved successfully for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0[0m
+2025-08-24 01:21:51 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:21:53 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:21:53 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-24 01:21:54 - data_migration.TIME_STAMPS_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - generate_timestamps_for_video:48 - [92mGenerating timestamps for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0 by user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-24 01:21:56 - data_migration.TIME_STAMPS_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - generate_timestamps_for_video:60 - [92mTimestamps generated successfully for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0[0m
+2025-08-24 01:22:54 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:22:57 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:22:57 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-24 01:22:57 - data_migration.TIME_STAMPS_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - save_video_timestamps:84 - [92mSaving timestamps for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0 by user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-24 01:22:58 - data_migration.TIME_STAMPS_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - save_video_timestamps:101 - [92mTimestamps saved successfully for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0[0m
+2025-08-24 01:23:12 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:23:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:23:14 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-24 01:23:15 - data_migration.DESCRIPTION_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - generate_description_for_video:49 - [92mGenerating description for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0 by user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-24 01:23:19 - data_migration.DESCRIPTION_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - generate_description_for_video:72 - [92mDescription generated successfully for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0[0m
+2025-08-24 01:23:58 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:24:00 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:24:00 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-24 01:24:00 - data_migration.DESCRIPTION_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - save_video_description:96 - [92mSaving description for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0 by user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-24 01:24:01 - data_migration.DESCRIPTION_GENERATOR_CONTROLLER - [92mℹ️ INFO[0m - save_video_description:113 - [92mDescription saved successfully for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0[0m
+2025-08-24 01:36:06 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:89 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-24 01:36:06 - data_migration.VIDEO_CLEANUP - [92mℹ️ INFO[0m - _cleanup_video_after_delay:48 - [92mCleanup task cancelled for video d3180a63-eed0-43e5-8c39-cbb0f7a311e0[0m
+2025-08-24 01:36:29 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-24 01:36:29 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:36:31 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:36:32 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:58 - [92m✅ Database tables created successfully[0m
+2025-08-24 01:36:33 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:91 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-24 01:59:45 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-24 01:59:45 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 01:59:47 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 01:59:48 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:59 - [92m✅ Database tables created successfully[0m
+2025-08-24 02:16:11 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:94 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-24 02:17:53 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-24 02:17:53 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-24 02:17:55 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-24 02:17:56 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:59 - [92m✅ Database tables created successfully[0m
+2025-08-24 02:19:12 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:106 - [92m🛑 Shutting down Data Migration Project...[0m
