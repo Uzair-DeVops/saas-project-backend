@@ -504,3 +504,7 @@ WHERE videos.user_id = %(user_id_1)s]
 2025-08-24 02:17:55 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
 2025-08-24 02:17:56 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:59 - [92m✅ Database tables created successfully[0m
 2025-08-24 02:19:12 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:106 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-23 21:32:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-23 21:32:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-23 21:32:16 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-23 21:32:17 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:59 - [92m✅ Database tables created successfully[0m
