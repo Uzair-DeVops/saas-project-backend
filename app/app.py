@@ -62,13 +62,18 @@ async def startup_event(app: FastAPI):
 
 # INCLUDE ROUTERS
 from .routes.auth_routes import router as auth_router
-from .routes.youtube_token_route import router as youtube_token_router
+from .routes.youtube_token_controller import router as youtube_token_router
 from .routes.video_routes import router as video_router
 from .routes.title_generator_routes import router as title_generator_router
 from .routes.time_stamps_generator_routes import router as time_stamps_generator_router
 from .routes.description_generator_routes import router as description_generator_router
 from .routes.thumbnail_generator_routes import router as thumbnail_generator_router
 from .routes.gemini_key_routes import router as gemini_key_router
+from .routes.playlist_routes import router as playlist_router
+from .routes.privacy_status_routes import router as privacy_status_router
+from .routes.schedule_routes import router as schedule_router
+from .routes.youtube_upload_routes import router as youtube_upload_router
+from .routes.dashboard_routes import router as dashboard_router
 
 app.include_router(auth_router)
 app.include_router(youtube_token_router)
@@ -78,6 +83,11 @@ app.include_router(title_generator_router)
 app.include_router(time_stamps_generator_router)
 app.include_router(description_generator_router)
 app.include_router(thumbnail_generator_router)
+app.include_router(playlist_router)
+app.include_router(privacy_status_router)
+app.include_router(schedule_router)
+app.include_router(youtube_upload_router)
+app.include_router(dashboard_router)
 
 # MOUNT STATIC FILES
 from pathlib import Path

@@ -20,6 +20,10 @@ class Video(SQLModel, table=True):
     description: Optional[str] = Field(default=None, sa_column=Column(LONGTEXT))  # Generated description
     thumbnail_path: Optional[str] = Field(default=None,sa_column=Column(LONGTEXT))  # Local thumbnail file path
     thumbnail_url: Optional[str] = Field(default=None, sa_column=Column(LONGTEXT))  # Original thumbnail URL
+    privacy_status: Optional[str] = Field(default=None, max_length=20)  # Privacy status: private, public, unlisted
+    schedule_datetime: Optional[str] = Field(default=None, max_length=50)  # Schedule datetime in ISO format
+    video_status: Optional[str] = Field(default="not_set", max_length=20)  # Video status: not_set, ready, scheduled, uploaded
+    playlist_name: Optional[str] = Field(default=None, max_length=200)  # Selected playlist name
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -40,4 +44,8 @@ class VideoResponse(SQLModel):
     description: Optional[str] = None
     thumbnail_path: Optional[str] = None
     thumbnail_url: Optional[str] = None
+    privacy_status: Optional[str] = None
+    schedule_datetime: Optional[str] = None
+    video_status: Optional[str] = None
+    playlist_name: Optional[str] = None
     created_at: datetime

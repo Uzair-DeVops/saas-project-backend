@@ -72,6 +72,10 @@ async def upload_video(
             description=video.description,
             thumbnail_path=video.thumbnail_path,
             thumbnail_url=video.thumbnail_url,
+            privacy_status=video.privacy_status,
+            schedule_datetime=video.schedule_datetime,
+            video_status=video.video_status,
+            playlist_name=video.playlist_name,
             created_at=video.created_at
         )
         
@@ -102,6 +106,10 @@ def get_user_videos(
                 description=video.description,
                 thumbnail_path=video.thumbnail_path,
                 thumbnail_url=video.thumbnail_url,
+                privacy_status=video.privacy_status,
+                schedule_datetime=video.schedule_datetime,
+                video_status=video.video_status,
+                playlist_name=video.playlist_name,
                 created_at=video.created_at
             )
             for video in videos
@@ -140,6 +148,10 @@ def get_video_by_id(
             description=video.description,
             thumbnail_path=video.thumbnail_path,
             thumbnail_url=video.thumbnail_url,
+            privacy_status=video.privacy_status,
+            schedule_datetime=video.schedule_datetime,
+            video_status=video.video_status,
+            playlist_name=video.playlist_name,
             created_at=video.created_at
         )
         
@@ -197,6 +209,10 @@ async def download_and_store_video(
             description=video.description,
             thumbnail_path=video.thumbnail_path,
             thumbnail_url=video.thumbnail_url,
+            privacy_status=video.privacy_status,
+            schedule_datetime=video.schedule_datetime,
+            video_status=video.video_status,
+            playlist_name=video.playlist_name,
             created_at=video.created_at
         )
         

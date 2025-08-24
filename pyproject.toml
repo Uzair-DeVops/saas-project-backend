@@ -26,5 +26,8 @@ dependencies = [
     "yt-dlp>=2023.12.30",
     "google-genai>=1.31.0",
     "openai-agents[litellm]>=0.2.9",
+    "google-api-python-client>=2.179.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.2",
 ]
 
