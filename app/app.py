@@ -33,7 +33,7 @@ app = FastAPI(
 # CORS MIDDLEWARE
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -72,12 +72,12 @@ from .routes.gemini_key_routes import router as gemini_key_router
 
 app.include_router(auth_router)
 app.include_router(youtube_token_router)
+app.include_router(gemini_key_router)
 app.include_router(video_router)
 app.include_router(title_generator_router)
 app.include_router(time_stamps_generator_router)
 app.include_router(description_generator_router)
 app.include_router(thumbnail_generator_router)
-app.include_router(gemini_key_router)
 
 # MOUNT STATIC FILES
 from pathlib import Path

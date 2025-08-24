@@ -7,7 +7,7 @@ from ..utils.my_logger import get_logger
 
 logger = get_logger("GEMINI_DEPENDENCY")
 
-async def get_user_gemini_api_key(user_id: UUID, db: Session) -> Optional[str]:
+def get_user_gemini_api_key(user_id: UUID, db: Session) -> Optional[str]:
     """
     Get the Gemini API key for a specific user.
     Returns None if no key is found or if the key is inactive.
@@ -33,7 +33,7 @@ async def get_user_gemini_api_key(user_id: UUID, db: Session) -> Optional[str]:
         logger.error(f"Error retrieving Gemini API key for user {user_id}: {e}")
         return None
 
-async def get_gemini_api_key_with_fallback(user_id: UUID, db: Session, fallback_key: str = None) -> str:
+def get_gemini_api_key_with_fallback(user_id: UUID, db: Session, fallback_key: str = None) -> str:
     """
     Get the user's Gemini API key with a fallback to a default key.
     
@@ -45,7 +45,7 @@ async def get_gemini_api_key_with_fallback(user_id: UUID, db: Session, fallback_
     Returns:
         The user's Gemini API key or the fallback key
     """
-    user_key = await get_user_gemini_api_key(user_id, db)
+    user_key = get_user_gemini_api_key(user_id, db)
     
     if user_key:
         return user_key

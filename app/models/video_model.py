@@ -18,8 +18,8 @@ class Video(SQLModel, table=True):
     title: Optional[str] = Field(default=None, max_length=200)  # Generated video title
     timestamps: Optional[str] = Field(default=None, sa_column=Column(LONGTEXT))  # Generated timestamps
     description: Optional[str] = Field(default=None, sa_column=Column(LONGTEXT))  # Generated description
-    thumbnail_path: Optional[str] = Field(default=None, max_length=500)  # Local thumbnail file path
-    thumbnail_url: Optional[str] = Field(default=None, max_length=1000)  # Original thumbnail URL
+    thumbnail_path: Optional[str] = Field(default=None,sa_column=Column(LONGTEXT))  # Local thumbnail file path
+    thumbnail_url: Optional[str] = Field(default=None, sa_column=Column(LONGTEXT))  # Original thumbnail URL
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 

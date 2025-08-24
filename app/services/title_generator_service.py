@@ -121,8 +121,7 @@ async def generate_video_title(video_id: UUID, user_id: UUID, db: Session, user_
                 message="Video transcript not found or not generated yet"
             )
         
-        # Parse transcript if it's JSON
-            # If not JSON, use as plain text
+        # Use transcript as is (JSON format)
         transcript_text = transcript
         
         # Generate titles

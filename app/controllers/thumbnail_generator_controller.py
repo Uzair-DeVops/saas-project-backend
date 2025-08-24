@@ -102,7 +102,7 @@ async def save_video_thumbnail(
             "video_id": str(video_id),
             "thumbnail_path": thumbnail_path,
             "thumbnail_url": thumbnail_url,
-            "saved_at": video.updated_at or video.created_at
+            "saved_at": video.created_at
         }
         
     except HTTPException:
@@ -210,7 +210,7 @@ async def upload_custom_thumbnail(
             "original_filename": file.filename,
             "file_size": file.size,
             "content_type": file.content_type,
-            "saved_at": video.updated_at or video.created_at
+            "saved_at": video.created_at
         }
         
     except HTTPException:

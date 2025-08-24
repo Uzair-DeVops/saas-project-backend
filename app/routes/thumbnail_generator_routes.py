@@ -11,7 +11,7 @@ from ..models.user_model import UserSignUp
 router = APIRouter(prefix="/thumbnail-generator", tags=["thumbnail-generator"])
 
 class ThumbnailSaveRequest(BaseModel):
-    thumbnail_url: str = Field(..., min_length=10, max_length=1000)
+    thumbnail_url: str = Field(..., min_length=10)
     
     @validator('thumbnail_url')
     def validate_thumbnail_url(cls, v):

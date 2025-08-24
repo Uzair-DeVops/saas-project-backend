@@ -68,6 +68,10 @@ async def upload_video(
             youtube_video_id=video.youtube_video_id,
             transcript=video.transcript,
             title=video.title,
+            timestamps=video.timestamps,
+            description=video.description,
+            thumbnail_path=video.thumbnail_path,
+            thumbnail_url=video.thumbnail_url,
             created_at=video.created_at
         )
         
@@ -94,6 +98,10 @@ def get_user_videos(
                 youtube_video_id=video.youtube_video_id,
                 transcript=video.transcript,
                 title=video.title,
+                timestamps=video.timestamps,
+                description=video.description,
+                thumbnail_path=video.thumbnail_path,
+                thumbnail_url=video.thumbnail_url,
                 created_at=video.created_at
             )
             for video in videos
@@ -128,6 +136,10 @@ def get_video_by_id(
             youtube_video_id=video.youtube_video_id,
             transcript=video.transcript,
             title=video.title,
+            timestamps=video.timestamps,
+            description=video.description,
+            thumbnail_path=video.thumbnail_path,
+            thumbnail_url=video.thumbnail_url,
             created_at=video.created_at
         )
         
@@ -181,6 +193,10 @@ async def download_and_store_video(
             youtube_video_id=video.youtube_video_id,
             transcript=video.transcript,
             title=video.title,
+            timestamps=video.timestamps,
+            description=video.description,
+            thumbnail_path=video.thumbnail_path,
+            thumbnail_url=video.thumbnail_url,
             created_at=video.created_at
         )
         
