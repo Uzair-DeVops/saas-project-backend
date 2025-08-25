@@ -168,4 +168,3 @@ class SessionManager {
 }
 
 export const sessionManager = SessionManager.getInstance();
- 

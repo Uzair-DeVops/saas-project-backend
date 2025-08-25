@@ -168,4 +168,3 @@ export interface UserResponse {
   created_at: string;
   updated_at: string;
 }
- 
