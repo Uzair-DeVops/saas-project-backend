@@ -310,13 +310,17 @@ def get_playlist_videos_by_id(youtube, playlist_id: str) -> List[Dict[str, Any]]
                 # Get additional video details
                 video_details = get_video_details(youtube, video_id)
                 
+                # Get only medium thumbnail (most commonly used)
+                thumbnails = snippet.get('thumbnails', {})
+                thumbnail_url = thumbnails.get('medium', {}).get('url', '') if thumbnails else ''
+                
                 video_data = {
                     'title': snippet['title'],
                     'url': f"https://www.youtube.com/watch?v={video_id}",
                     'video_id': video_id,
                     'published_at': snippet['publishedAt'],
                     'description': snippet.get('description', ''),
-                    'thumbnails': snippet.get('thumbnails', {}),
+                    'thumbnail_url': thumbnail_url,
                     'position': snippet.get('position', 0)
                 }
                 

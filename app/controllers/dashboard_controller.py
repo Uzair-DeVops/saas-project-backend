@@ -14,6 +14,63 @@ from ..utils.my_logger import get_logger
 
 logger = get_logger("DASHBOARD_CONTROLLER")
 
+def get_all_playlists_comprehensive_controller(user_id: UUID, db: Session) -> List[Dict[str, Any]]:
+    """
+    Get all playlists with comprehensive analytics for dashboard.
+    
+    Args:
+        user_id: UUID of the user
+        db: Database session
+    
+    Returns:
+        List[Dict[str, Any]]: List of playlists with comprehensive analytics
+    """
+    try:
+        from ..services.youtube_auth_service import get_youtube_client
+        from ..services.dashboard_service import get_all_playlists_comprehensive
+        
+        youtube = get_youtube_client(user_id, db)
+        if not youtube:
+            logger.error(f"Failed to get YouTube client for user {user_id}")
+            return []
+        
+        playlists = get_all_playlists_comprehensive(youtube)
+        logger.info(f"Successfully retrieved {len(playlists)} playlists for user {user_id}")
+        return playlists
+        
+    except Exception as e:
+        logger.error(f"Error in get_all_playlists_comprehensive_controller: {e}")
+        return []
+
+def get_comprehensive_playlist_controller(user_id: UUID, playlist_id: str, db: Session) -> Dict[str, Any]:
+    """
+    Get comprehensive analytics for a specific playlist.
+    
+    Args:
+        user_id: UUID of the user
+        playlist_id: YouTube playlist ID
+        db: Database session
+    
+    Returns:
+        Dict[str, Any]: Comprehensive playlist analytics
+    """
+    try:
+        from ..services.youtube_auth_service import get_youtube_client
+        from ..services.dashboard_service import get_comprehensive_playlist_analytics
+        
+        youtube = get_youtube_client(user_id, db)
+        if not youtube:
+            logger.error(f"Failed to get YouTube client for user {user_id}")
+            return {}
+        
+        playlist_data = get_comprehensive_playlist_analytics(youtube, playlist_id)
+        logger.info(f"Successfully retrieved comprehensive data for playlist {playlist_id}")
+        return playlist_data
+        
+    except Exception as e:
+        logger.error(f"Error in get_comprehensive_playlist_controller: {e}")
+        return {}
+
 def get_playlists_controller(user_id: UUID, db: Session) -> List[Dict[str, Any]]:
     """
     Controller function to get all playlists for dashboard.
@@ -224,3 +281,5 @@ def get_playlist_analytics_controller(user_id: UUID, playlist_id: str, db: Sessi
             status_code=500,
             detail=f"Failed to get playlist analytics: {str(e)}"
         ) 
+
+ 

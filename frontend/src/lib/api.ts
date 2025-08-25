@@ -161,6 +161,13 @@ class ApiClient {
     return response.data.data;
   }
 
+  async getCompleteChannelStats(): Promise<any> {
+    const response: AxiosResponse<ApiResponse<any>> = await this.client.get(
+      "/dashboard/channel-stats"
+    );
+    return response.data.data;
+  }
+
   // YouTube Upload endpoints - using Bearer token for authentication
   async uploadToYouTube(videoId: string): Promise<any> {
     const response: AxiosResponse<ApiResponse<any>> = await this.client.post(

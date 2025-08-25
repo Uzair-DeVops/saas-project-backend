@@ -32,6 +32,19 @@ class VideoCreate(SQLModel):
     video_path: str
 
 
+class VideoUpdate(SQLModel):
+    """Video update model"""
+    title: Optional[str] = None
+    timestamps: Optional[str] = None
+    description: Optional[str] = None
+    thumbnail_path: Optional[str] = None
+    thumbnail_url: Optional[str] = None
+    privacy_status: Optional[str] = None
+    schedule_datetime: Optional[str] = None
+    video_status: Optional[str] = None
+    playlist_name: Optional[str] = None
+
+
 class VideoResponse(SQLModel):
     """Video response model"""
     id: UUID

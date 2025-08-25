@@ -5,7 +5,7 @@ from typing import List
 from uuid import UUID
 from fastapi import UploadFile, HTTPException, Depends, BackgroundTasks
 from sqlmodel import Session, select
-from ..models.video_model import Video, VideoResponse
+from ..models.video_model import Video, VideoResponse, VideoUpdate
 from ..utils.my_logger import get_logger
 from ..services.video_cleanup_service import video_cleanup_service
 from ..services.dowload_video_service import download_youtube_video
@@ -221,3 +221,60 @@ async def download_and_store_video(
     except Exception as e:
         logger.error(f"Error downloading video: {e}")
         raise HTTPException(status_code=500, detail="Failed to download video") 
+
+def update_video(
+    video_id: UUID,
+    user_id: UUID,
+    video_update: VideoUpdate,
+    db: Session
+) -> VideoResponse:
+    """
+    Update a specific video by ID for a user
+    """
+    try:
+        # First, get the video and verify it belongs to the user
+        statement = select(Video).where(
+            Video.id == video_id,
+            Video.user_id == user_id
+        )
+        video = db.exec(statement).first()
+        
+        if not video:
+            raise HTTPException(status_code=404, detail="Video not found")
+        
+        # Update only the fields that are provided in the update request
+        update_data = video_update.dict(exclude_unset=True)
+        
+        for field, value in update_data.items():
+            if hasattr(video, field):
+                setattr(video, field, value)
+        
+        db.add(video)
+        db.commit()
+        db.refresh(video)
+        
+        logger.info(f"Video {video_id} updated successfully for user {user_id}")
+        
+        return VideoResponse(
+            id=video.id,
+            user_id=video.user_id,
+            video_path=video.video_path,
+            youtube_video_id=video.youtube_video_id,
+            transcript=video.transcript,
+            title=video.title,
+            timestamps=video.timestamps,
+            description=video.description,
+            thumbnail_path=video.thumbnail_path,
+            thumbnail_url=video.thumbnail_url,
+            privacy_status=video.privacy_status,
+            schedule_datetime=video.schedule_datetime,
+            video_status=video.video_status,
+            playlist_name=video.playlist_name,
+            created_at=video.created_at
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating video {video_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update video") 

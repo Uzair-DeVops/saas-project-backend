@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Form, B
 from sqlmodel import Session
 from typing import List
 from uuid import UUID
-from ..controllers.video_controller import upload_video, get_user_videos, get_video_by_id, download_and_store_video
-from ..models.video_model import VideoResponse
+from ..controllers.video_controller import upload_video, get_user_videos, get_video_by_id, download_and_store_video, update_video
+from ..models.video_model import VideoResponse, VideoUpdate
 from ..utils.database_dependency import get_database_session
 from ..controllers.user_controller import get_current_user
 from ..models.user_model import UserSignUp
@@ -54,6 +54,18 @@ async def get_my_video(
     Get a specific video by ID for the authenticated user
     """
     return get_video_by_id(video_id, current_user.id, db)
+
+@router.put("/{video_id}", response_model=VideoResponse)
+async def update_my_video(
+    video_id: UUID,
+    video_update: VideoUpdate,
+    current_user: UserSignUp = Depends(get_current_user),
+    db: Session = Depends(get_database_session)
+):
+    """
+    Update a specific video by ID for the authenticated user
+    """
+    return update_video(video_id, current_user.id, video_update, db)
 
 @router.post("/{video_id}/cancel-cleanup")
 async def cancel_video_cleanup(
