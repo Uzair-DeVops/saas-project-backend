@@ -2,17 +2,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-
 # System deps
-RUN sudo apt-get update \
- && sudo apt-get install -y --no-install-recommends ffmpeg \
- && sudo rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y ffmpeg && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml uv.lock ./
 
-RUN pip install uv && \
-    uv sync 
+RUN pip install uv && uv sync
 
 COPY . .
 
-CMD ["uv", "run", "run.py"]
+CMD ["uv", "run", "run.py"] 
