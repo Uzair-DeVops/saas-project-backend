@@ -7,7 +7,6 @@ from pydantic import BaseModel
 from ..controllers.dashboard_controller import (
     get_playlists_controller,
     get_playlist_videos_controller,
-    get_playlist_analytics_controller,
     get_all_user_videos_controller,
     get_video_details_controller,
     get_all_playlists_comprehensive_controller,
@@ -314,54 +313,7 @@ async def get_dashboard_playlist_videos(
             detail="Internal server error while retrieving playlist videos"
         )
 
-@router.get("/playlists/{playlist_id}/analytics", response_model=AnalyticsResponse)
-async def get_dashboard_playlist_analytics(
-    playlist_id: str = Path(..., description="The YouTube playlist ID"),
-    current_user: UserSignUp = Depends(get_current_user),
-    db: Session = Depends(get_database_session)
-) -> AnalyticsResponse:
-    """
-    Get comprehensive analytics for all videos in a playlist.
-    
-    This endpoint provides detailed analytics including:
-    - Total views, likes, comments across all videos
-    - Average engagement rates
-    - Top performing videos
-    - Performance summaries
-    - Best and worst performing videos
-    
-    Args:
-        playlist_id: The YouTube playlist ID
-        current_user: The authenticated user from JWT token
-        db: Database session dependency
-    
-    Returns:
-        AnalyticsResponse: Comprehensive analytics data
-        
-    Raises:
-        HTTPException: If error occurs
-    """
-    try:
-        logger.info(f"Dashboard playlist analytics request received for playlist_id: {playlist_id}, user_id: {current_user.id}")
-        
-        # Get comprehensive analytics
-        analytics = get_playlist_analytics_controller(current_user.id, playlist_id, db)
-        
-        return AnalyticsResponse(
-            success=True,
-            message=f"Successfully generated analytics for playlist with {analytics.get('total_videos', 0)} videos",
-            data=analytics
-        )
-        
-    except HTTPException:
-        # Re-raise HTTP exceptions as they are already properly formatted
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error in get_dashboard_playlist_analytics route for playlist_id {playlist_id}, user_id {current_user.id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Internal server error while generating analytics"
-        )
+
 
 @router.get("/overview", response_model=DashboardResponse)
 async def get_dashboard_overview(
@@ -410,6 +362,90 @@ async def get_dashboard_overview(
         subscriber_count = channel_info.get('subscriber_count', 0) or 0
         total_channel_views = channel_info.get('view_count', 0) or 0
         total_channel_videos = channel_info.get('video_count', 0) or 0
+        
+        # Get enhanced channel information with additional API parts
+        try:
+            # Get comprehensive channel data including branding and content details
+            channel_request = youtube.channels().list(
+                part='snippet,statistics,brandingSettings,contentDetails,status',
+                mine=True
+            )
+            channel_response = channel_request.execute()
+            
+            if channel_response['items']:
+                enhanced_channel = channel_response['items'][0]
+                enhanced_snippet = enhanced_channel['snippet']
+                enhanced_statistics = enhanced_channel['statistics']
+                branding_settings = enhanced_channel.get('brandingSettings', {})
+                content_details = enhanced_channel.get('contentDetails', {})
+                channel_status = enhanced_channel.get('status', {})
+                
+                # Enhanced channel information
+                enhanced_channel_info = {
+                    'channel_url': f"https://www.youtube.com/channel/{enhanced_channel['id']}",
+                    'custom_url': enhanced_snippet.get('customUrl', ''),
+                    'default_language': enhanced_snippet.get('defaultLanguage', ''),
+                    'default_tab': enhanced_snippet.get('defaultTab', ''),
+                    'description': enhanced_snippet.get('description', ''),
+                    'keywords': enhanced_snippet.get('keywords', ''),
+                    'featured_channels_title': enhanced_snippet.get('featuredChannelsTitle', ''),
+                    'featured_channels_urls': enhanced_snippet.get('featuredChannelsUrls', []),
+                    'unsubscribed_trailer': enhanced_snippet.get('unsubscribedTrailer', ''),
+                    'country': enhanced_snippet.get('country', ''),
+                    'published_at': enhanced_snippet.get('publishedAt', ''),
+                    'thumbnails': enhanced_snippet.get('thumbnails', {}),
+                    'title': enhanced_snippet.get('title', ''),
+                    'localized': enhanced_snippet.get('localized', {}),
+                    'privacy_status': channel_status.get('privacyStatus', ''),
+                    'is_linked': channel_status.get('isLinked', False),
+                    'long_uploads_status': channel_status.get('longUploadsStatus', ''),
+                    'made_for_kids': channel_status.get('madeForKids', False),
+                    'self_declared_made_for_kids': channel_status.get('selfDeclaredMadeForKids', False),
+                    'branding_settings': {
+                        'channel_title': branding_settings.get('channel', {}).get('title', ''),
+                        'channel_description': branding_settings.get('channel', {}).get('description', ''),
+                        'channel_keywords': branding_settings.get('channel', {}).get('keywords', ''),
+                        'default_tab': branding_settings.get('channel', {}).get('defaultTab', ''),
+                        'tracking_analytics_account_id': branding_settings.get('channel', {}).get('trackingAnalyticsAccountId', ''),
+                        'moderate_comments': branding_settings.get('channel', {}).get('moderateComments', False),
+                        'show_related_channels': branding_settings.get('channel', {}).get('showRelatedChannels', False),
+                        'show_browse_view': branding_settings.get('channel', {}).get('showBrowseView', False),
+                        'featured_channels_title': branding_settings.get('channel', {}).get('featuredChannelsTitle', ''),
+                        'featured_channels_urls': branding_settings.get('channel', {}).get('featuredChannelsUrls', []),
+                        'unsubscribed_trailer': branding_settings.get('channel', {}).get('unsubscribedTrailer', ''),
+                        'profile_color': branding_settings.get('channel', {}).get('profileColor', ''),
+                        'default_language': branding_settings.get('channel', {}).get('defaultLanguage', ''),
+                        'country': branding_settings.get('channel', {}).get('country', ''),
+                        'banner_external_url': branding_settings.get('image', {}).get('bannerExternalUrl', ''),
+                        'banner_image_url': branding_settings.get('image', {}).get('bannerImageUrl', ''),
+                        'banner_mobile_image_url': branding_settings.get('image', {}).get('bannerMobileImageUrl', ''),
+                        'banner_tablet_low_image_url': branding_settings.get('image', {}).get('bannerTabletLowImageUrl', ''),
+                        'banner_tablet_image_url': branding_settings.get('image', {}).get('bannerTabletImageUrl', ''),
+                        'banner_tablet_hd_image_url': branding_settings.get('image', {}).get('bannerTabletHdImageUrl', ''),
+                        'banner_tablet_extra_hd_image_url': branding_settings.get('image', {}).get('bannerTabletExtraHdImageUrl', ''),
+                        'banner_mobile_low_image_url': branding_settings.get('image', {}).get('bannerMobileLowImageUrl', ''),
+                        'banner_mobile_medium_hd_image_url': branding_settings.get('image', {}).get('bannerMobileMediumHdImageUrl', ''),
+                        'banner_mobile_hd_image_url': branding_settings.get('image', {}).get('bannerMobileHdImageUrl', ''),
+                        'banner_mobile_extra_hd_image_url': branding_settings.get('image', {}).get('bannerMobileExtraHdImageUrl', ''),
+                        'banner_tv_image_url': branding_settings.get('image', {}).get('bannerTvImageUrl', ''),
+                        'banner_tv_low_image_url': branding_settings.get('image', {}).get('bannerTvLowImageUrl', ''),
+                        'banner_tv_medium_image_url': branding_settings.get('image', {}).get('bannerTvMediumImageUrl', ''),
+                        'banner_tv_high_image_url': branding_settings.get('image', {}).get('bannerTvHighImageUrl', ''),
+                        'banner_tv_standard_image_url': branding_settings.get('image', {}).get('bannerTvStandardImageUrl', ''),
+                        'banner_tv_maxres_image_url': branding_settings.get('image', {}).get('bannerTvMaxresImageUrl', ''),
+                        'hints': branding_settings.get('hints', [])
+                    },
+                    'content_details': {
+                        'related_playlists': content_details.get('relatedPlaylists', {}),
+                        'google_plus_user_id': content_details.get('googlePlusUserId', ''),
+                        'topic_categories': content_details.get('topicCategories', [])
+                    }
+                }
+            else:
+                enhanced_channel_info = {}
+        except Exception as e:
+            logger.error(f"Error getting enhanced channel info: {e}")
+            enhanced_channel_info = {}
         
         # Get all videos for detailed analytics
         from ..services.dashboard_service import get_user_videos
@@ -462,9 +498,9 @@ async def get_dashboard_overview(
         recent_comments = sum(int(video.get('comment_count', 0) or 0) for video in recent_videos)
         recent_engagement_rate = ((recent_likes + recent_comments) / recent_views * 100) if recent_views > 0 else 0
         
-        # Get top performing videos
-        top_videos_by_views = sorted(all_videos, key=lambda x: int(x.get('view_count', 0)), reverse=True)[:10]
-        top_videos_by_engagement = sorted(all_videos, key=lambda x: (int(x.get('like_count', 0)) + int(x.get('comment_count', 0))) / max(int(x.get('view_count', 0)), 1), reverse=True)[:10]
+        # Get top performing videos (only 1 each)
+        top_videos_by_views = sorted(all_videos, key=lambda x: int(x.get('view_count', 0)), reverse=True)[:1]
+        top_videos_by_engagement = sorted(all_videos, key=lambda x: (int(x.get('like_count', 0)) + int(x.get('comment_count', 0))) / max(int(x.get('view_count', 0)), 1), reverse=True)[:1]
         
         # Calculate monthly breakdown for charts
         monthly_data = {}
@@ -507,17 +543,9 @@ async def get_dashboard_overview(
             for month in sorted_months
         ]
         
-        # Calculate video categories/tags analysis
+        # Remove tags analysis - not needed
         video_categories = {}
-        for video in all_videos:
-            tags = video.get('tags', [])
-            for tag in tags:
-                if tag in video_categories:
-                    video_categories[tag] += 1
-                else:
-                    video_categories[tag] = 1
-        
-        top_categories = sorted(video_categories.items(), key=lambda x: x[1], reverse=True)[:10]
+        top_categories = []
         
         # Calculate performance distribution
         view_ranges = {
@@ -611,13 +639,673 @@ async def get_dashboard_overview(
                 'duration_minutes': round(duration_seconds / 60, 2)
             })
         
-        # Sort by performance score
-        top_performing_by_score = sorted(performance_scores, key=lambda x: x['score'], reverse=True)[:10]
+        # Sort by performance score (only 1)
+        top_performing_by_score = sorted(performance_scores, key=lambda x: x['score'], reverse=True)[:1]
         
         # Weekly performance analysis (last 4 weeks)
         weekly_data = {}
-        for i in range(4):
-            week_start = current_date - timedelta(weeks=i+1)
+I'll analyze your backend APIs and create a comprehensive prompt for an AI to build a React Native mobile app. Let me first examine your backend structure and APIs.
+
+
+[1 tool called]
+
+Now let me examine other route files to get a complete picture of all APIs:
+
+
+[1 tool called]
+
+Let me read the key route files to understand all the APIs:
+
+
+[13 tools called]
+
+Now let me check the main app.py to see how all routes are registered:
+
+
+[1 tool called]
+
+Now let me check the models to understand the data structures:
+
+
+[2 tools called]
+
+Now I have a comprehensive understanding of your backend. Let me create a detailed prompt for an AI to build a React Native mobile app that integrates with all your APIs.
+
+# Comprehensive React Native Mobile App Development Prompt
+
+## Project Overview
+You are tasked with creating a comprehensive React Native mobile application for a YouTube content management and automation platform. This app will serve as a mobile interface for a sophisticated backend system that handles video processing, AI-powered content generation, YouTube integration, and analytics.
+
+## Backend API Architecture
+
+### Base URL and Authentication
+- **Base URL**: `http://your-backend-domain.com` (replace with actual domain)
+- **Authentication**: Bearer token-based JWT authentication
+- **Content-Type**: `application/json` for most requests, `multipart/form-data` for file uploads
+
+### API Endpoints Structure
+
+#### 1. Authentication (`/auth`)
+```bash
+# User Registration
+POST /auth/signup
+Content-Type: application/json
+{
+  "email": "user@example.com",
+  "username": "username",
+  "full_name": "Full Name",
+  "password": "password123"
+}
+
+# User Login
+POST /auth/login
+Content-Type: application/json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+
+# Get Current User Info
+GET /auth/me
+Authorization: Bearer <jwt_token>
+
+# Get All Users (Admin)
+GET /auth/users
+Authorization: Bearer <jwt_token>
+
+# Get User by ID
+GET /auth/users/{user_id}
+Authorization: Bearer <jwt_token>
+
+# Update User
+PUT /auth/users/{user_id}
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "full_name": "Updated Name",
+  "email": "newemail@example.com"
+}
+
+# Delete User
+DELETE /auth/users/{user_id}
+Authorization: Bearer <jwt_token>
+```
+
+#### 2. YouTube Token Management (`/youtube`)
+```bash
+# Create OAuth Token (Opens browser for Google auth)
+POST /youtube/create-token
+Authorization: Bearer <jwt_token>
+
+# OAuth Callback (Handled by backend)
+GET /youtube/oauth/callback?code=<auth_code>&state=<user_state>
+
+# Refresh OAuth Token
+POST /youtube/refresh-token
+Authorization: Bearer <jwt_token>
+
+# Get Token Status
+GET /youtube/status
+Authorization: Bearer <jwt_token>
+
+# Get Token for User
+GET /youtube/{user_id}
+Authorization: Bearer <jwt_token>
+
+# Get Refreshed Token
+GET /youtube/{user_id}/refreshed
+Authorization: Bearer <jwt_token>
+```
+
+#### 3. Video Management (`/videos`)
+```bash
+# Upload Video File
+POST /videos/upload
+Authorization: Bearer <jwt_token>
+Content-Type: multipart/form-data
+file: <video_file>
+
+# Download Video from URL
+POST /videos/download
+Authorization: Bearer <jwt_token>
+Content-Type: application/x-www-form-urlencoded
+video_url: "https://example.com/video.mp4"
+
+# Get User's Videos
+GET /videos/my-videos
+Authorization: Bearer <jwt_token>
+
+# Get Specific Video
+GET /videos/{video_id}
+Authorization: Bearer <jwt_token>
+
+# Update Video
+PUT /videos/{video_id}
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "title": "Updated Title",
+  "description": "Updated description"
+}
+
+# Cancel Video Cleanup
+POST /videos/{video_id}/cancel-cleanup
+Authorization: Bearer <jwt_token>
+
+# Get Active Cleanups (Debug)
+GET /videos/debug/active-cleanups
+Authorization: Bearer <jwt_token>
+```
+
+#### 4. AI Content Generation
+
+##### Title Generator (`/title-generator`)
+```bash
+# Generate Title
+POST /title-generator/{video_id}/generate
+Authorization: Bearer <jwt_token>
+
+# Save Generated Title
+POST /title-generator/{video_id}/save
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "title": "Generated Title"
+}
+
+# Regenerate with Requirements
+POST /title-generator/{video_id}/regenerate-with-requirements
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "user_requirements": "Make it more engaging"
+}
+```
+
+##### Description Generator (`/description-generator`)
+```bash
+# Generate Description
+POST /description-generator/{video_id}/generate
+Authorization: Bearer <jwt_token>
+
+# Save Generated Description
+POST /description-generator/{video_id}/save
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "description": "Generated description"
+}
+
+# Regenerate with Template
+POST /description-generator/{video_id}/regenerate-with-template
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "custom_template": "Custom template"
+}
+
+# Regenerate Description
+POST /description-generator/{video_id}/regenerate
+Authorization: Bearer <jwt_token>
+```
+
+##### Timestamps Generator (`/timestamps-generator`)
+```bash
+# Generate Timestamps
+POST /timestamps-generator/{video_id}/generate
+Authorization: Bearer <jwt_token>
+
+# Save Generated Timestamps
+POST /timestamps-generator/{video_id}/save
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "timestamps": "0:00 - Intro\n5:30 - Main Content"
+}
+
+# Regenerate Timestamps
+POST /timestamps-generator/{video_id}/regenerate
+Authorization: Bearer <jwt_token>
+```
+
+##### Thumbnail Generator (`/thumbnail-generator`)
+```bash
+# Generate Thumbnail
+POST /thumbnail-generator/{video_id}/generate
+Authorization: Bearer <jwt_token>
+
+# Save Selected Thumbnail
+POST /thumbnail-generator/{video_id}/save
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "thumbnail_url": "https://example.com/thumbnail.jpg"
+}
+
+# Upload Custom Thumbnail
+POST /thumbnail-generator/{video_id}/upload
+Authorization: Bearer <jwt_token>
+Content-Type: multipart/form-data
+file: <image_file>
+
+# Get Saved Thumbnail
+GET /thumbnail-generator/{video_id}/saved
+Authorization: Bearer <jwt_token>
+```
+
+#### 5. Playlist Management (`/playlists`)
+```bash
+# Get User's Playlists
+GET /playlists/my-playlists
+Authorization: Bearer <jwt_token>
+
+# Get Playlist Count
+GET /playlists/count
+Authorization: Bearer <jwt_token>
+
+# Create Playlist
+POST /playlists/create
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "playlist_name": "My Playlist",
+  "description": "Playlist description",
+  "privacy_status": "private"
+}
+
+# Get Playlist Videos
+GET /playlists/{playlist_id}/videos
+Authorization: Bearer <jwt_token>
+
+# Select Playlist for Video
+POST /playlists/{video_id}/select-playlist?playlist_name=My Playlist
+Authorization: Bearer <jwt_token>
+
+# Get Video's Playlist
+GET /playlists/{video_id}/playlist
+Authorization: Bearer <jwt_token>
+
+# Get Channel Playlists (Basic Info)
+GET /playlists/channel-playlists
+Authorization: Bearer <jwt_token>
+```
+
+#### 6. Privacy Status Management (`/privacy-status`)
+```bash
+# Set Video Privacy Status
+POST /privacy-status/{video_id}/privacy-status
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "privacy_status": "public"
+}
+
+# Get Video Privacy Status
+GET /privacy-status/{video_id}/privacy-status
+Authorization: Bearer <jwt_token>
+```
+
+#### 7. Video Scheduling (`/schedule`)
+```bash
+# Schedule Video
+POST /schedule/{video_id}/schedule
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "date": "2024-01-15",
+  "time": "14:30",
+  "privacy_status": "public"
+}
+
+# Get Scheduled Videos
+GET /schedule/my-scheduled-videos
+Authorization: Bearer <jwt_token>
+
+# Cancel Scheduled Video
+DELETE /schedule/{video_id}/cancel
+Authorization: Bearer <jwt_token>
+
+# Get Schedule Recommendations
+GET /schedule/recommendations
+Authorization: Bearer <jwt_token>
+```
+
+#### 8. Video Details Management (`/video-details`)
+```bash
+# Get Complete Video Details
+GET /video-details/{video_id}/complete
+Authorization: Bearer <jwt_token>
+
+# Update Video Details
+PUT /video-details/{video_id}/update
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "title": "Updated Title",
+  "description": "Updated description",
+  "timestamps": "Updated timestamps"
+}
+```
+
+#### 9. YouTube Upload (`/youtube-upload`)
+```bash
+# Upload Video to YouTube
+POST /youtube-upload/{video_id}/upload
+Authorization: Bearer <jwt_token>
+```
+
+#### 10. Gemini API Key Management (`/gemini-keys`)
+```bash
+# Create Gemini API Key
+POST /gemini-keys/
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "api_key": "your_gemini_api_key"
+}
+
+# Get Gemini API Key
+GET /gemini-keys/
+Authorization: Bearer <jwt_token>
+
+# Update Gemini API Key
+PUT /gemini-keys/
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+{
+  "api_key": "updated_api_key",
+  "is_active": true
+}
+
+# Delete Gemini API Key
+DELETE /gemini-keys/
+Authorization: Bearer <jwt_token>
+
+# Get Gemini API Key Status
+GET /gemini-keys/status
+Authorization: Bearer <jwt_token>
+```
+
+#### 11. Dashboard Analytics (`/dashboard`)
+```bash
+# Get Dashboard Overview
+GET /dashboard/overview
+Authorization: Bearer <jwt_token>
+
+# Get Dashboard Playlists
+GET /dashboard/playlists
+Authorization: Bearer <jwt_token>
+
+# Get Comprehensive Playlist Analytics
+GET /dashboard/playlists/{playlist_id}/comprehensive
+Authorization: Bearer <jwt_token>
+
+# Get Dashboard Videos
+GET /dashboard/videos
+Authorization: Bearer <jwt_token>
+
+# Get Video Details Analytics
+GET /dashboard/videos/{video_id}
+Authorization: Bearer <jwt_token>
+
+# Get Playlist Videos Analytics
+GET /dashboard/playlists/{playlist_id}/videos
+Authorization: Bearer <jwt_token>
+```
+
+## React Native App Requirements
+
+### Tech Stack
+- **Framework**: React Native (latest stable version)
+- **Navigation**: React Navigation v6
+- **State Management**: Redux Toolkit or Zustand
+- **HTTP Client**: Axios or React Query
+- **UI Components**: React Native Elements or NativeBase
+- **Icons**: React Native Vector Icons
+- **Image Handling**: React Native Image Picker
+- **Video Handling**: React Native Video
+- **File Upload**: React Native Document Picker
+- **Storage**: AsyncStorage for local storage
+- **Notifications**: React Native Push Notification
+- **Charts**: React Native Chart Kit or Victory Native
+
+### App Architecture
+
+#### 1. Authentication Flow
+- **Screens**: Login, Register, Forgot Password, Profile
+- **Features**: 
+  - JWT token storage and management
+  - Auto-login functionality
+  - Token refresh handling
+  - Secure storage of credentials
+
+#### 2. Main Dashboard
+- **Screens**: Home Dashboard, Analytics Overview
+- **Features**:
+  - Channel statistics display
+  - Recent videos overview
+  - Performance metrics charts
+  - Quick action buttons
+
+#### 3. Video Management
+- **Screens**: Video List, Video Details, Video Upload, Video Editor
+- **Features**:
+  - Video upload from device or URL
+  - Video metadata editing
+  - AI-powered content generation
+  - Video status tracking
+
+#### 4. Content Generation
+- **Screens**: Title Generator, Description Generator, Timestamps Generator, Thumbnail Generator
+- **Features**:
+  - AI-powered content suggestions
+  - Content editing and customization
+  - Regeneration with custom requirements
+  - Content preview
+
+#### 5. YouTube Integration
+- **Screens**: YouTube Auth, Playlist Management, Upload Manager
+- **Features**:
+  - OAuth authentication flow
+  - Playlist creation and management
+  - Video upload to YouTube
+  - Upload scheduling
+
+#### 6. Analytics & Insights
+- **Screens**: Analytics Dashboard, Video Analytics, Playlist Analytics
+- **Features**:
+  - Performance metrics visualization
+  - Growth trends analysis
+  - Content performance insights
+  - Engagement analytics
+
+### Key Features to Implement
+
+#### 1. Video Processing Workflow
+1. **Upload Video** → User selects video file or provides URL
+2. **Generate Transcript** → Backend automatically generates transcript
+3. **AI Content Generation** → Generate title, description, timestamps, thumbnail
+4. **Content Review** → User reviews and edits generated content
+5. **YouTube Setup** → Configure privacy, playlist, scheduling
+6. **Upload to YouTube** → Final upload with all metadata
+
+#### 2. Real-time Status Tracking
+- Video processing status
+- Upload progress
+- AI generation progress
+- Error handling and retry mechanisms
+
+#### 3. Offline Capabilities
+- Cache video metadata
+- Queue uploads when offline
+- Sync when connection restored
+
+#### 4. Push Notifications
+- Upload completion notifications
+- Processing status updates
+- Error alerts
+- Schedule reminders
+
+### UI/UX Requirements
+
+#### Design System
+- **Color Scheme**: Professional, YouTube-inspired colors
+- **Typography**: Clean, readable fonts
+- **Icons**: Consistent icon set
+- **Spacing**: Consistent padding and margins
+- **Components**: Reusable, accessible components
+
+#### Navigation Structure
+```
+App
+├── Auth Stack
+│   ├── Login
+│   ├── Register
+│   └── Profile
+├── Main Tab Navigator
+│   ├── Dashboard
+│   ├── Videos
+│   ├── Analytics
+│   └── Settings
+└── Modal Stacks
+    ├── Video Upload
+    ├── Content Generator
+    ├── YouTube Auth
+    └── Analytics Details
+```
+
+#### Key Screens Design
+
+1. **Dashboard Screen**
+   - Channel overview cards
+   - Recent videos grid
+   - Quick action buttons
+   - Performance charts
+
+2. **Video Upload Screen**
+   - File picker integration
+   - Upload progress indicator
+   - Processing status display
+   - Error handling UI
+
+3. **Content Generator Screen**
+   - AI generation progress
+   - Generated content display
+   - Edit capabilities
+   - Regeneration options
+
+4. **Analytics Screen**
+   - Interactive charts
+   - Performance metrics
+   - Time period selectors
+   - Detailed breakdowns
+
+### Error Handling & User Experience
+
+#### Error Scenarios
+- Network connectivity issues
+- Authentication failures
+- File upload errors
+- AI generation failures
+- YouTube API errors
+
+#### User Feedback
+- Loading states for all async operations
+- Success/error toast messages
+- Progress indicators
+- Retry mechanisms
+- Offline indicators
+
+### Performance Considerations
+
+#### Optimization
+- Lazy loading for video lists
+- Image caching and optimization
+- Efficient state management
+- Background processing
+- Memory management for video files
+
+#### Security
+- Secure token storage
+- Input validation
+- File type validation
+- API rate limiting handling
+- Data encryption
+
+### Testing Requirements
+
+#### Unit Tests
+- API integration tests
+- Component tests
+- State management tests
+- Utility function tests
+
+#### Integration Tests
+- End-to-end workflows
+- Authentication flows
+- Video upload processes
+- Content generation flows
+
+#### Manual Testing
+- Cross-platform compatibility
+- Different screen sizes
+- Network conditions
+- Offline scenarios
+
+### Deployment & Distribution
+
+#### Build Configuration
+- Android APK/AAB builds
+- iOS IPA builds
+- Environment-specific configurations
+- Code signing setup
+
+#### App Store Preparation
+- App store listings
+- Screenshots and videos
+- Privacy policy
+- Terms of service
+- App store optimization
+
+## Development Guidelines
+
+### Code Organization
+```
+src/
+├── api/
+│   ├── auth.js
+│   ├── videos.js
+│   ├── playlists.js
+│   └── analytics.js
+├── components/
+│   ├── common/
+│   ├── forms/
+│   └── charts/
+├── screens/
+│   ├── auth/
+│   ├── dashboard/
+│   ├── videos/
+│   └── analytics/
+├── navigation/
+├── store/
+├── utils/
+└── constants/
+```
+
+### API Integration Pattern
+- Centralized API client with interceptors
+- Automatic token refresh
+- Error handling middleware
+- Request/response logging
+- Offline queue management
+
+### State Management
+- Global app state (user, auth, settings)
+- Local component state for UI
+- Cached data management
+- Optimistic updates
+
+This comprehensive prompt provides all the necessary information for an AI to build a complete React Native mobile application that integrates seamlessly with your YouTube content management backend. The app should handle all the complex workflows from video upload to YouTube publishing, with robust error handling and excellent user experience.            week_start = current_date - timedelta(weeks=i+1)
             week_end = current_date - timedelta(weeks=i)
             week_key = f"Week {4-i}"
             
@@ -717,6 +1405,155 @@ async def get_dashboard_overview(
         else:
             growth_trajectory['new_content'] = 1
         
+        # Get monetization data if available
+        try:
+            monetization_data = {
+                'is_monetized': False,
+                'monetization_status': 'Not eligible',
+                'ad_formats': [],
+                'monetization_requirements': {
+                    'subscriber_count_required': 1000,
+                    'watch_time_required': 4000,  # hours
+                    'current_subscribers': subscriber_count,
+                    'current_watch_time': round(total_duration / 3600, 2),
+                    'subscriber_progress': round((subscriber_count / 1000) * 100, 2) if subscriber_count < 1000 else 100,
+                    'watch_time_progress': round((total_duration / 3600 / 4000) * 100, 2) if total_duration < 14400000 else 100
+                }
+            }
+            
+            # Check if channel meets monetization requirements
+            if subscriber_count >= 1000 and (total_duration / 3600) >= 4000:
+                monetization_data['is_monetized'] = True
+                monetization_data['monetization_status'] = 'Eligible'
+                monetization_data['ad_formats'] = ['Display ads', 'Overlay ads', 'Sponsored cards', 'Video ads']
+        except Exception as e:
+            logger.error(f"Error getting monetization data: {e}")
+            monetization_data = {}
+        
+        # Get audience insights and demographics (if available)
+        try:
+            audience_insights = {
+                'audience_retention': {
+                    'high_retention_videos': retention_analysis['high_retention_videos'],
+                    'medium_retention_videos': retention_analysis['medium_retention_videos'],
+                    'low_retention_videos': retention_analysis['low_retention_videos'],
+                    'avg_retention_rate': retention_analysis['avg_retention_rate']
+                },
+                'audience_loyalty_score': round(retention_analysis['avg_retention_rate'] / 10, 2),
+                'content_preferences': {
+                    'preferred_video_length': max(duration_ranges.items(), key=lambda x: x[1])[0] if duration_ranges else 'Unknown',
+                    'preferred_content_type': max(content_types.items(), key=lambda x: x[1])[0] if content_types else 'Unknown',
+                    'engagement_sweet_spot': max(engagement_ranges.items(), key=lambda x: x[1])[0] if engagement_ranges else 'Unknown'
+                }
+            }
+        except Exception as e:
+            logger.error(f"Error getting audience insights: {e}")
+            audience_insights = {}
+        
+        # Get SEO and discoverability metrics (simplified)
+        try:
+            seo_metrics = {
+                'seo_score': 0,
+                'title_optimization': {
+                    'avg_title_length': 0
+                },
+                'description_optimization': {
+                    'avg_description_length': 0
+                },
+                'thumbnail_optimization': {
+                    'videos_with_custom_thumbnails': sum(1 for video in all_videos if video.get('thumbnail_url') and 'default' not in video.get('thumbnail_url', ''))
+                }
+            }
+            
+            # Calculate SEO scores
+            title_lengths = [len(video.get('title', '')) for video in all_videos]
+            seo_metrics['title_optimization']['avg_title_length'] = sum(title_lengths) / len(title_lengths) if title_lengths else 0
+            
+            description_lengths = [len(video.get('description', '')) for video in all_videos]
+            seo_metrics['description_optimization']['avg_description_length'] = sum(description_lengths) / len(description_lengths) if description_lengths else 0
+            
+            # Calculate overall SEO score (simplified)
+            seo_score = 0
+            if seo_metrics['title_optimization']['avg_title_length'] > 30:
+                seo_score += 50
+            if seo_metrics['thumbnail_optimization']['videos_with_custom_thumbnails'] > len(all_videos) * 0.5:
+                seo_score += 50
+            
+            seo_metrics['seo_score'] = seo_score
+            
+        except Exception as e:
+            logger.error(f"Error calculating SEO metrics: {e}")
+            seo_metrics = {}
+        
+        # Get content strategy insights
+        try:
+            content_strategy = {
+                'optimal_posting_schedule': {
+                    'frequency_recommendation': '2-3 videos per week' if videos_per_month < 8 else '4-5 videos per week' if videos_per_month < 20 else 'Daily uploads'
+                },
+                'competitive_analysis': {
+                    'channel_positioning': 'Niche' if total_channel_videos < 50 else 'Established' if total_channel_videos < 200 else 'Major',
+                    'unique_value_proposition': 'Educational content' if 'tutorial' in str(all_videos).lower() else 'Entertainment' if 'fun' in str(all_videos).lower() else 'Mixed content'
+                }
+            }
+            
+            # Content gap analysis removed for simplicity
+                
+        except Exception as e:
+            logger.error(f"Error analyzing content strategy: {e}")
+            content_strategy = {}
+        
+        # Get technical performance metrics
+        try:
+            technical_metrics = {
+                'video_quality_metrics': {
+                    'hd_videos': sum(1 for video in all_videos if video.get('definition') == 'hd'),
+                    'sd_videos': sum(1 for video in all_videos if video.get('definition') == 'sd'),
+                    'avg_video_quality': 'HD' if sum(1 for video in all_videos if video.get('definition') == 'hd') > len(all_videos) * 0.5 else 'SD'
+                },
+                'upload_consistency': {
+                    'avg_days_between_uploads': days_since_created / total_channel_videos if total_channel_videos > 0 else 0,
+                    'upload_streak_current': 0,  # Would need to calculate
+                    'upload_streak_longest': 0,  # Would need to calculate
+                    'consistency_score': round((videos_per_month / 4) * 100, 2) if videos_per_month <= 4 else 100
+                },
+                'cross_promotion_opportunities': {
+                    'playlist_count': 0,  # Will be updated later
+                    'collaboration_opportunities': [],
+                    'cross_promotion_score': 0
+                }
+            }
+        except Exception as e:
+            logger.error(f"Error calculating technical metrics: {e}")
+            technical_metrics = {}
+        
+        # Get playlist count for cross-promotion
+        try:
+            from ..services.dashboard_service import get_all_playlists_comprehensive
+            playlists = get_all_playlists_comprehensive(youtube)
+            technical_metrics['cross_promotion_opportunities']['playlist_count'] = len(playlists)
+            technical_metrics['cross_promotion_opportunities']['cross_promotion_score'] = min(len(playlists) * 10, 100)
+        except Exception as e:
+            logger.error(f"Error getting playlist count: {e}")
+        
+        # Get revenue potential and business metrics
+        try:
+            business_metrics = {
+                'revenue_potential': {
+                    'monetization_ready': monetization_data.get('is_monetized', False)
+                },
+                'brand_opportunities': {
+                    'sponsorship_potential': 'High' if subscriber_count > 10000 else 'Medium' if subscriber_count > 1000 else 'Low',
+                    'affiliate_marketing_potential': 'High' if engagement_ranges.get('5-10%', 0) + engagement_ranges.get('10%+', 0) > len(all_videos) * 0.3 else 'Medium' if engagement_ranges.get('3-5%', 0) > len(all_videos) * 0.3 else 'Low'
+                },
+                'growth_investment': {
+                    'roi_potential': 'High' if overall_engagement_rate > 5 else 'Medium' if overall_engagement_rate > 2 else 'Low'
+                }
+            }
+        except Exception as e:
+            logger.error(f"Error calculating business metrics: {e}")
+            business_metrics = {}
+        
         overview_data = {
             'channel_info': {
                 'title': channel_info.get('title', ''),
@@ -790,13 +1627,7 @@ async def get_dashboard_overview(
                 'worst_month': min(monthly_chart_data, key=lambda x: x['views']) if monthly_chart_data else None
             },
             'content_analysis': {
-                'top_categories': [
-                    {'tag': tag, 'count': count}
-                    for tag, count in top_categories
-                ],
-                'view_distribution': view_ranges,
-                'total_categories': len(video_categories),
-                'most_used_tag': top_categories[0] if top_categories else None
+                'view_distribution': view_ranges
             },
             'growth_insights': {
                 'subscriber_growth_rate': round((subscriber_count / days_since_created * 30), 2) if days_since_created > 0 else 0,
@@ -839,20 +1670,21 @@ async def get_dashboard_overview(
             'content_insights': {
                 'most_effective_content_type': max(content_types.items(), key=lambda x: x[1])[0] if content_types else 'none',
                 'optimal_video_length': max(duration_ranges.items(), key=lambda x: x[1])[0] if duration_ranges else 'none',
-                'engagement_sweet_spot': max(engagement_ranges.items(), key=lambda x: x[1])[0] if engagement_ranges else 'none',
-                'content_recommendations': [
-                    'Focus on content types that perform best',
-                    'Optimize video length based on audience preference',
-                    'Improve engagement through better thumbnails and titles',
-                    'Maintain consistent upload schedule'
-                ]
+                'engagement_sweet_spot': max(engagement_ranges.items(), key=lambda x: x[1])[0] if engagement_ranges else 'none'
             },
             'competitive_analysis': {
                 'channel_health_score': round((overall_engagement_rate * 0.4 + (avg_views_per_video / 100) * 0.3 + (videos_per_month * 10) * 0.3), 2),
                 'growth_potential': 'High' if overall_engagement_rate > 3 and videos_per_month > 2 else 'Medium' if overall_engagement_rate > 1.5 else 'Low',
                 'audience_loyalty': 'High' if retention_analysis['avg_retention_rate'] > 5 else 'Medium' if retention_analysis['avg_retention_rate'] > 2 else 'Low',
                 'content_consistency': 'High' if videos_per_month > 4 else 'Medium' if videos_per_month > 2 else 'Low'
-            }
+            },
+            'enhanced_channel_info': enhanced_channel_info,
+            'monetization_data': monetization_data,
+            'audience_insights': audience_insights,
+            'seo_metrics': seo_metrics,
+            'content_strategy': content_strategy,
+            'technical_metrics': technical_metrics,
+            'business_metrics': business_metrics
         }
         
         return DashboardResponse(

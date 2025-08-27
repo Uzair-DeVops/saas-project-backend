@@ -308,96 +308,7 @@ def get_playlist_videos_dashboard(user_id: UUID, playlist_id: str, db: Session) 
         logger.error(f"Error getting playlist videos for dashboard: {e}")
         return []
 
-def get_playlist_analytics_dashboard(user_id: UUID, playlist_id: str, db: Session) -> Dict[str, Any]:
-    """
-    Get comprehensive analytics for all videos in a playlist.
-    
-    Args:
-        user_id: UUID of the user
-        playlist_id: YouTube playlist ID
-        db: Database session
-    
-    Returns:
-        Dict[str, Any]: Comprehensive analytics data
-    """
-    try:
-        # Get YouTube client
-        youtube = get_youtube_client(user_id, db)
-        if not youtube:
-            logger.error(f"Failed to get YouTube client for user {user_id}")
-            return {}
-        
-        # Get playlist videos
-        videos = get_playlist_videos_by_id(youtube, playlist_id)
-        
-        if not videos:
-            return {
-                'playlist_id': playlist_id,
-                'total_videos': 0,
-                'analytics': {},
-                'message': 'No videos found in playlist'
-            }
-        
-        # Calculate comprehensive analytics
-        total_views = 0
-        total_likes = 0
-        total_comments = 0
-        total_duration = 0
-        video_analytics = []
-        
-        for video in videos:
-            try:
-                analytics = get_video_analytics(youtube, video['video_id'])
-                
-                total_views += analytics.get('view_count', 0)
-                total_likes += analytics.get('like_count', 0)
-                total_comments += analytics.get('comment_count', 0)
-                
-                video_analytics.append({
-                    'video_id': video['video_id'],
-                    'title': video['title'],
-                    'analytics': analytics,
-                    'engagement_rate': calculate_engagement_rate(analytics),
-                    'performance_score': calculate_performance_score(analytics)
-                })
-                
-            except Exception as e:
-                logger.error(f"Error getting analytics for video {video.get('video_id')}: {e}")
-        
-        # Calculate playlist-level metrics
-        average_views = total_views / len(videos) if videos else 0
-        average_likes = total_likes / len(videos) if videos else 0
-        average_comments = total_comments / len(videos) if videos else 0
-        average_engagement_rate = sum(v.get('engagement_rate', 0) for v in video_analytics) / len(video_analytics) if video_analytics else 0
-        
-        # Sort videos by performance
-        video_analytics.sort(key=lambda x: x.get('performance_score', 0), reverse=True)
-        
-        analytics_data = {
-            'playlist_id': playlist_id,
-            'total_videos': len(videos),
-            'total_views': total_views,
-            'total_likes': total_likes,
-            'total_comments': total_comments,
-            'average_views': average_views,
-            'average_likes': average_likes,
-            'average_comments': average_comments,
-            'average_engagement_rate': average_engagement_rate,
-            'top_performing_videos': video_analytics[:5],  # Top 5 videos
-            'video_analytics': video_analytics,
-            'performance_summary': {
-                'best_performing_video': video_analytics[0] if video_analytics else None,
-                'worst_performing_video': video_analytics[-1] if video_analytics else None,
-                'most_engaged_video': max(video_analytics, key=lambda x: x.get('engagement_rate', 0)) if video_analytics else None
-            }
-        }
-        
-        logger.info(f"Successfully generated analytics for playlist {playlist_id}")
-        return analytics_data
-        
-    except Exception as e:
-        logger.error(f"Error getting playlist analytics: {e}")
-        return {}
+
 
 def get_user_videos(youtube) -> List[Dict[str, Any]]:
     """Get all videos uploaded by the user with complete analytics"""
@@ -478,6 +389,21 @@ def get_all_playlists_comprehensive(youtube) -> List[Dict[str, Any]]:
                 'tags': snippet.get('tags', []),
                 'default_language': snippet.get('defaultLanguage', ''),
                 'localized': snippet.get('localized', {}),
+                
+                # Enhanced playlist metadata
+                'playlist_url': f"https://www.youtube.com/playlist?list={playlist_id}",
+                'embed_html': snippet.get('embedHtml', ''),
+                'embed_url': f"https://www.youtube.com/embed/videoseries?list={playlist_id}",
+                'default_thumbnail': snippet.get('thumbnails', {}).get('default', {}).get('url', ''),
+                'high_thumbnail': snippet.get('thumbnails', {}).get('high', {}).get('url', ''),
+                'maxres_thumbnail': snippet.get('thumbnails', {}).get('maxres', {}).get('url', ''),
+                'standard_thumbnail': snippet.get('thumbnails', {}).get('standard', {}).get('url', ''),
+                'playlist_type': 'user_uploaded',
+                'is_editable': True,
+                'is_public': status.get('privacyStatus') == 'public',
+                'is_unlisted': status.get('privacyStatus') == 'unlisted',
+                'is_private': status.get('privacyStatus') == 'private',
+                
                 # Comprehensive analytics (all data in one place)
                 'analytics': playlist_analytics
             }
@@ -583,10 +509,29 @@ def get_comprehensive_playlist_analytics(youtube, playlist_id: str) -> Dict[str,
         # Growth metrics
         growth_metrics = calculate_playlist_growth_metrics(video_analytics)
         
-        # Playlist health
+                # Playlist health
         playlist_health = calculate_playlist_health(video_analytics, overall_engagement_rate, avg_views_per_video)
         
-
+        # Content analysis
+        content_analysis = analyze_playlist_content(video_analytics)
+        
+        # Performance insights
+        performance_insights = calculate_performance_insights(video_analytics)
+        
+        # Audience insights
+        audience_insights = calculate_audience_insights(video_analytics)
+        
+        # SEO metrics
+        seo_metrics = calculate_seo_metrics(video_analytics)
+        
+        # Technical analytics
+        technical_analytics = calculate_technical_analytics(video_analytics)
+        
+        # Predictive insights
+        predictive_insights = calculate_predictive_insights(video_analytics)
+        
+        # Monetization metrics
+        monetization_metrics = calculate_monetization_metrics(video_analytics)
         
         analytics_data = {
             'playlist_id': playlist_id,
@@ -610,7 +555,13 @@ def get_comprehensive_playlist_analytics(youtube, playlist_id: str) -> Dict[str,
             },
             'growth_metrics': growth_metrics,
             'playlist_health': playlist_health,
-
+            'content_analysis': content_analysis,
+            'performance_insights': performance_insights,
+            'audience_insights': audience_insights,
+            'seo_metrics': seo_metrics,
+            'technical_analytics': technical_analytics,
+            'predictive_insights': predictive_insights,
+            'monetization_metrics': monetization_metrics
         }
         
         logger.info(f"Successfully generated comprehensive analytics for playlist {playlist_id}")
@@ -1100,5 +1051,530 @@ def get_channel_info(youtube) -> Dict[str, Any]:
     except Exception as e:
         logger.error(f"Error getting channel info: {e}")
         return {}
+
+# New comprehensive analytics functions
+
+def calculate_performance_insights(video_analytics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Calculate performance insights and trends"""
+    try:
+        if not video_analytics:
+            return {}
+        
+        # Growth trends
+        sorted_videos = sorted(video_analytics, key=lambda x: x.get('published_at', ''))
+        recent_videos = sorted_videos[-5:] if len(sorted_videos) >= 5 else sorted_videos
+        older_videos = sorted_videos[:5] if len(sorted_videos) >= 5 else sorted_videos
+        
+        recent_avg_views = sum(v['views'] for v in recent_videos) / len(recent_videos) if recent_videos else 0
+        older_avg_views = sum(v['views'] for v in older_videos) / len(older_videos) if older_videos else 0
+        recent_avg_engagement = sum(v['engagement_rate'] for v in recent_videos) / len(recent_videos) if recent_videos else 0
+        older_avg_engagement = sum(v['engagement_rate'] for v in older_videos) / len(older_videos) if older_videos else 0
+        
+        views_growth = ((recent_avg_views - older_avg_views) / older_avg_views * 100) if older_avg_views > 0 else 0
+        engagement_growth = ((recent_avg_engagement - older_avg_engagement) / older_avg_engagement * 100) if older_avg_engagement > 0 else 0
+        
+        # Seasonal analysis
+        monthly_performance = {}
+        for video in video_analytics:
+            if video.get('published_at'):
+                try:
+                    publish_date = datetime.fromisoformat(video['published_at'].replace('Z', '+00:00'))
+                    month_key = publish_date.strftime('%Y-%m')
+                    
+                    if month_key not in monthly_performance:
+                        monthly_performance[month_key] = {
+                            'videos': 0,
+                            'total_views': 0,
+                            'total_engagement': 0
+                        }
+                    
+                    monthly_performance[month_key]['videos'] += 1
+                    monthly_performance[month_key]['total_views'] += video['views']
+                    monthly_performance[month_key]['total_engagement'] += video['engagement_rate']
+                    
+                except Exception as e:
+                    logger.error(f"Error processing video date: {e}")
+        
+        # Find best performing month
+        best_month = max(monthly_performance.items(), key=lambda x: x[1]['total_views']) if monthly_performance else None
+        
+        # Performance percentiles
+        view_values = [v['views'] for v in video_analytics]
+        view_values.sort()
+        median_views = view_values[len(view_values)//2] if view_values else 0
+        top_25_percentile = view_values[int(len(view_values)*0.75)] if view_values else 0
+        
+        return {
+            'growth_trends': {
+                'views_growth_rate': round(views_growth, 2),
+                'engagement_growth_rate': round(engagement_growth, 2),
+                'trend_direction': 'increasing' if views_growth > 0 else 'decreasing' if views_growth < 0 else 'stable'
+            },
+            'seasonal_analysis': {
+                'best_performing_month': best_month[0] if best_month else None,
+                'monthly_breakdown': monthly_performance,
+                'seasonal_pattern': 'summer_peak' if best_month and '06' in best_month[0] else 'winter_peak' if best_month and '12' in best_month[0] else 'consistent'
+            },
+            'performance_benchmarks': {
+                'median_views': median_views,
+                'top_25_percentile': top_25_percentile,
+                'performance_percentile': calculate_performance_percentile(video_analytics),
+                'improvement_potential': calculate_improvement_potential(video_analytics)
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating performance insights: {e}")
+        return {}
+
+def calculate_audience_insights(video_analytics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Calculate audience insights and behavior patterns"""
+    try:
+        if not video_analytics:
+            return {}
+        
+        # Engagement patterns
+        engagement_ranges = {
+            'low': len([v for v in video_analytics if v['engagement_rate'] < 2]),
+            'medium': len([v for v in video_analytics if 2 <= v['engagement_rate'] < 5]),
+            'high': len([v for v in video_analytics if v['engagement_rate'] >= 5])
+        }
+        
+        # Like to comment ratio analysis
+        like_comment_ratios = []
+        for video in video_analytics:
+            if video['comments'] > 0:
+                ratio = video['likes'] / video['comments']
+                like_comment_ratios.append(ratio)
+        
+        avg_like_comment_ratio = sum(like_comment_ratios) / len(like_comment_ratios) if like_comment_ratios else 0
+        
+        # Content preference analysis
+        duration_preferences = {
+            'short': len([v for v in video_analytics if v['duration_seconds'] <= 300]),  # 5 min
+            'medium': len([v for v in video_analytics if 300 < v['duration_seconds'] <= 900]),  # 15 min
+            'long': len([v for v in video_analytics if v['duration_seconds'] > 900])
+        }
+        
+        # Audience loyalty indicators
+        rewatch_indicators = []
+        for video in video_analytics:
+            # Estimate rewatch potential based on engagement
+            rewatch_score = (video['engagement_rate'] * video['views']) / 1000
+            rewatch_indicators.append({
+                'video_id': video['video_id'],
+                'title': video['title'],
+                'rewatch_score': round(rewatch_score, 2)
+            })
+        
+        # Sort by rewatch score
+        rewatch_indicators.sort(key=lambda x: x['rewatch_score'], reverse=True)
+        
+        return {
+            'engagement_patterns': {
+                'engagement_distribution': engagement_ranges,
+                'avg_like_comment_ratio': round(avg_like_comment_ratio, 2),
+                'most_engaged_content_type': max(engagement_ranges.items(), key=lambda x: x[1])[0] if engagement_ranges else 'medium'
+            },
+            'content_preferences': {
+                'duration_preferences': duration_preferences,
+                'preferred_content_length': max(duration_preferences.items(), key=lambda x: x[1])[0] if duration_preferences else 'medium'
+            },
+            'audience_behavior': {
+                'rewatch_potential': rewatch_indicators[:5],  # Top 5
+                'audience_loyalty_score': round(sum(r['rewatch_score'] for r in rewatch_indicators) / len(rewatch_indicators), 2) if rewatch_indicators else 0
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating audience insights: {e}")
+        return {}
+
+def calculate_seo_metrics(video_analytics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Calculate SEO and discovery metrics"""
+    try:
+        if not video_analytics:
+            return {}
+        
+        # Keyword analysis
+        all_tags = []
+        for video in video_analytics:
+            tags = video.get('tags', [])
+            all_tags.extend(tags)
+        
+        tag_counts = {}
+        for tag in all_tags:
+            tag_counts[tag] = tag_counts.get(tag, 0) + 1
+        
+        top_keywords = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+        
+        # Title analysis
+        title_keywords = []
+        for video in video_analytics:
+            title = video.get('title', '').lower()
+            # Extract common words (simple approach)
+            words = title.split()
+            title_keywords.extend(words)
+        
+        title_word_counts = {}
+        for word in title_keywords:
+            if len(word) > 3:  # Filter out short words
+                title_word_counts[word] = title_word_counts.get(word, 0) + 1
+        
+        top_title_words = sorted(title_word_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+        
+        # Discovery potential
+        discovery_scores = []
+        for video in video_analytics:
+            # Calculate discovery score based on views, engagement, and recency
+            days_since_published = video.get('days_since_published', 0)
+            discovery_score = (video['views'] * video['engagement_rate']) / max(days_since_published, 1)
+            discovery_scores.append({
+                'video_id': video['video_id'],
+                'title': video['title'],
+                'discovery_score': round(discovery_score, 2)
+            })
+        
+        discovery_scores.sort(key=lambda x: x['discovery_score'], reverse=True)
+        
+        return {
+            'keyword_analysis': {
+                'top_keywords': [{'keyword': k, 'count': c} for k, c in top_keywords],
+                'top_title_words': [{'word': w, 'count': c} for w, c in top_title_words],
+                'keyword_diversity': len(tag_counts)
+            },
+            'discovery_metrics': {
+                'top_discoverable_videos': discovery_scores[:5],
+                'avg_discovery_score': round(sum(d['discovery_score'] for d in discovery_scores) / len(discovery_scores), 2) if discovery_scores else 0
+            },
+            'seo_recommendations': [
+                'Use trending keywords in titles and tags',
+                'Optimize thumbnails for better click-through rates',
+                'Create engaging titles that encourage clicks',
+                'Use consistent branding across all videos'
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating SEO metrics: {e}")
+        return {}
+
+def calculate_technical_analytics(video_analytics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Calculate technical performance metrics"""
+    try:
+        if not video_analytics:
+            return {}
+        
+        # Duration analysis
+        durations = [v['duration_seconds'] for v in video_analytics]
+        avg_duration = sum(durations) / len(durations) if durations else 0
+        
+        # Performance by duration
+        short_videos = [v for v in video_analytics if v['duration_seconds'] <= 300]
+        medium_videos = [v for v in video_analytics if 300 < v['duration_seconds'] <= 900]
+        long_videos = [v for v in video_analytics if v['duration_seconds'] > 900]
+        
+        duration_performance = {
+            'short': {
+                'count': len(short_videos),
+                'avg_views': sum(v['views'] for v in short_videos) / len(short_videos) if short_videos else 0,
+                'avg_engagement': sum(v['engagement_rate'] for v in short_videos) / len(short_videos) if short_videos else 0
+            },
+            'medium': {
+                'count': len(medium_videos),
+                'avg_views': sum(v['views'] for v in medium_videos) / len(medium_videos) if medium_videos else 0,
+                'avg_engagement': sum(v['engagement_rate'] for v in medium_videos) / len(medium_videos) if medium_videos else 0
+            },
+            'long': {
+                'count': len(long_videos),
+                'avg_views': sum(v['views'] for v in long_videos) / len(long_videos) if long_videos else 0,
+                'avg_engagement': sum(v['engagement_rate'] for v in long_videos) / len(long_videos) if long_videos else 0
+            }
+        }
+        
+        # Quality metrics
+        high_quality_videos = [v for v in video_analytics if v['views'] > 1000 and v['engagement_rate'] > 3]
+        quality_score = (len(high_quality_videos) / len(video_analytics)) * 100 if video_analytics else 0
+        
+        return {
+            'duration_analysis': {
+                'avg_duration_minutes': round(avg_duration / 60, 2),
+                'duration_distribution': {
+                    'short': len(short_videos),
+                    'medium': len(medium_videos),
+                    'long': len(long_videos)
+                },
+                'optimal_duration': max(duration_performance.items(), key=lambda x: x[1]['avg_views'])[0] if duration_performance else 'medium'
+            },
+            'quality_metrics': {
+                'high_quality_videos': len(high_quality_videos),
+                'quality_score': round(quality_score, 2),
+                'consistency_score': calculate_consistency_score(video_analytics)
+            },
+            'performance_optimization': {
+                'best_performing_format': max(duration_performance.items(), key=lambda x: x[1]['avg_engagement'])[0] if duration_performance else 'medium',
+                'improvement_areas': identify_improvement_areas(video_analytics)
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating technical analytics: {e}")
+        return {}
+
+def calculate_predictive_insights(video_analytics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Calculate predictive insights and trends"""
+    try:
+        if not video_analytics:
+            return {}
+        
+        # Trend analysis
+        sorted_videos = sorted(video_analytics, key=lambda x: x.get('published_at', ''))
+        
+        # Predict next video performance
+        recent_performance = sorted_videos[-3:] if len(sorted_videos) >= 3 else sorted_videos
+        avg_recent_views = sum(v['views'] for v in recent_performance) / len(recent_performance) if recent_performance else 0
+        avg_recent_engagement = sum(v['engagement_rate'] for v in recent_performance) / len(recent_performance) if recent_performance else 0
+        
+        # Growth prediction
+        if len(sorted_videos) >= 2:
+            recent_avg = sum(v['views'] for v in sorted_videos[-5:]) / 5 if len(sorted_videos) >= 5 else sum(v['views'] for v in sorted_videos) / len(sorted_videos)
+            older_avg = sum(v['views'] for v in sorted_videos[:5]) / 5 if len(sorted_videos) >= 5 else sum(v['views'] for v in sorted_videos) / len(sorted_videos)
+            growth_rate = ((recent_avg - older_avg) / older_avg * 100) if older_avg > 0 else 0
+        else:
+            growth_rate = 0
+        
+        # Content recommendations
+        top_performing_videos = sorted(video_analytics, key=lambda x: x['views'], reverse=True)[:3]
+        recommended_content_types = []
+        
+        for video in top_performing_videos:
+            duration = video['duration_seconds']
+            if duration <= 300:
+                recommended_content_types.append('short_form')
+            elif duration <= 900:
+                recommended_content_types.append('medium_form')
+            else:
+                recommended_content_types.append('long_form')
+        
+        # Remove duplicates and get most common
+        if recommended_content_types:
+            most_recommended = max(set(recommended_content_types), key=recommended_content_types.count)
+        else:
+            most_recommended = 'medium_form'
+        
+        return {
+            'trend_forecasting': {
+                'next_video_performance_prediction': {
+                    'predicted_views': round(avg_recent_views * 1.1, 0),  # 10% growth assumption
+                    'predicted_engagement': round(avg_recent_engagement, 2),
+                    'confidence_level': 'high' if len(recent_performance) >= 3 else 'medium'
+                },
+                'audience_growth_prediction': {
+                    'growth_rate': round(growth_rate, 2),
+                    'growth_trend': 'increasing' if growth_rate > 0 else 'decreasing' if growth_rate < 0 else 'stable'
+                }
+            },
+            'optimization_suggestions': {
+                'optimal_video_length': 'short' if most_recommended == 'short_form' else 'medium' if most_recommended == 'medium_form' else 'long',
+                'best_posting_times': 'weekdays_afternoon',  # Placeholder
+                'content_gaps': identify_content_gaps(video_analytics),
+                'recommended_topics': generate_topic_recommendations(video_analytics)
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating predictive insights: {e}")
+        return {}
+
+def calculate_monetization_metrics(video_analytics: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Calculate monetization and business metrics"""
+    try:
+        if not video_analytics:
+            return {}
+        
+        # Revenue potential calculation (estimated)
+        total_views = sum(v['views'] for v in video_analytics)
+        total_watch_time = sum(v['duration_seconds'] for v in video_analytics)
+        
+        # Estimated CPM (Cost Per Mille) - varies by niche, using conservative estimate
+        estimated_cpm = 2.0  # $2 per 1000 views
+        estimated_revenue = (total_views / 1000) * estimated_cpm
+        
+        # Sponsorship opportunities
+        high_performing_videos = [v for v in video_analytics if v['views'] > 1000 and v['engagement_rate'] > 3]
+        sponsorship_potential = len(high_performing_videos)
+        
+        # Engagement quality for monetization
+        monetizable_engagement = sum(v['likes'] + v['comments'] for v in video_analytics)
+        
+        # Audience value
+        avg_views_per_video = total_views / len(video_analytics) if video_analytics else 0
+        audience_value_score = (avg_views_per_video * 0.5) + (monetizable_engagement * 0.3) + (total_watch_time * 0.2)
+        
+        return {
+            'revenue_potential': {
+                'estimated_cpm': estimated_cpm,
+                'estimated_revenue': round(estimated_revenue, 2),
+                'total_watch_time_hours': round(total_watch_time / 3600, 2),
+                'revenue_per_video': round(estimated_revenue / len(video_analytics), 2) if video_analytics else 0
+            },
+            'business_impact': {
+                'sponsorship_opportunities': sponsorship_potential,
+                'high_value_videos': len([v for v in video_analytics if v['views'] > 5000]),
+                'audience_value_score': round(audience_value_score, 2),
+                'monetization_readiness': 'ready' if sponsorship_potential > 0 else 'developing'
+            },
+            'monetization_recommendations': [
+                'Focus on creating high-engagement content to attract sponsors',
+                'Optimize video length for maximum watch time',
+                'Build consistent audience engagement for better monetization',
+                'Consider diversifying content types to attract different sponsors'
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating monetization metrics: {e}")
+        return {}
+
+# Helper functions for the above calculations
+
+def calculate_performance_percentile(video_analytics: List[Dict[str, Any]]) -> float:
+    """Calculate performance percentile"""
+    try:
+        if not video_analytics:
+            return 0
+        
+        total_views = sum(v['views'] for v in video_analytics)
+        avg_views = total_views / len(video_analytics)
+        
+        # Simple percentile calculation (can be enhanced)
+        if avg_views > 10000:
+            return 90
+        elif avg_views > 5000:
+            return 75
+        elif avg_views > 1000:
+            return 50
+        elif avg_views > 500:
+            return 25
+        else:
+            return 10
+            
+    except Exception as e:
+        logger.error(f"Error calculating performance percentile: {e}")
+        return 0
+
+def calculate_improvement_potential(video_analytics: List[Dict[str, Any]]) -> str:
+    """Calculate improvement potential"""
+    try:
+        if not video_analytics:
+            return "Unknown"
+        
+        avg_engagement = sum(v['engagement_rate'] for v in video_analytics) / len(video_analytics)
+        avg_views = sum(v['views'] for v in video_analytics) / len(video_analytics)
+        
+        if avg_engagement < 2 and avg_views < 500:
+            return "High"
+        elif avg_engagement < 3 or avg_views < 1000:
+            return "Medium"
+        else:
+            return "Low"
+            
+    except Exception as e:
+        logger.error(f"Error calculating improvement potential: {e}")
+        return "Unknown"
+
+def calculate_consistency_score(video_analytics: List[Dict[str, Any]]) -> float:
+    """Calculate consistency score"""
+    try:
+        if not video_analytics:
+            return 0
+        
+        views = [v['views'] for v in video_analytics]
+        mean_views = sum(views) / len(views)
+        
+        # Calculate variance
+        variance = sum((x - mean_views) ** 2 for x in views) / len(views)
+        std_dev = variance ** 0.5
+        
+        # Consistency score (lower std dev = higher consistency)
+        consistency_score = max(0, 100 - (std_dev / mean_views * 100)) if mean_views > 0 else 0
+        
+        return round(consistency_score, 2)
+        
+    except Exception as e:
+        logger.error(f"Error calculating consistency score: {e}")
+        return 0
+
+def identify_improvement_areas(video_analytics: List[Dict[str, Any]]) -> List[str]:
+    """Identify areas for improvement"""
+    try:
+        if not video_analytics:
+            return ["Focus on creating engaging content"]
+        
+        areas = []
+        avg_engagement = sum(v['engagement_rate'] for v in video_analytics) / len(video_analytics)
+        avg_views = sum(v['views'] for v in video_analytics) / len(video_analytics)
+        
+        if avg_engagement < 3:
+            areas.append("Improve audience engagement")
+        if avg_views < 1000:
+            areas.append("Optimize titles and thumbnails")
+        if len(video_analytics) < 10:
+            areas.append("Increase content frequency")
+        
+        return areas if areas else ["Continue current strategy"]
+        
+    except Exception as e:
+        logger.error(f"Error identifying improvement areas: {e}")
+        return ["Focus on content quality"]
+
+def identify_content_gaps(video_analytics: List[Dict[str, Any]]) -> List[str]:
+    """Identify content gaps"""
+    try:
+        if not video_analytics:
+            return ["Start creating content"]
+        
+        gaps = []
+        durations = [v['duration_seconds'] for v in video_analytics]
+        
+        # Check for duration gaps
+        short_videos = len([d for d in durations if d <= 300])
+        long_videos = len([d for d in durations if d > 900])
+        
+        if short_videos == 0:
+            gaps.append("Short-form content")
+        if long_videos == 0:
+            gaps.append("Long-form content")
+        
+        return gaps if gaps else ["Content mix is well-balanced"]
+        
+    except Exception as e:
+        logger.error(f"Error identifying content gaps: {e}")
+        return ["Focus on content variety"]
+
+def generate_topic_recommendations(video_analytics: List[Dict[str, Any]]) -> List[str]:
+    """Generate topic recommendations"""
+    try:
+        if not video_analytics:
+            return ["Start with trending topics in your niche"]
+        
+        # Analyze top performing videos for topic patterns
+        top_videos = sorted(video_analytics, key=lambda x: x['views'], reverse=True)[:3]
+        
+        recommendations = []
+        for video in top_videos:
+            title = video['title'].lower()
+            if 'tutorial' in title or 'how to' in title:
+                recommendations.append("Create more tutorial content")
+            elif 'review' in title:
+                recommendations.append("Continue with review content")
+            elif 'tips' in title or 'advice' in title:
+                recommendations.append("Share more tips and advice")
+        
+        return list(set(recommendations)) if recommendations else ["Focus on trending topics"]
+        
+    except Exception as e:
+        logger.error(f"Error generating topic recommendations: {e}")
+        return ["Create engaging content"]
 
  

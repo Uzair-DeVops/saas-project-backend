@@ -6,7 +6,6 @@ from sqlmodel import Session
 from ..services.dashboard_service import (
     get_user_playlists_dashboard,
     get_playlist_videos_dashboard,
-    get_playlist_analytics_dashboard,
     get_all_user_videos_dashboard,
     get_video_details_dashboard
 )
@@ -52,7 +51,7 @@ def get_comprehensive_playlist_controller(user_id: UUID, playlist_id: str, db: S
         db: Database session
     
     Returns:
-        Dict[str, Any]: Comprehensive playlist analytics
+        Dict[str, Any]: Comprehensive playlist analytics with full playlist metadata
     """
     try:
         from ..services.youtube_auth_service import get_youtube_client
@@ -63,9 +62,46 @@ def get_comprehensive_playlist_controller(user_id: UUID, playlist_id: str, db: S
             logger.error(f"Failed to get YouTube client for user {user_id}")
             return {}
         
-        playlist_data = get_comprehensive_playlist_analytics(youtube, playlist_id)
+        # Get playlist metadata first
+        playlist_request = youtube.playlists().list(
+            part='snippet,contentDetails,status',
+            id=playlist_id
+        )
+        playlist_response = playlist_request.execute()
+        
+        if not playlist_response['items']:
+            logger.error(f"Playlist not found: {playlist_id}")
+            return {}
+        
+        playlist_info = playlist_response['items'][0]
+        snippet = playlist_info['snippet']
+        content_details = playlist_info['contentDetails']
+        status = playlist_info['status']
+        
+        # Get comprehensive analytics
+        analytics_data = get_comprehensive_playlist_analytics(youtube, playlist_id)
+        
+        # Combine playlist metadata with analytics to match the structure of get_all_playlists_comprehensive
+        comprehensive_playlist_data = {
+            'playlist_info': {
+                'playlist_id': playlist_id,
+                'title': snippet.get('title', ''),
+                'description': snippet.get('description', ''),
+                'published_at': snippet.get('publishedAt', ''),
+                'thumbnail_url': snippet.get('thumbnails', {}).get('medium', {}).get('url', ''),
+                'channel_title': snippet.get('channelTitle', ''),
+                'channel_id': snippet.get('channelId', ''),
+                'privacy_status': status.get('privacyStatus', 'private'),
+                'video_count': content_details.get('itemCount', 0),
+                'tags': snippet.get('tags', []),
+                'default_language': snippet.get('defaultLanguage', ''),
+                'localized': snippet.get('localized', {})
+            },
+            'analytics': analytics_data
+        }
+        
         logger.info(f"Successfully retrieved comprehensive data for playlist {playlist_id}")
-        return playlist_data
+        return comprehensive_playlist_data
         
     except Exception as e:
         logger.error(f"Error in get_comprehensive_playlist_controller: {e}")
@@ -233,53 +269,6 @@ def get_playlist_videos_controller(user_id: UUID, playlist_id: str, db: Session)
             detail=f"Failed to get playlist videos: {str(e)}"
         )
 
-def get_playlist_analytics_controller(user_id: UUID, playlist_id: str, db: Session) -> Dict[str, Any]:
-    """
-    Controller function to get comprehensive analytics for a playlist.
-    
-    Args:
-        user_id: UUID of the user
-        playlist_id: YouTube playlist ID
-        db: Database session
-    
-    Returns:
-        Dict[str, Any]: Comprehensive analytics data
-    
-    Raises:
-        HTTPException: If error occurs
-    """
-    try:
-        logger.info(f"Getting playlist analytics for dashboard, user_id: {user_id}, playlist_id: {playlist_id}")
-        
-        analytics = get_playlist_analytics_dashboard(user_id, playlist_id, db)
-        
-        if analytics is None:
-            logger.error(f"Failed to get playlist analytics for user_id: {user_id}, playlist_id: {playlist_id}")
-            raise HTTPException(
-                status_code=500,
-                detail="Failed to retrieve playlist analytics. Please check your YouTube API credentials."
-            )
-        
-        if not analytics:
-            logger.warning(f"No analytics data found for playlist {playlist_id}")
-            return {
-                'playlist_id': playlist_id,
-                'total_videos': 0,
-                'analytics': {},
-                'message': 'No videos found in playlist or no analytics available'
-            }
-        
-        logger.info(f"Successfully generated analytics for playlist {playlist_id}")
-        return analytics
-        
-    except HTTPException:
-        # Re-raise HTTP exceptions as they are already properly formatted
-        raise
-    except Exception as e:
-        logger.error(f"Error in get_playlist_analytics_controller for user_id {user_id}, playlist_id {playlist_id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to get playlist analytics: {str(e)}"
-        ) 
+ 
 
  

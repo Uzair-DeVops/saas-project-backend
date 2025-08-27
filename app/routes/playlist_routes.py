@@ -23,6 +23,11 @@ class PlaylistSelectionResponse(BaseModel):
     message: str
     data: Dict[str, Any]
 
+class PlaylistBasicInfo(BaseModel):
+    """Basic playlist information with only name and ID"""
+    id: str
+    name: str
+
 @router.get("/my-playlists")
 async def get_my_playlists(
     current_user: UserSignUp = Depends(get_current_user),
@@ -280,4 +285,47 @@ async def get_video_playlist(
         raise HTTPException(
             status_code=500,
             detail="Internal server error while retrieving playlist information"
+        )
+
+@router.get("/channel-playlists", response_model=List[PlaylistBasicInfo])
+async def get_channel_playlists(
+    current_user: UserSignUp = Depends(get_current_user),
+    db: Session = Depends(get_database_session)
+) -> List[PlaylistBasicInfo]:
+    """
+    Get only names and IDs of playlists from the authenticated user's YouTube channel.
+    
+    Args:
+        current_user: The authenticated user from JWT token
+        db: Database session dependency
+    
+    Returns:
+        List[PlaylistBasicInfo]: List of playlists with only id and name
+        
+    Raises:
+        HTTPException: If authentication fails or other errors occur
+    """
+    try:
+        logger.info(f"Channel playlists request received for user_id: {current_user.id}")
+        playlists = get_playlists_controller(current_user.id, db)
+        
+        # Extract only id and name from playlists
+        basic_playlists = []
+        for playlist in playlists:
+            basic_playlists.append(PlaylistBasicInfo(
+                id=playlist['id'],
+                name=playlist['title']
+            ))
+        
+        logger.info(f"Successfully retrieved {len(basic_playlists)} channel playlists for user_id: {current_user.id}")
+        return basic_playlists
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as they are already properly formatted
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in get_channel_playlists route for user_id {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while retrieving channel playlists"
         ) 
