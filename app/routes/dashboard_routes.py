@@ -407,18 +407,22 @@ async def get_dashboard_overview(
             )
         
         # Get channel statistics
-        subscriber_count = channel_info.get('subscriber_count', 0)
-        total_channel_views = channel_info.get('view_count', 0)
-        total_channel_videos = channel_info.get('video_count', 0)
+        subscriber_count = channel_info.get('subscriber_count', 0) or 0
+        total_channel_views = channel_info.get('view_count', 0) or 0
+        total_channel_videos = channel_info.get('video_count', 0) or 0
         
         # Get all videos for detailed analytics
         from ..services.dashboard_service import get_user_videos
         all_videos = get_user_videos(youtube)
         
+        # Ensure all_videos is a list and handle empty case
+        if not all_videos:
+            all_videos = []
+        
         # Calculate video statistics
-        total_likes = sum(int(video.get('like_count', 0)) for video in all_videos)
-        total_comments = sum(int(video.get('comment_count', 0)) for video in all_videos)
-        total_duration = sum(int(video.get('duration_seconds', 0)) for video in all_videos)
+        total_likes = sum(int(video.get('like_count', 0) or 0) for video in all_videos)
+        total_comments = sum(int(video.get('comment_count', 0) or 0) for video in all_videos)
+        total_duration = sum(int(video.get('duration_seconds', 0) or 0) for video in all_videos)
         
         # Calculate additional metrics
         from datetime import datetime, timedelta
@@ -453,14 +457,14 @@ async def get_dashboard_overview(
         ]
         
         # Calculate recent performance
-        recent_views = sum(int(video.get('view_count', 0)) for video in recent_videos)
-        recent_likes = sum(int(video.get('like_count', 0)) for video in recent_videos)
-        recent_comments = sum(int(video.get('comment_count', 0)) for video in recent_videos)
+        recent_views = sum(int(video.get('view_count', 0) or 0) for video in recent_videos)
+        recent_likes = sum(int(video.get('like_count', 0) or 0) for video in recent_videos)
+        recent_comments = sum(int(video.get('comment_count', 0) or 0) for video in recent_videos)
         recent_engagement_rate = ((recent_likes + recent_comments) / recent_views * 100) if recent_views > 0 else 0
         
         # Get top performing videos
         top_videos_by_views = sorted(all_videos, key=lambda x: int(x.get('view_count', 0)), reverse=True)[:10]
-        top_videos_by_engagement = sorted(all_videos, key=lambda x: (int(x.get('like_count', 0)) + int(x.get('comment_count', 0))) / int(x.get('view_count', 1)), reverse=True)[:10]
+        top_videos_by_engagement = sorted(all_videos, key=lambda x: (int(x.get('like_count', 0)) + int(x.get('comment_count', 0))) / max(int(x.get('view_count', 0)), 1), reverse=True)[:10]
         
         # Calculate monthly breakdown for charts
         monthly_data = {}
@@ -480,10 +484,10 @@ async def get_dashboard_overview(
                         }
                     
                     monthly_data[month_key]['videos'] += 1
-                    monthly_data[month_key]['views'] += int(video.get('view_count', 0))
-                    monthly_data[month_key]['likes'] += int(video.get('like_count', 0))
-                    monthly_data[month_key]['comments'] += int(video.get('comment_count', 0))
-                    monthly_data[month_key]['duration'] += int(video.get('duration_seconds', 0))
+                    monthly_data[month_key]['views'] += int(video.get('view_count', 0) or 0)
+                    monthly_data[month_key]['likes'] += int(video.get('like_count', 0) or 0)
+                    monthly_data[month_key]['comments'] += int(video.get('comment_count', 0) or 0)
+                    monthly_data[month_key]['duration'] += int(video.get('duration_seconds', 0) or 0)
                     
                 except Exception as e:
                     logger.error(f"Error processing video date: {e}")
@@ -525,7 +529,7 @@ async def get_dashboard_overview(
         }
         
         for video in all_videos:
-            views = int(video.get('view_count', 0))
+            views = int(video.get('view_count', 0) or 0)
             if views <= 100:
                 view_ranges['0-100'] += 1
             elif views <= 500:
@@ -548,7 +552,7 @@ async def get_dashboard_overview(
         }
         
         for video in all_videos:
-            duration_seconds = int(video.get('duration_seconds', 0))
+            duration_seconds = int(video.get('duration_seconds', 0) or 0)
             if duration_seconds <= 300:  # 5 minutes
                 duration_ranges['0-5min'] += 1
             elif duration_seconds <= 900:  # 15 minutes
@@ -570,9 +574,9 @@ async def get_dashboard_overview(
         }
         
         for video in all_videos:
-            views = int(video.get('view_count', 0))
-            likes = int(video.get('like_count', 0))
-            comments = int(video.get('comment_count', 0))
+            views = int(video.get('view_count', 0) or 0)
+            likes = int(video.get('like_count', 0) or 0)
+            comments = int(video.get('comment_count', 0) or 0)
             
             if views > 0:
                 engagement_rate = ((likes + comments) / views) * 100
@@ -590,10 +594,10 @@ async def get_dashboard_overview(
         # Performance scoring
         performance_scores = []
         for video in all_videos:
-            views = int(video.get('view_count', 0))
-            likes = int(video.get('like_count', 0))
-            comments = int(video.get('comment_count', 0))
-            duration_seconds = int(video.get('duration_seconds', 0))
+            views = int(video.get('view_count', 0) or 0)
+            likes = int(video.get('like_count', 0) or 0)
+            comments = int(video.get('comment_count', 0) or 0)
+            duration_seconds = int(video.get('duration_seconds', 0) or 0)
             
             # Calculate performance score (views * 0.5 + likes * 10 + comments * 20)
             score = (views * 0.5) + (likes * 10) + (comments * 20)
@@ -623,9 +627,9 @@ async def get_dashboard_overview(
                 week_start <= datetime.fromisoformat(video['published_at'].replace('Z', '+00:00')) < week_end
             ]
             
-            week_views = sum(int(video.get('view_count', 0)) for video in week_videos)
-            week_likes = sum(int(video.get('like_count', 0)) for video in week_videos)
-            week_comments = sum(int(video.get('comment_count', 0)) for video in week_videos)
+            week_views = sum(int(video.get('view_count', 0) or 0) for video in week_videos)
+            week_likes = sum(int(video.get('like_count', 0) or 0) for video in week_videos)
+            week_comments = sum(int(video.get('comment_count', 0) or 0) for video in week_videos)
             week_engagement = ((week_likes + week_comments) / week_views * 100) if week_views > 0 else 0
             
             weekly_data[week_key] = {
@@ -646,7 +650,7 @@ async def get_dashboard_overview(
         
         for video in all_videos:
             title = video.get('title', '').lower()
-            duration_seconds = int(video.get('duration_seconds', 0))
+            duration_seconds = int(video.get('duration_seconds', 0) or 0)
             
             if 'shorts' in title or duration_seconds <= 60:
                 content_types['shorts'] += 1
@@ -670,9 +674,9 @@ async def get_dashboard_overview(
         videos_with_views = 0
         
         for video in all_videos:
-            views = int(video.get('view_count', 0))
-            likes = int(video.get('like_count', 0))
-            comments = int(video.get('comment_count', 0))
+            views = int(video.get('view_count', 0) or 0)
+            likes = int(video.get('like_count', 0) or 0)
+            comments = int(video.get('comment_count', 0) or 0)
             
             if views > 0:
                 retention_rate = ((likes + comments) / views) * 100
@@ -701,8 +705,8 @@ async def get_dashboard_overview(
             recent_videos = all_videos[:10]  # Most recent 10
             older_videos = all_videos[-10:]  # Oldest 10
             
-            recent_avg_views = sum(int(v.get('view_count', 0)) for v in recent_videos) / len(recent_videos)
-            older_avg_views = sum(int(v.get('view_count', 0)) for v in older_videos) / len(older_videos)
+            recent_avg_views = sum(int(v.get('view_count', 0) or 0) for v in recent_videos) / len(recent_videos) if recent_videos else 0
+            older_avg_views = sum(int(v.get('view_count', 0) or 0) for v in older_videos) / len(older_videos) if older_videos else 0
             
             if recent_avg_views > older_avg_views * 1.2:
                 growth_trajectory['trending_up'] = 1
@@ -741,7 +745,7 @@ async def get_dashboard_overview(
                 'views_per_month': round(views_per_month, 2),
                 'subscribers_per_month': round(subscribers_per_month, 2),
                 'days_since_created': days_since_created,
-                'channel_age_months': round(days_since_created / 30, 1)
+                'channel_age_months': round(days_since_created / 30, 1) if days_since_created > 0 else 0
             },
             'recent_performance': {
                 'recent_videos_count': len(recent_videos),
@@ -756,12 +760,12 @@ async def get_dashboard_overview(
                     {
                         'video_id': video.get('video_id', ''),
                         'title': video.get('title', ''),
-                        'views': int(video.get('view_count', 0)),
-                        'likes': int(video.get('like_count', 0)),
-                        'comments': int(video.get('comment_count', 0)),
+                        'views': int(video.get('view_count', 0) or 0),
+                        'likes': int(video.get('like_count', 0) or 0),
+                        'comments': int(video.get('comment_count', 0) or 0),
                         'published_at': video.get('published_at', ''),
                         'duration': video.get('duration', ''),
-                        'engagement_rate': round((int(video.get('like_count', 0)) + int(video.get('comment_count', 0))) / int(video.get('view_count', 1)) * 100, 2)
+                        'engagement_rate': round((int(video.get('like_count', 0) or 0) + int(video.get('comment_count', 0) or 0)) / max(int(video.get('view_count', 0) or 0), 1) * 100, 2)
                     }
                     for video in top_videos_by_views
                 ],
@@ -769,12 +773,12 @@ async def get_dashboard_overview(
                     {
                         'video_id': video.get('video_id', ''),
                         'title': video.get('title', ''),
-                        'views': int(video.get('view_count', 0)),
-                        'likes': int(video.get('like_count', 0)),
-                        'comments': int(video.get('comment_count', 0)),
+                        'views': int(video.get('view_count', 0) or 0),
+                        'likes': int(video.get('like_count', 0) or 0),
+                        'comments': int(video.get('comment_count', 0) or 0),
                         'published_at': video.get('published_at', ''),
                         'duration': video.get('duration', ''),
-                        'engagement_rate': round((int(video.get('like_count', 0)) + int(video.get('comment_count', 0))) / int(video.get('view_count', 1)) * 100, 2)
+                        'engagement_rate': round((int(video.get('like_count', 0) or 0) + int(video.get('comment_count', 0) or 0)) / max(int(video.get('view_count', 0) or 0), 1) * 100, 2)
                     }
                     for video in top_videos_by_engagement
                 ]
@@ -823,7 +827,7 @@ async def get_dashboard_overview(
             },
             'performance_scoring': {
                 'top_videos_by_score': top_performing_by_score,
-                'avg_performance_score': round(sum(score['score'] for score in performance_scores) / len(performance_scores), 2) if performance_scores else 0,
+                'avg_performance_score': round(sum(score['score'] for score in performance_scores) / len(performance_scores), 2) if performance_scores and len(performance_scores) > 0 else 0,
                 'total_videos_scored': len(performance_scores)
             },
             'weekly_analytics': {

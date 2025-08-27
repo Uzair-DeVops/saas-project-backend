@@ -685,18 +685,18 @@ def calculate_playlist_growth_metrics(video_analytics: List[Dict[str, Any]]) -> 
         recent_videos = sorted_videos[-5:] if len(sorted_videos) >= 5 else sorted_videos
         older_videos = sorted_videos[:5] if len(sorted_videos) >= 5 else sorted_videos
         
-        recent_avg_views = sum(v['views'] for v in recent_videos) / len(recent_videos)
-        older_avg_views = sum(v['views'] for v in older_videos) / len(older_videos)
+        recent_avg_views = sum(v['views'] for v in recent_videos) / len(recent_videos) if recent_videos else 0
+        older_avg_views = sum(v['views'] for v in older_videos) / len(older_videos) if older_videos else 0
         
-        recent_avg_engagement = sum(v['engagement_rate'] for v in recent_videos) / len(recent_videos)
-        older_avg_engagement = sum(v['engagement_rate'] for v in older_videos) / len(older_videos)
+        recent_avg_engagement = sum(v['engagement_rate'] for v in recent_videos) / len(recent_videos) if recent_videos else 0
+        older_avg_engagement = sum(v['engagement_rate'] for v in older_videos) / len(older_videos) if older_videos else 0
         
         views_growth = ((recent_avg_views - older_avg_views) / older_avg_views * 100) if older_avg_views > 0 else 0
         engagement_growth = ((recent_avg_engagement - older_avg_engagement) / older_avg_engagement * 100) if older_avg_engagement > 0 else 0
         
         # Consistency score (based on view variance)
         view_values = [v['views'] for v in video_analytics]
-        view_variance = sum((v - sum(view_values) / len(view_values)) ** 2 for v in view_values) / len(view_values)
+        view_variance = sum((v - sum(view_values) / len(view_values)) ** 2 for v in view_values) / len(view_values) if view_values else 0
         consistency_score = max(0, 100 - (view_variance / 1000))  # Normalize to 0-100
         
         return {
@@ -791,7 +791,7 @@ def calculate_playlist_health(video_analytics: List[Dict[str, Any]], overall_eng
         
         # Consistency health
         view_values = [v['views'] for v in video_analytics]
-        view_variance = sum((v - sum(view_values) / len(view_values)) ** 2 for v in view_values) / len(view_values)
+        view_variance = sum((v - sum(view_values) / len(view_values)) ** 2 for v in view_values) / len(view_values) if view_values else 0
         if view_variance < 1000:
             health_score += 25
             health_factors.append('Consistent performance')
