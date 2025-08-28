@@ -61,62 +61,62 @@ class AnalyticsResponse(BaseModel):
 
 
 
-@router.get("/playlists", response_model=PlaylistsResponse)
-async def get_dashboard_playlists(
-    current_user: UserSignUp = Depends(get_current_user),
-    db: Session = Depends(get_database_session)
-) -> PlaylistsResponse:
-    """
-    Get all playlists with comprehensive analytics for dashboard.
+# @router.get("/playlists", response_model=PlaylistsResponse)
+# async def get_dashboard_playlists(
+#     current_user: UserSignUp = Depends(get_current_user),
+#     db: Session = Depends(get_database_session)
+# ) -> PlaylistsResponse:
+#     """
+#     Get all playlists with comprehensive analytics for dashboard.
     
-    This endpoint provides detailed information about all playlists including:
-    - Playlist metadata (title, description, thumbnail, etc.)
-    - Comprehensive performance metrics
-    - Content analysis and growth insights
-    - Top performing videos in each playlist
-    - Playlist health and recommendations
+#     This endpoint provides detailed information about all playlists including:
+#     - Playlist metadata (title, description, thumbnail, etc.)
+#     - Comprehensive performance metrics
+#     - Content analysis and growth insights
+#     - Top performing videos in each playlist
+#     - Playlist health and recommendations
     
-    Args:
-        current_user: The authenticated user from JWT token
-        db: Database session dependency
+#     Args:
+#         current_user: The authenticated user from JWT token
+#         db: Database session dependency
     
-    Returns:
-        PlaylistsResponse: List of playlists with comprehensive analytics
+#     Returns:
+#         PlaylistsResponse: List of playlists with comprehensive analytics
         
-    Raises:
-        HTTPException: If error occurs
-    """
-    try:
-        logger.info(f"Dashboard playlists request received for user_id: {current_user.id}")
+#     Raises:
+#         HTTPException: If error occurs
+#     """
+#     try:
+#         logger.info(f"Dashboard playlists request received for user_id: {current_user.id}")
         
-        # Get comprehensive playlist data from database
-        playlists = DashboardDataService.get_playlists_data(current_user.id, db)
+#         # Get comprehensive playlist data from database
+#         playlists = DashboardDataService.get_playlists_data(current_user.id, db)
         
-        # If no data in database, return empty response
-        if not playlists:
-            return PlaylistsResponse(
-                success=True,
-                message="No playlist data found. Please fetch data first using /dashboard/playlists/fetch",
-                data=[],
-                count=0
-            )
+#         # If no data in database, return empty response
+#         if not playlists:
+#             return PlaylistsResponse(
+#                 success=True,
+#                 message="No playlist data found. Please fetch data first using /dashboard/playlists/fetch",
+#                 data=[],
+#                 count=0
+#             )
         
-        return PlaylistsResponse(
-            success=True,
-            message=f"Successfully retrieved {len(playlists)} playlists with comprehensive analytics",
-            data=playlists,
-            count=len(playlists)
-        )
+#         return PlaylistsResponse(
+#             success=True,
+#             message=f"Successfully retrieved {len(playlists)} playlists with comprehensive analytics",
+#             data=playlists,
+#             count=len(playlists)
+#         )
         
-    except HTTPException:
-        # Re-raise HTTP exceptions as they are already properly formatted
-        raise
-    except Exception as e:
-        logger.error(f"Unexpected error in get_dashboard_playlists route for user_id {current_user.id}: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="Internal server error while retrieving playlists"
-        )
+#     except HTTPException:
+#         # Re-raise HTTP exceptions as they are already properly formatted
+#         raise
+#     except Exception as e:
+#         logger.error(f"Unexpected error in get_dashboard_playlists route for user_id {current_user.id}: {e}")
+#         raise HTTPException(
+#             status_code=500,
+#             detail="Internal server error while retrieving playlists"
+#         )
 
 @router.get("/playlists/{playlist_id}/comprehensive", response_model=AnalyticsResponse)
 async def get_dashboard_playlist_comprehensive(

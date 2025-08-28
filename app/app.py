@@ -84,6 +84,7 @@ from .routes.dashboard_refresh_routes import router as dashboard_refresh_router
 from .routes.youtube_credentials_routes import router as youtube_credentials_router
 
 app.include_router(auth_router)
+app.include_router(youtube_credentials_router)
 app.include_router(youtube_token_router)
 app.include_router(gemini_key_router)
 app.include_router(video_router)
@@ -98,7 +99,6 @@ app.include_router(youtube_upload_router)
 app.include_router(dashboard_router)
 app.include_router(dashboard_fetch_router)
 app.include_router(dashboard_refresh_router)
-app.include_router(youtube_credentials_router)
 
 # MOUNT STATIC FILES
 from pathlib import Path
