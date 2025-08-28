@@ -9,7 +9,7 @@ from fastapi.templating import Jinja2Templates
 templates = Jinja2Templates(directory="app/views")
 
 from ..models import GoogleToken, TokenStatus, CreateTokenResponse, RefreshTokenResponse
-from ..controllers.youtube_token_service import (
+from ..controllers.youtube_token_controller import (
     create_token,
     handle_oauth_callback,
     refresh_token,

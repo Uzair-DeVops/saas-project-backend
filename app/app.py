@@ -57,6 +57,7 @@ async def startup_event(app: FastAPI):
         from .models.dashboard_playlist_model import DashboardPlaylist
         from .models.dashboard_video_model import DashboardVideo
         from .models.dashboard_playlist_video_model import DashboardPlaylistVideo
+        from .models.youtube_credentials_model import YouTubeCredentials
         
         # Create all tables
         SQLModel.metadata.create_all(app.state.database_engine)
@@ -80,6 +81,7 @@ from .routes.youtube_upload_routes import router as youtube_upload_router
 from .routes.dashboard_routes import router as dashboard_router
 from .routes.dashboard_fetch_routes import router as dashboard_fetch_router
 from .routes.dashboard_refresh_routes import router as dashboard_refresh_router
+from .routes.youtube_credentials_routes import router as youtube_credentials_router
 
 app.include_router(auth_router)
 app.include_router(youtube_token_router)
@@ -96,6 +98,7 @@ app.include_router(youtube_upload_router)
 app.include_router(dashboard_router)
 app.include_router(dashboard_fetch_router)
 app.include_router(dashboard_refresh_router)
+app.include_router(youtube_credentials_router)
 
 # MOUNT STATIC FILES
 from pathlib import Path

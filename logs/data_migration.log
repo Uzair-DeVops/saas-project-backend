@@ -4106,3 +4106,7 @@ CREATE TABLE dashboard_overview (
 2025-08-28 19:16:39 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
 2025-08-28 19:16:40 - data_migration.DASHBOARD_ROUTES - [92mℹ️ INFO[0m - get_dashboard_video_details:279 - [92mDashboard video details request received for video_id: -kllTOTVQ48, user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
 2025-08-28 19:18:43 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:124 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-28 19:28:09 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-28 19:28:09 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-28 19:28:12 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-28 19:28:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:64 - [92m✅ Database tables created successfully[0m

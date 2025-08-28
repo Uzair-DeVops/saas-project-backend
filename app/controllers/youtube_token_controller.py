@@ -9,6 +9,7 @@ from sqlmodel import Session, select
 from ..models import GoogleToken, TokenResponse, TokenStatus, OAuthCallbackResponse, CreateTokenResponse, RefreshTokenResponse, StoredTokens
 from ..utils.database_dependency import get_database_session
 from ..utils.my_logger import get_logger
+from ..controllers.youtube_credentials_controller import get_user_youtube_credentials
 
 logger = get_logger("YOUTUBE_TOKEN_SERVICE")
 
@@ -16,18 +17,22 @@ import secrets
 from urllib.parse import urlencode
 
 # Configuration
-# CLIENT_ID = "737019788917-t6916l42kbn7hkku8oa0rknglus5fhl6.apps.googleusercontent.com"
-# CLIENT_SECRET = "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"
-CLIENT_ID = "423217524843-t8o4646vhkk15c551s8mtndi2bmoqi7g.apps.googleusercontent.com"
-CLIENT_SECRET = "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"
 REDIRECT_URI = "http://localhost:8000/youtube/oauth/callback"
 
 # Google API endpoints
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/auth"
 GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
 
-def get_google_auth_url(client_id: str, redirect_uri: str, state: str = "user_1") -> str:
+def get_google_auth_url(user_id: UUID, db: Session, redirect_uri: str = None, state: str = "user_1") -> str:
     """Generate the Google OAuth2 authorization URL."""
+    # Get user's YouTube credentials
+    credentials = get_user_youtube_credentials(user_id, db)
+    if not credentials:
+        raise ValueError(f"No YouTube credentials found for user_id: {user_id}")
+    
+    if redirect_uri is None:
+        redirect_uri = REDIRECT_URI
+    
     scopes = [
         "https://www.googleapis.com/auth/youtube",
         "https://www.googleapis.com/auth/youtube.readonly",
@@ -47,7 +52,7 @@ def get_google_auth_url(client_id: str, redirect_uri: str, state: str = "user_1"
     
     params = {
         "response_type": "code",
-        "client_id": client_id,
+        "client_id": credentials.client_id,
         "redirect_uri": redirect_uri,
         "scope": " ".join(scopes),
         "state": state,
@@ -59,13 +64,19 @@ def get_google_auth_url(client_id: str, redirect_uri: str, state: str = "user_1"
     query_string = urlencode(params)
     return f"{GOOGLE_AUTH_URL}?{query_string}"
 
-def exchange_code_for_tokens(authorization_code: str) -> Optional[Dict[str, Any]]:
+def exchange_code_for_tokens(authorization_code: str, user_id: UUID, db: Session) -> Optional[Dict[str, Any]]:
     """Exchange authorization code for access tokens."""
+    # Get user's YouTube credentials
+    credentials = get_user_youtube_credentials(user_id, db)
+    if not credentials:
+        logger.error(f"No YouTube credentials found for user_id: {user_id}")
+        return None
+    
     data = {
         "grant_type": "authorization_code",
         "code": authorization_code,
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
+        "client_id": credentials.client_id,
+        "client_secret": credentials.client_secret,
         "redirect_uri": REDIRECT_URI
     }
     
@@ -83,13 +94,19 @@ def exchange_code_for_tokens(authorization_code: str) -> Optional[Dict[str, Any]
             logger.error(f"DEBUG: Error response: {e.response.text}")
         return None
 
-def refresh_access_token(refresh_token: str) -> Optional[Dict[str, Any]]:
+def refresh_access_token(refresh_token: str, user_id: UUID, db: Session) -> Optional[Dict[str, Any]]:
     """Refresh access token using refresh token."""
+    # Get user's YouTube credentials
+    credentials = get_user_youtube_credentials(user_id, db)
+    if not credentials:
+        logger.error(f"No YouTube credentials found for user_id: {user_id}")
+        return None
+    
     data = {
         "grant_type": "refresh_token",
         "refresh_token": refresh_token,
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET
+        "client_id": credentials.client_id,
+        "client_secret": credentials.client_secret
     }
     
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
@@ -184,7 +201,7 @@ def create_token(user_id: UUID, db: Session) -> CreateTokenResponse:
     """Create token - opens browser for OAuth authentication."""
     # Generate a stronger state parameter
     state = f"user_{str(user_id)}"
-    auth_url = get_google_auth_url(CLIENT_ID, REDIRECT_URI, state)
+    auth_url = get_google_auth_url(user_id, db, REDIRECT_URI, state)
     
     # Open browser
     webbrowser.open(auth_url)
@@ -198,7 +215,7 @@ def create_token(user_id: UUID, db: Session) -> CreateTokenResponse:
 def handle_oauth_callback(code: str, user_id: UUID, db: Session, state: Optional[str] = None) -> OAuthCallbackResponse:
     """Handle OAuth callback - exchanges authorization code for tokens and stores them."""
     # Exchange code for tokens
-    tokens = exchange_code_for_tokens(code)
+    tokens = exchange_code_for_tokens(code, user_id, db)
     
     if not tokens:
         raise Exception("Failed to exchange code for tokens")
@@ -237,7 +254,7 @@ def refresh_token(user_id: UUID, db: Session) -> RefreshTokenResponse:
     if not refresh_token_value:
         raise Exception("No refresh token found")
     
-    new_tokens = refresh_access_token(refresh_token_value)
+    new_tokens = refresh_access_token(refresh_token_value, user_id, db)
     if not new_tokens:
         raise Exception("Failed to refresh token")
     
@@ -308,7 +325,7 @@ def get_google_token_after_inspect_and_refresh(user_id: UUID, db: Session) -> Op
                 return None
             
             # Refresh the token
-            new_tokens = refresh_access_token(refresh_token_value)
+            new_tokens = refresh_access_token(refresh_token_value, user_id, db)
             
             if not new_tokens:
                 logger.error(f"Failed to refresh Google token for user_id: {user_id}")

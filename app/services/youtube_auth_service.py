@@ -8,7 +8,8 @@ from googleapiclient.discovery import build
 from google.oauth2.credentials import Credentials
 from sqlmodel import Session
 
-from ..controllers.youtube_token_service import get_google_token_after_inspect_and_refresh
+from ..controllers.youtube_token_controller import get_google_token_after_inspect_and_refresh
+from ..controllers.youtube_credentials_controller import get_user_youtube_credentials
 from ..utils.my_logger import get_logger
 
 logger = get_logger("YOUTUBE_AUTH_SERVICE")
@@ -50,13 +51,19 @@ def get_youtube_client(user_id: UUID, db: Session) -> Optional[Any]:
             logger.error(f"No valid tokens found for user_id: {user_id}")
             return None
         
+        # Get user's YouTube credentials
+        user_credentials = get_user_youtube_credentials(user_id, db)
+        if not user_credentials:
+            logger.error(f"No YouTube credentials found for user_id: {user_id}")
+            return None
+        
         # Create credentials from tokens
         creds = Credentials(
             token=tokens.get('access_token'),
             refresh_token=tokens.get('refresh_token'),
             token_uri="https://oauth2.googleapis.com/token",
-            client_id="737019788917-t6916l42kbn7hkku8oa0rknglus5fhl6.apps.googleusercontent.com",
-            client_secret="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",
+            client_id=user_credentials.client_id,
+            client_secret=user_credentials.client_secret,
             scopes=SCOPES
         )
         
