@@ -16,8 +16,10 @@ import secrets
 from urllib.parse import urlencode
 
 # Configuration
-CLIENT_ID = "737019788917-t6916l42kbn7hkku8oa0rknglus5fhl6.apps.googleusercontent.com"
-CLIENT_SECRET = "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"
+# CLIENT_ID = "737019788917-t6916l42kbn7hkku8oa0rknglus5fhl6.apps.googleusercontent.com"
+# CLIENT_SECRET = "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"
+CLIENT_ID = "423217524843-t8o4646vhkk15c551s8mtndi2bmoqi7g.apps.googleusercontent.com"
+CLIENT_SECRET = "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"
 REDIRECT_URI = "http://localhost:8000/youtube/oauth/callback"
 
 # Google API endpoints

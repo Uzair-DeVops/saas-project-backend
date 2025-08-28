@@ -3,6 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Depends, Path
 from sqlmodel import Session
 from pydantic import BaseModel
+import json
 
 from ..controllers.dashboard_controller import (
     get_playlists_controller,
@@ -16,10 +17,14 @@ from ..utils.database_dependency import get_database_session
 from ..controllers.user_controller import get_current_user
 from ..models.user_model import UserSignUp
 from ..utils.my_logger import get_logger
+from ..services.dashboard_data_service import DashboardDataService
+from ..models.dashboard_playlist_video_model import DashboardPlaylistVideo
+from ..models.dashboard_video_model import DashboardVideo
+from ..models.dashboard_playlist_model import DashboardPlaylist
 
 logger = get_logger("DASHBOARD_ROUTES")
 
-router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+router = APIRouter(prefix="/dashboard", tags=["dashboard-get"])
 
 # Response models
 class DashboardResponse(BaseModel):
@@ -84,8 +89,17 @@ async def get_dashboard_playlists(
     try:
         logger.info(f"Dashboard playlists request received for user_id: {current_user.id}")
         
-        # Get comprehensive playlist data
-        playlists = get_all_playlists_comprehensive_controller(current_user.id, db)
+        # Get comprehensive playlist data from database
+        playlists = DashboardDataService.get_playlists_data(current_user.id, db)
+        
+        # If no data in database, return empty response
+        if not playlists:
+            return PlaylistsResponse(
+                success=True,
+                message="No playlist data found. Please fetch data first using /dashboard/playlists/fetch",
+                data=[],
+                count=0
+            )
         
         return PlaylistsResponse(
             success=True,
@@ -138,8 +152,21 @@ async def get_dashboard_playlist_comprehensive(
     try:
         logger.info(f"Dashboard playlist comprehensive request received for playlist_id: {playlist_id}, user_id: {current_user.id}")
         
-        # Get comprehensive playlist analytics
-        playlist_data = get_comprehensive_playlist_controller(current_user.id, playlist_id, db)
+        # Get comprehensive playlist analytics from database
+        playlists = DashboardDataService.get_playlists_data(current_user.id, db)
+        
+        # Find the specific playlist
+        playlist_data = None
+        for playlist in playlists:
+            if playlist.get('playlist_info', {}).get('playlist_id') == playlist_id:
+                playlist_data = playlist
+                break
+        
+        if not playlist_data:
+            raise HTTPException(
+                status_code=404,
+                detail="Playlist not found in database. Please fetch data first using /dashboard/playlists/fetch"
+            )
         
         if not playlist_data:
             raise HTTPException(
@@ -187,8 +214,17 @@ async def get_dashboard_videos(
     try:
         logger.info(f"Dashboard videos request received for user_id: {current_user.id}")
         
-        # Get all videos with analytics
-        videos = get_all_user_videos_controller(current_user.id, db)
+        # Get all videos with analytics from database
+        videos = DashboardDataService.get_videos_data(current_user.id, db)
+        
+        # If no data in database, return empty response
+        if not videos:
+            return VideosResponse(
+                success=True,
+                message="No video data found. Please fetch data first using /dashboard/videos/fetch",
+                data=[],
+                count=0
+            )
         
         return VideosResponse(
             success=True,
@@ -242,8 +278,21 @@ async def get_dashboard_video_details(
     try:
         logger.info(f"Dashboard video details request received for video_id: {video_id}, user_id: {current_user.id}")
         
-        # Get detailed video analytics
-        video_details = get_video_details_controller(current_user.id, video_id, db)
+        # Get detailed video analytics from database
+        videos = DashboardDataService.get_videos_data(current_user.id, db)
+        
+        # Find the specific video
+        video_details = None
+        for video in videos:
+            if video.get('video_id') == video_id:
+                video_details = video
+                break
+        
+        if not video_details:
+            raise HTTPException(
+                status_code=404,
+                detail="Video not found in database. Please fetch data first using /dashboard/videos/fetch"
+            )
         
         if not video_details:
             raise HTTPException(
@@ -293,8 +342,16 @@ async def get_dashboard_playlist_videos(
     try:
         logger.info(f"Dashboard playlist videos request received for playlist_id: {playlist_id}, user_id: {current_user.id}")
         
-        # Get videos with analytics
-        videos = get_playlist_videos_controller(current_user.id, playlist_id, db)
+        # Get videos for the specific playlist using relationship table
+        videos = DashboardDataService.get_playlist_videos(current_user.id, playlist_id, db)
+        
+        if not videos:
+            return VideosResponse(
+                success=True,
+                message="No videos found for this playlist in database. Please fetch data first using /dashboard/playlists/fetch",
+                data=[],
+                count=0
+            )
         
         return VideosResponse(
             success=True,
@@ -314,6 +371,115 @@ async def get_dashboard_playlist_videos(
         )
 
 
+@router.get("/playlists/{playlist_id}/videos/{video_id}", response_model=VideoDetailResponse)
+async def get_dashboard_playlist_video_details(
+    playlist_id: str = Path(..., description="The YouTube playlist ID"),
+    video_id: str = Path(..., description="The YouTube video ID"),
+    current_user: UserSignUp = Depends(get_current_user),
+    db: Session = Depends(get_database_session)
+) -> VideoDetailResponse:
+    """
+    Get detailed analytics for a specific video within a playlist.
+    
+    This endpoint provides comprehensive information about a single video in a specific playlist
+    including video metadata, performance metrics, analytics, and playlist-specific context.
+    
+    Args:
+        playlist_id: The YouTube playlist ID
+        video_id: The YouTube video ID
+        current_user: The authenticated user from JWT token
+        db: Database session dependency
+    
+    Returns:
+        VideoDetailResponse: Detailed video analytics with playlist context
+        
+    Raises:
+        HTTPException: If error occurs
+    """
+    try:
+        logger.info(f"Dashboard playlist video details request received for playlist_id: {playlist_id}, video_id: {video_id}, user_id: {current_user.id}")
+        
+        # First verify the video belongs to the playlist
+        playlist_video = db.query(DashboardPlaylistVideo).filter(
+            DashboardPlaylistVideo.user_id == current_user.id,
+            DashboardPlaylistVideo.playlist_id == playlist_id,
+            DashboardPlaylistVideo.video_id == video_id
+        ).first()
+        
+        if not playlist_video:
+            raise HTTPException(
+                status_code=404,
+                detail="Video not found in this playlist or you don't have permission to access it"
+            )
+        
+        # Get video details from dashboard_videos table
+        video_record = db.query(DashboardVideo).filter(
+            DashboardVideo.user_id == current_user.id,
+            DashboardVideo.video_id == video_id
+        ).first()
+        
+        if not video_record:
+            raise HTTPException(
+                status_code=404,
+                detail="Video details not found in database. Please fetch data first using /dashboard/videos/fetch"
+            )
+        
+        # Get playlist info for context
+        playlist_record = db.query(DashboardPlaylist).filter(
+            DashboardPlaylist.user_id == current_user.id,
+            DashboardPlaylist.playlist_id == playlist_id
+        ).first()
+        
+        # Build video data with playlist context
+        video_data = {
+            'video_id': video_record.video_id,
+            'title': video_record.title,
+            'description': video_record.description,
+            'thumbnail_url': video_record.thumbnail_url,
+            'published_at': video_record.published_at.isoformat(),
+            'duration': video_record.duration,
+            'duration_seconds': video_record.duration_seconds,
+            'channel_id': video_record.channel_id,
+            'channel_title': video_record.channel_title,
+            'view_count': video_record.view_count,
+            'like_count': video_record.like_count,
+            'comment_count': video_record.comment_count,
+            'privacy_status': video_record.privacy_status,
+            'upload_status': video_record.upload_status,
+            'license': video_record.license,
+            'made_for_kids': video_record.made_for_kids,
+            'category_id': video_record.category_id,
+            'tags': json.loads(video_record.tags),
+            'default_language': video_record.default_language,
+            'default_audio_language': video_record.default_audio_language,
+            'analytics': json.loads(video_record.analytics),
+            # Add playlist context
+            'playlist_context': {
+                'playlist_id': playlist_id,
+                'playlist_title': playlist_record.title if playlist_record else '',
+                'playlist_description': playlist_record.description if playlist_record else '',
+                'position_in_playlist': playlist_video.position,
+                'total_videos_in_playlist': playlist_record.video_count if playlist_record else 0
+            }
+        }
+        
+        return VideoDetailResponse(
+            success=True,
+            message=f"Successfully retrieved details for video '{video_data['title']}' in playlist '{video_data['playlist_context']['playlist_title']}'",
+            data=video_data
+        )
+        
+    except HTTPException:
+        # Re-raise HTTP exceptions as they are already properly formatted
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in get_dashboard_playlist_video_details route for playlist_id {playlist_id}, video_id {video_id}, user_id {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while retrieving playlist video details"
+        )
+
+
 
 @router.get("/overview", response_model=DashboardResponse)
 async def get_dashboard_overview(
@@ -321,7 +487,7 @@ async def get_dashboard_overview(
     db: Session = Depends(get_database_session)
 ) -> DashboardResponse:
     """
-    Get dashboard overview with summary statistics.
+    Get dashboard overview with summary statistics from database.
     
     This endpoint provides a high-level overview of the user's YouTube channel
     including total playlists, total videos, overall performance metrics, etc.
@@ -331,705 +497,27 @@ async def get_dashboard_overview(
         db: Database session dependency
     
     Returns:
-        DashboardResponse: Dashboard overview data
+        DashboardResponse: Dashboard overview data from database
         
     Raises:
-        HTTPException: If error occurs
+        HTTPException: If error occurs or no data found
     """
     try:
         logger.info(f"Dashboard overview request received for user_id: {current_user.id}")
         
-        # Get YouTube client
-        from ..services.youtube_auth_service import get_youtube_client
-        youtube = get_youtube_client(current_user.id, db)
-        if not youtube:
+        # Get overview data from database
+        overview_data = DashboardDataService.get_overview_data(current_user.id, db)
+        
+        if not overview_data:
             raise HTTPException(
-                status_code=500,
-                detail="Failed to get YouTube client. Please check your YouTube API credentials."
+                status_code=404,
+                detail="No overview data found in database. Please fetch data first using /dashboard/overview/fetch"
             )
         
-        # Get channel information
-        from ..services.dashboard_service import get_channel_info
-        channel_info = get_channel_info(youtube)
-        
-        if not channel_info:
-            raise HTTPException(
-                status_code=500,
-                detail="Failed to get channel information. Please check your YouTube API credentials."
-            )
-        
-        # Get channel statistics
-        subscriber_count = channel_info.get('subscriber_count', 0) or 0
-        total_channel_views = channel_info.get('view_count', 0) or 0
-        total_channel_videos = channel_info.get('video_count', 0) or 0
-        
-        # Get enhanced channel information with additional API parts
-        try:
-            # Get comprehensive channel data including branding and content details
-            channel_request = youtube.channels().list(
-                part='snippet,statistics,brandingSettings,contentDetails,status',
-                mine=True
-            )
-            channel_response = channel_request.execute()
-            
-            if channel_response['items']:
-                enhanced_channel = channel_response['items'][0]
-                enhanced_snippet = enhanced_channel['snippet']
-                enhanced_statistics = enhanced_channel['statistics']
-                branding_settings = enhanced_channel.get('brandingSettings', {})
-                content_details = enhanced_channel.get('contentDetails', {})
-                channel_status = enhanced_channel.get('status', {})
-                
-                # Enhanced channel information
-                enhanced_channel_info = {
-                    'channel_url': f"https://www.youtube.com/channel/{enhanced_channel['id']}",
-                    'custom_url': enhanced_snippet.get('customUrl', ''),
-                    'default_language': enhanced_snippet.get('defaultLanguage', ''),
-                    'default_tab': enhanced_snippet.get('defaultTab', ''),
-                    'description': enhanced_snippet.get('description', ''),
-                    'keywords': enhanced_snippet.get('keywords', ''),
-                    'featured_channels_title': enhanced_snippet.get('featuredChannelsTitle', ''),
-                    'featured_channels_urls': enhanced_snippet.get('featuredChannelsUrls', []),
-                    'unsubscribed_trailer': enhanced_snippet.get('unsubscribedTrailer', ''),
-                    'country': enhanced_snippet.get('country', ''),
-                    'published_at': enhanced_snippet.get('publishedAt', ''),
-                    'thumbnails': enhanced_snippet.get('thumbnails', {}),
-                    'title': enhanced_snippet.get('title', ''),
-                    'localized': enhanced_snippet.get('localized', {}),
-                    'privacy_status': channel_status.get('privacyStatus', ''),
-                    'is_linked': channel_status.get('isLinked', False),
-                    'long_uploads_status': channel_status.get('longUploadsStatus', ''),
-                    'made_for_kids': channel_status.get('madeForKids', False),
-                    'self_declared_made_for_kids': channel_status.get('selfDeclaredMadeForKids', False),
-                    'branding_settings': {
-                        'channel_title': branding_settings.get('channel', {}).get('title', ''),
-                        'channel_description': branding_settings.get('channel', {}).get('description', ''),
-                        'channel_keywords': branding_settings.get('channel', {}).get('keywords', ''),
-                        'default_tab': branding_settings.get('channel', {}).get('defaultTab', ''),
-                        'tracking_analytics_account_id': branding_settings.get('channel', {}).get('trackingAnalyticsAccountId', ''),
-                        'moderate_comments': branding_settings.get('channel', {}).get('moderateComments', False),
-                        'show_related_channels': branding_settings.get('channel', {}).get('showRelatedChannels', False),
-                        'show_browse_view': branding_settings.get('channel', {}).get('showBrowseView', False),
-                        'featured_channels_title': branding_settings.get('channel', {}).get('featuredChannelsTitle', ''),
-                        'featured_channels_urls': branding_settings.get('channel', {}).get('featuredChannelsUrls', []),
-                        'unsubscribed_trailer': branding_settings.get('channel', {}).get('unsubscribedTrailer', ''),
-                        'profile_color': branding_settings.get('channel', {}).get('profileColor', ''),
-                        'default_language': branding_settings.get('channel', {}).get('defaultLanguage', ''),
-                        'country': branding_settings.get('channel', {}).get('country', ''),
-                        'banner_external_url': branding_settings.get('image', {}).get('bannerExternalUrl', ''),
-                        'banner_image_url': branding_settings.get('image', {}).get('bannerImageUrl', ''),
-                        'banner_mobile_image_url': branding_settings.get('image', {}).get('bannerMobileImageUrl', ''),
-                        'banner_tablet_low_image_url': branding_settings.get('image', {}).get('bannerTabletLowImageUrl', ''),
-                        'banner_tablet_image_url': branding_settings.get('image', {}).get('bannerTabletImageUrl', ''),
-                        'banner_tablet_hd_image_url': branding_settings.get('image', {}).get('bannerTabletHdImageUrl', ''),
-                        'banner_tablet_extra_hd_image_url': branding_settings.get('image', {}).get('bannerTabletExtraHdImageUrl', ''),
-                        'banner_mobile_low_image_url': branding_settings.get('image', {}).get('bannerMobileLowImageUrl', ''),
-                        'banner_mobile_medium_hd_image_url': branding_settings.get('image', {}).get('bannerMobileMediumHdImageUrl', ''),
-                        'banner_mobile_hd_image_url': branding_settings.get('image', {}).get('bannerMobileHdImageUrl', ''),
-                        'banner_mobile_extra_hd_image_url': branding_settings.get('image', {}).get('bannerMobileExtraHdImageUrl', ''),
-                        'banner_tv_image_url': branding_settings.get('image', {}).get('bannerTvImageUrl', ''),
-                        'banner_tv_low_image_url': branding_settings.get('image', {}).get('bannerTvLowImageUrl', ''),
-                        'banner_tv_medium_image_url': branding_settings.get('image', {}).get('bannerTvMediumImageUrl', ''),
-                        'banner_tv_high_image_url': branding_settings.get('image', {}).get('bannerTvHighImageUrl', ''),
-                        'banner_tv_standard_image_url': branding_settings.get('image', {}).get('bannerTvStandardImageUrl', ''),
-                        'banner_tv_maxres_image_url': branding_settings.get('image', {}).get('bannerTvMaxresImageUrl', ''),
-                        'hints': branding_settings.get('hints', [])
-                    },
-                    'content_details': {
-                        'related_playlists': content_details.get('relatedPlaylists', {}),
-                        'google_plus_user_id': content_details.get('googlePlusUserId', ''),
-                        'topic_categories': content_details.get('topicCategories', [])
-                    }
-                }
-            else:
-                enhanced_channel_info = {}
-        except Exception as e:
-            logger.error(f"Error getting enhanced channel info: {e}")
-            enhanced_channel_info = {}
-        
-        # Get all videos for detailed analytics
-        from ..services.dashboard_service import get_user_videos
-        all_videos = get_user_videos(youtube)
-        
-        # Ensure all_videos is a list and handle empty case
-        if not all_videos:
-            all_videos = []
-        
-        # Calculate video statistics
-        total_likes = sum(int(video.get('like_count', 0) or 0) for video in all_videos)
-        total_comments = sum(int(video.get('comment_count', 0) or 0) for video in all_videos)
-        total_duration = sum(int(video.get('duration_seconds', 0) or 0) for video in all_videos)
-        
-        # Calculate additional metrics
-        from datetime import datetime, timedelta
-        try:
-            channel_created_date = datetime.fromisoformat(channel_info.get('published_at', '').replace('Z', '+00:00'))
-            current_date = datetime.now(channel_created_date.tzinfo)
-            days_since_created = (current_date - channel_created_date).days
-        except Exception as e:
-            logger.error(f"Error calculating channel age: {e}")
-            days_since_created = 0
-        
-        # Calculate averages
-        avg_views_per_video = total_channel_views / total_channel_videos if total_channel_videos > 0 else 0
-        avg_likes_per_video = total_likes / total_channel_videos if total_channel_videos > 0 else 0
-        avg_comments_per_video = total_comments / total_channel_videos if total_channel_videos > 0 else 0
-        avg_duration_per_video = total_duration / total_channel_videos if total_channel_videos > 0 else 0
-        
-        # Calculate engagement metrics
-        total_engagement = total_likes + total_comments
-        overall_engagement_rate = (total_engagement / total_channel_views * 100) if total_channel_views > 0 else 0
-        
-        # Calculate growth rates
-        videos_per_month = (total_channel_videos / days_since_created * 30) if days_since_created > 0 else 0
-        views_per_month = (total_channel_views / days_since_created * 30) if days_since_created > 0 else 0
-        subscribers_per_month = (subscriber_count / days_since_created * 30) if days_since_created > 0 else 0
-        
-        # Get recent videos (last 30 days)
-        thirty_days_ago = current_date - timedelta(days=30)
-        recent_videos = [
-            video for video in all_videos 
-            if video.get('published_at') and datetime.fromisoformat(video['published_at'].replace('Z', '+00:00')) > thirty_days_ago
-        ]
-        
-        # Calculate recent performance
-        recent_views = sum(int(video.get('view_count', 0) or 0) for video in recent_videos)
-        recent_likes = sum(int(video.get('like_count', 0) or 0) for video in recent_videos)
-        recent_comments = sum(int(video.get('comment_count', 0) or 0) for video in recent_videos)
-        recent_engagement_rate = ((recent_likes + recent_comments) / recent_views * 100) if recent_views > 0 else 0
-        
-        # Get top performing videos (only 1 each)
-        top_videos_by_views = sorted(all_videos, key=lambda x: int(x.get('view_count', 0)), reverse=True)[:1]
-        top_videos_by_engagement = sorted(all_videos, key=lambda x: (int(x.get('like_count', 0)) + int(x.get('comment_count', 0))) / max(int(x.get('view_count', 0)), 1), reverse=True)[:1]
-        
-        # Calculate monthly breakdown for charts
-        monthly_data = {}
-        for video in all_videos:
-            if video.get('published_at'):
-                try:
-                    publish_date = datetime.fromisoformat(video['published_at'].replace('Z', '+00:00'))
-                    month_key = publish_date.strftime('%Y-%m')
-                    
-                    if month_key not in monthly_data:
-                        monthly_data[month_key] = {
-                            'videos': 0,
-                            'views': 0,
-                            'likes': 0,
-                            'comments': 0,
-                            'duration': 0
-                        }
-                    
-                    monthly_data[month_key]['videos'] += 1
-                    monthly_data[month_key]['views'] += int(video.get('view_count', 0) or 0)
-                    monthly_data[month_key]['likes'] += int(video.get('like_count', 0) or 0)
-                    monthly_data[month_key]['comments'] += int(video.get('comment_count', 0) or 0)
-                    monthly_data[month_key]['duration'] += int(video.get('duration_seconds', 0) or 0)
-                    
-                except Exception as e:
-                    logger.error(f"Error processing video date: {e}")
-        
-        # Sort monthly data by date
-        sorted_months = sorted(monthly_data.keys())
-        monthly_chart_data = [
-            {
-                'month': month,
-                'videos': monthly_data[month]['videos'],
-                'views': monthly_data[month]['views'],
-                'likes': monthly_data[month]['likes'],
-                'comments': monthly_data[month]['comments'],
-                'duration': monthly_data[month]['duration'],
-                'engagement_rate': round((monthly_data[month]['likes'] + monthly_data[month]['comments']) / monthly_data[month]['views'] * 100, 2) if monthly_data[month]['views'] > 0 else 0
-            }
-            for month in sorted_months
-        ]
-        
-        # Remove tags analysis - not needed
-        video_categories = {}
-        top_categories = []
-        
-        # Calculate performance distribution
-        view_ranges = {
-            '0-100': 0,
-            '101-500': 0,
-            '501-1000': 0,
-            '1001-5000': 0,
-            '5000+': 0
-        }
-        
-        for video in all_videos:
-            views = int(video.get('view_count', 0) or 0)
-            if views <= 100:
-                view_ranges['0-100'] += 1
-            elif views <= 500:
-                view_ranges['101-500'] += 1
-            elif views <= 1000:
-                view_ranges['501-1000'] += 1
-            elif views <= 5000:
-                view_ranges['1001-5000'] += 1
-            else:
-                view_ranges['5000+'] += 1
-        
-        # Calculate advanced analytics
-        # Video length distribution
-        duration_ranges = {
-            '0-5min': 0,
-            '5-15min': 0,
-            '15-30min': 0,
-            '30-60min': 0,
-            '60min+': 0
-        }
-        
-        for video in all_videos:
-            duration_seconds = int(video.get('duration_seconds', 0) or 0)
-            if duration_seconds <= 300:  # 5 minutes
-                duration_ranges['0-5min'] += 1
-            elif duration_seconds <= 900:  # 15 minutes
-                duration_ranges['5-15min'] += 1
-            elif duration_seconds <= 1800:  # 30 minutes
-                duration_ranges['15-30min'] += 1
-            elif duration_seconds <= 3600:  # 60 minutes
-                duration_ranges['30-60min'] += 1
-            else:
-                duration_ranges['60min+'] += 1
-        
-        # Engagement distribution
-        engagement_ranges = {
-            '0-1%': 0,
-            '1-3%': 0,
-            '3-5%': 0,
-            '5-10%': 0,
-            '10%+': 0
-        }
-        
-        for video in all_videos:
-            views = int(video.get('view_count', 0) or 0)
-            likes = int(video.get('like_count', 0) or 0)
-            comments = int(video.get('comment_count', 0) or 0)
-            
-            if views > 0:
-                engagement_rate = ((likes + comments) / views) * 100
-                if engagement_rate <= 1:
-                    engagement_ranges['0-1%'] += 1
-                elif engagement_rate <= 3:
-                    engagement_ranges['1-3%'] += 1
-                elif engagement_rate <= 5:
-                    engagement_ranges['3-5%'] += 1
-                elif engagement_rate <= 10:
-                    engagement_ranges['5-10%'] += 1
-                else:
-                    engagement_ranges['10%+'] += 1
-        
-        # Performance scoring
-        performance_scores = []
-        for video in all_videos:
-            views = int(video.get('view_count', 0) or 0)
-            likes = int(video.get('like_count', 0) or 0)
-            comments = int(video.get('comment_count', 0) or 0)
-            duration_seconds = int(video.get('duration_seconds', 0) or 0)
-            
-            # Calculate performance score (views * 0.5 + likes * 10 + comments * 20)
-            score = (views * 0.5) + (likes * 10) + (comments * 20)
-            performance_scores.append({
-                'video_id': video.get('video_id', ''),
-                'title': video.get('title', ''),
-                'score': round(score, 2),
-                'views': views,
-                'likes': likes,
-                'comments': comments,
-                'duration_minutes': round(duration_seconds / 60, 2)
-            })
-        
-        # Sort by performance score (only 1)
-        top_performing_by_score = sorted(performance_scores, key=lambda x: x['score'], reverse=True)[:1]
-        
-        # Weekly performance analysis (last 4 weeks)
-        weekly_data = {}
-        for i in range(4):
-            week_start = current_date - timedelta(weeks=i+1)
-            week_end = current_date - timedelta(weeks=i)
-            week_key = f"Week {4-i}"
-            
-            week_videos = [
-                video for video in all_videos 
-                if video.get('published_at') and 
-                week_start <= datetime.fromisoformat(video['published_at'].replace('Z', '+00:00')) < week_end
-            ]
-            
-            week_views = sum(int(video.get('view_count', 0) or 0) for video in week_videos)
-            week_likes = sum(int(video.get('like_count', 0) or 0) for video in week_videos)
-            week_comments = sum(int(video.get('comment_count', 0) or 0) for video in week_videos)
-            week_engagement = ((week_likes + week_comments) / week_views * 100) if week_views > 0 else 0
-            
-            weekly_data[week_key] = {
-                'videos': len(week_videos),
-                'views': week_views,
-                'likes': week_likes,
-                'comments': week_comments,
-                'engagement_rate': round(week_engagement, 2)
-            }
-        
-        # Content type analysis
-        content_types = {
-            'shorts': 0,
-            'tutorials': 0,
-            'lectures': 0,
-            'other': 0
-        }
-        
-        for video in all_videos:
-            title = video.get('title', '').lower()
-            duration_seconds = int(video.get('duration_seconds', 0) or 0)
-            
-            if 'shorts' in title or duration_seconds <= 60:
-                content_types['shorts'] += 1
-            elif 'lecture' in title or 'tutorial' in title:
-                if duration_seconds > 600:  # 10+ minutes
-                    content_types['lectures'] += 1
-                else:
-                    content_types['tutorials'] += 1
-            else:
-                content_types['other'] += 1
-        
-        # Audience retention analysis
-        retention_analysis = {
-            'high_retention_videos': 0,  # >5% engagement
-            'medium_retention_videos': 0,  # 2-5% engagement
-            'low_retention_videos': 0,  # <2% engagement
-            'avg_retention_rate': 0
-        }
-        
-        total_retention_rate = 0
-        videos_with_views = 0
-        
-        for video in all_videos:
-            views = int(video.get('view_count', 0) or 0)
-            likes = int(video.get('like_count', 0) or 0)
-            comments = int(video.get('comment_count', 0) or 0)
-            
-            if views > 0:
-                retention_rate = ((likes + comments) / views) * 100
-                total_retention_rate += retention_rate
-                videos_with_views += 1
-                
-                if retention_rate > 5:
-                    retention_analysis['high_retention_videos'] += 1
-                elif retention_rate > 2:
-                    retention_analysis['medium_retention_videos'] += 1
-                else:
-                    retention_analysis['low_retention_videos'] += 1
-        
-        retention_analysis['avg_retention_rate'] = round(total_retention_rate / videos_with_views, 2) if videos_with_views > 0 else 0
-        
-        # Growth trajectory analysis
-        growth_trajectory = {
-            'trending_up': 0,
-            'stable': 0,
-            'trending_down': 0,
-            'new_content': 0
-        }
-        
-        # Compare recent vs older performance
-        if len(all_videos) >= 10:
-            recent_videos = all_videos[:10]  # Most recent 10
-            older_videos = all_videos[-10:]  # Oldest 10
-            
-            recent_avg_views = sum(int(v.get('view_count', 0) or 0) for v in recent_videos) / len(recent_videos) if recent_videos else 0
-            older_avg_views = sum(int(v.get('view_count', 0) or 0) for v in older_videos) / len(older_videos) if older_videos else 0
-            
-            if recent_avg_views > older_avg_views * 1.2:
-                growth_trajectory['trending_up'] = 1
-            elif recent_avg_views < older_avg_views * 0.8:
-                growth_trajectory['trending_down'] = 1
-            else:
-                growth_trajectory['stable'] = 1
-        else:
-            growth_trajectory['new_content'] = 1
-        
-        # Get monetization data if available
-        try:
-            monetization_data = {
-                'is_monetized': False,
-                'monetization_status': 'Not eligible',
-                'ad_formats': [],
-                'monetization_requirements': {
-                    'subscriber_count_required': 1000,
-                    'watch_time_required': 4000,  # hours
-                    'current_subscribers': subscriber_count,
-                    'current_watch_time': round(total_duration / 3600, 2),
-                    'subscriber_progress': round((subscriber_count / 1000) * 100, 2) if subscriber_count < 1000 else 100,
-                    'watch_time_progress': round((total_duration / 3600 / 4000) * 100, 2) if total_duration < 14400000 else 100
-                }
-            }
-            
-            # Check if channel meets monetization requirements
-            if subscriber_count >= 1000 and (total_duration / 3600) >= 4000:
-                monetization_data['is_monetized'] = True
-                monetization_data['monetization_status'] = 'Eligible'
-                monetization_data['ad_formats'] = ['Display ads', 'Overlay ads', 'Sponsored cards', 'Video ads']
-        except Exception as e:
-            logger.error(f"Error getting monetization data: {e}")
-            monetization_data = {}
-        
-        # Get audience insights and demographics (if available)
-        try:
-            audience_insights = {
-                'audience_retention': {
-                    'high_retention_videos': retention_analysis['high_retention_videos'],
-                    'medium_retention_videos': retention_analysis['medium_retention_videos'],
-                    'low_retention_videos': retention_analysis['low_retention_videos'],
-                    'avg_retention_rate': retention_analysis['avg_retention_rate']
-                },
-                'audience_loyalty_score': round(retention_analysis['avg_retention_rate'] / 10, 2),
-                'content_preferences': {
-                    'preferred_video_length': max(duration_ranges.items(), key=lambda x: x[1])[0] if duration_ranges else 'Unknown',
-                    'preferred_content_type': max(content_types.items(), key=lambda x: x[1])[0] if content_types else 'Unknown',
-                    'engagement_sweet_spot': max(engagement_ranges.items(), key=lambda x: x[1])[0] if engagement_ranges else 'Unknown'
-                }
-            }
-        except Exception as e:
-            logger.error(f"Error getting audience insights: {e}")
-            audience_insights = {}
-        
-        # Get SEO and discoverability metrics (simplified)
-        try:
-            seo_metrics = {
-                'seo_score': 0,
-                'title_optimization': {
-                    'avg_title_length': 0
-                },
-                'description_optimization': {
-                    'avg_description_length': 0
-                },
-                'thumbnail_optimization': {
-                    'videos_with_custom_thumbnails': sum(1 for video in all_videos if video.get('thumbnail_url') and 'default' not in video.get('thumbnail_url', ''))
-                }
-            }
-            
-            # Calculate SEO scores
-            title_lengths = [len(video.get('title', '')) for video in all_videos]
-            seo_metrics['title_optimization']['avg_title_length'] = sum(title_lengths) / len(title_lengths) if title_lengths else 0
-            
-            description_lengths = [len(video.get('description', '')) for video in all_videos]
-            seo_metrics['description_optimization']['avg_description_length'] = sum(description_lengths) / len(description_lengths) if description_lengths else 0
-            
-            # Calculate overall SEO score (simplified)
-            seo_score = 0
-            if seo_metrics['title_optimization']['avg_title_length'] > 30:
-                seo_score += 50
-            if seo_metrics['thumbnail_optimization']['videos_with_custom_thumbnails'] > len(all_videos) * 0.5:
-                seo_score += 50
-            
-            seo_metrics['seo_score'] = seo_score
-            
-        except Exception as e:
-            logger.error(f"Error calculating SEO metrics: {e}")
-            seo_metrics = {}
-        
-        # Get content strategy insights
-        try:
-            content_strategy = {
-                'optimal_posting_schedule': {
-                    'frequency_recommendation': '2-3 videos per week' if videos_per_month < 8 else '4-5 videos per week' if videos_per_month < 20 else 'Daily uploads'
-                },
-                'competitive_analysis': {
-                    'channel_positioning': 'Niche' if total_channel_videos < 50 else 'Established' if total_channel_videos < 200 else 'Major',
-                    'unique_value_proposition': 'Educational content' if 'tutorial' in str(all_videos).lower() else 'Entertainment' if 'fun' in str(all_videos).lower() else 'Mixed content'
-                }
-            }
-            
-            # Content gap analysis removed for simplicity
-                
-        except Exception as e:
-            logger.error(f"Error analyzing content strategy: {e}")
-            content_strategy = {}
-        
-        # Get technical performance metrics
-        try:
-            technical_metrics = {
-                'video_quality_metrics': {
-                    'hd_videos': sum(1 for video in all_videos if video.get('definition') == 'hd'),
-                    'sd_videos': sum(1 for video in all_videos if video.get('definition') == 'sd'),
-                    'avg_video_quality': 'HD' if sum(1 for video in all_videos if video.get('definition') == 'hd') > len(all_videos) * 0.5 else 'SD'
-                },
-                'upload_consistency': {
-                    'avg_days_between_uploads': days_since_created / total_channel_videos if total_channel_videos > 0 else 0,
-                    'upload_streak_current': 0,  # Would need to calculate
-                    'upload_streak_longest': 0,  # Would need to calculate
-                    'consistency_score': round((videos_per_month / 4) * 100, 2) if videos_per_month <= 4 else 100
-                },
-                'cross_promotion_opportunities': {
-                    'playlist_count': 0,  # Will be updated later
-                    'collaboration_opportunities': [],
-                    'cross_promotion_score': 0
-                }
-            }
-        except Exception as e:
-            logger.error(f"Error calculating technical metrics: {e}")
-            technical_metrics = {}
-        
-        # Get playlist count for cross-promotion
-        try:
-            from ..services.dashboard_service import get_all_playlists_comprehensive
-            playlists = get_all_playlists_comprehensive(youtube)
-            technical_metrics['cross_promotion_opportunities']['playlist_count'] = len(playlists)
-            technical_metrics['cross_promotion_opportunities']['cross_promotion_score'] = min(len(playlists) * 10, 100)
-        except Exception as e:
-            logger.error(f"Error getting playlist count: {e}")
-        
-        # Get revenue potential and business metrics
-        try:
-            business_metrics = {
-                'revenue_potential': {
-                    'monetization_ready': monetization_data.get('is_monetized', False)
-                },
-                'brand_opportunities': {
-                    'sponsorship_potential': 'High' if subscriber_count > 10000 else 'Medium' if subscriber_count > 1000 else 'Low',
-                    'affiliate_marketing_potential': 'High' if engagement_ranges.get('5-10%', 0) + engagement_ranges.get('10%+', 0) > len(all_videos) * 0.3 else 'Medium' if engagement_ranges.get('3-5%', 0) > len(all_videos) * 0.3 else 'Low'
-                },
-                'growth_investment': {
-                    'roi_potential': 'High' if overall_engagement_rate > 5 else 'Medium' if overall_engagement_rate > 2 else 'Low'
-                }
-            }
-        except Exception as e:
-            logger.error(f"Error calculating business metrics: {e}")
-            business_metrics = {}
-        
-        overview_data = {
-            'channel_info': {
-                'title': channel_info.get('title', ''),
-                'description': channel_info.get('description', ''),
-                'subscriber_count': subscriber_count,
-                'total_views': total_channel_views,
-                'total_videos': total_channel_videos,
-            'total_likes': total_likes,
-            'total_comments': total_comments,
-                'total_duration': total_duration,
-                'created_at': channel_info.get('published_at', ''),
-                'thumbnail_url': channel_info.get('thumbnail_url', ''),
-                'country': channel_info.get('country', ''),
-                'custom_url': channel_info.get('custom_url', ''),
-                'keywords': channel_info.get('keywords', ''),
-                'featured_channels_title': channel_info.get('featured_channels_title', ''),
-                'featured_channels_urls': channel_info.get('featured_channels_urls', [])
-            },
-            'performance_metrics': {
-                'avg_views_per_video': round(avg_views_per_video, 2),
-                'avg_likes_per_video': round(avg_likes_per_video, 2),
-                'avg_comments_per_video': round(avg_comments_per_video, 2),
-                'avg_duration_per_video': round(avg_duration_per_video, 2),
-                'overall_engagement_rate': round(overall_engagement_rate, 2),
-                'videos_per_month': round(videos_per_month, 2),
-                'views_per_month': round(views_per_month, 2),
-                'subscribers_per_month': round(subscribers_per_month, 2),
-                'days_since_created': days_since_created,
-                'channel_age_months': round(days_since_created / 30, 1) if days_since_created > 0 else 0
-            },
-            'recent_performance': {
-                'recent_videos_count': len(recent_videos),
-                'recent_views': recent_views,
-                'recent_likes': recent_likes,
-                'recent_comments': recent_comments,
-                'recent_engagement_rate': round(recent_engagement_rate, 2),
-                'recent_avg_views': round(recent_views / len(recent_videos), 2) if recent_videos else 0
-            },
-            'top_performing_content': {
-                'top_videos_by_views': [
-                    {
-                        'video_id': video.get('video_id', ''),
-                        'title': video.get('title', ''),
-                        'views': int(video.get('view_count', 0) or 0),
-                        'likes': int(video.get('like_count', 0) or 0),
-                        'comments': int(video.get('comment_count', 0) or 0),
-                        'published_at': video.get('published_at', ''),
-                        'duration': video.get('duration', ''),
-                        'engagement_rate': round((int(video.get('like_count', 0) or 0) + int(video.get('comment_count', 0) or 0)) / max(int(video.get('view_count', 0) or 0), 1) * 100, 2)
-                    }
-                    for video in top_videos_by_views
-                ],
-                'top_videos_by_engagement': [
-                    {
-                        'video_id': video.get('video_id', ''),
-                        'title': video.get('title', ''),
-                        'views': int(video.get('view_count', 0) or 0),
-                        'likes': int(video.get('like_count', 0) or 0),
-                        'comments': int(video.get('comment_count', 0) or 0),
-                        'published_at': video.get('published_at', ''),
-                        'duration': video.get('duration', ''),
-                        'engagement_rate': round((int(video.get('like_count', 0) or 0) + int(video.get('comment_count', 0) or 0)) / max(int(video.get('view_count', 0) or 0), 1) * 100, 2)
-                    }
-                    for video in top_videos_by_engagement
-                ]
-            },
-            'monthly_analytics': {
-                'chart_data': monthly_chart_data,
-                'total_months': len(monthly_chart_data),
-                'best_month': max(monthly_chart_data, key=lambda x: x['views']) if monthly_chart_data else None,
-                'worst_month': min(monthly_chart_data, key=lambda x: x['views']) if monthly_chart_data else None
-            },
-            'content_analysis': {
-                'view_distribution': view_ranges
-            },
-            'growth_insights': {
-                'subscriber_growth_rate': round((subscriber_count / days_since_created * 30), 2) if days_since_created > 0 else 0,
-                'view_growth_rate': round((total_channel_views / days_since_created * 30), 2) if days_since_created > 0 else 0,
-                'video_upload_frequency': round(total_channel_videos / (days_since_created / 30), 2) if days_since_created > 0 else 0,
-                'engagement_growth': round(recent_engagement_rate - overall_engagement_rate, 2) if recent_videos else 0
-            },
-            'channel_status': {
-                'is_active': total_channel_videos > 0,
-                'engagement_level': 'High' if overall_engagement_rate > 5 else 'Medium' if overall_engagement_rate > 2 else 'Low',
-                'growth_stage': 'New' if days_since_created < 90 else 'Growing' if days_since_created < 365 else 'Established',
-                'content_quality': 'High' if avg_views_per_video > 100 else 'Medium' if avg_views_per_video > 50 else 'Low',
-                'upload_consistency': 'High' if videos_per_month > 4 else 'Medium' if videos_per_month > 2 else 'Low'
-            },
-            'summary_stats': {
-                'total_watch_time_hours': round(total_duration / 3600, 2),
-                'avg_video_length_minutes': round(avg_duration_per_video / 60, 2),
-                'total_interactions': total_likes + total_comments,
-                'interaction_rate': round((total_likes + total_comments) / total_channel_views * 100, 2) if total_channel_views > 0 else 0,
-                'subscriber_to_view_ratio': round(subscriber_count / total_channel_views * 100, 2) if total_channel_views > 0 else 0
-            },
-            'advanced_analytics': {
-                'duration_distribution': duration_ranges,
-                'engagement_distribution': engagement_ranges,
-                'content_type_breakdown': content_types,
-                'retention_analysis': retention_analysis,
-                'growth_trajectory': growth_trajectory
-            },
-            'performance_scoring': {
-                'top_videos_by_score': top_performing_by_score,
-                'avg_performance_score': round(sum(score['score'] for score in performance_scores) / len(performance_scores), 2) if performance_scores and len(performance_scores) > 0 else 0,
-                'total_videos_scored': len(performance_scores)
-            },
-            'weekly_analytics': {
-                'weekly_data': weekly_data,
-                'weekly_trend': 'increasing' if len(weekly_data) >= 2 and weekly_data.get('Week 1', {}).get('views', 0) > weekly_data.get('Week 4', {}).get('views', 0) else 'decreasing' if len(weekly_data) >= 2 else 'stable',
-                'best_week': max(weekly_data.items(), key=lambda x: x[1]['views']) if weekly_data else None,
-                'most_engaging_week': max(weekly_data.items(), key=lambda x: x[1]['engagement_rate']) if weekly_data else None
-            },
-            'content_insights': {
-                'most_effective_content_type': max(content_types.items(), key=lambda x: x[1])[0] if content_types else 'none',
-                'optimal_video_length': max(duration_ranges.items(), key=lambda x: x[1])[0] if duration_ranges else 'none',
-                'engagement_sweet_spot': max(engagement_ranges.items(), key=lambda x: x[1])[0] if engagement_ranges else 'none'
-            },
-            'competitive_analysis': {
-                'channel_health_score': round((overall_engagement_rate * 0.4 + (avg_views_per_video / 100) * 0.3 + (videos_per_month * 10) * 0.3), 2),
-                'growth_potential': 'High' if overall_engagement_rate > 3 and videos_per_month > 2 else 'Medium' if overall_engagement_rate > 1.5 else 'Low',
-                'audience_loyalty': 'High' if retention_analysis['avg_retention_rate'] > 5 else 'Medium' if retention_analysis['avg_retention_rate'] > 2 else 'Low',
-                'content_consistency': 'High' if videos_per_month > 4 else 'Medium' if videos_per_month > 2 else 'Low'
-            },
-            'enhanced_channel_info': enhanced_channel_info,
-            'monetization_data': monetization_data,
-            'audience_insights': audience_insights,
-            'seo_metrics': seo_metrics,
-            'content_strategy': content_strategy,
-            'technical_metrics': technical_metrics,
-            'business_metrics': business_metrics
-        }
-        
+        # Return the overview data from database
         return DashboardResponse(
             success=True,
-            message=f"Dashboard overview generated successfully",
+            message="Dashboard overview retrieved successfully from database",
             data=overview_data
         )
         
@@ -1040,5 +528,5 @@ async def get_dashboard_overview(
         logger.error(f"Unexpected error in get_dashboard_overview route for user_id {current_user.id}: {e}")
         raise HTTPException(
             status_code=500,
-            detail="Internal server error while generating dashboard overview"
+            detail="Internal server error while retrieving dashboard overview"
         ) 
