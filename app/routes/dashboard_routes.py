@@ -644,29 +644,29 @@ async def get_dashboard_overview(
         
         # Weekly performance analysis (last 4 weeks)
         weekly_data = {}
-# I'll analyze your backend APIs and create a comprehensive prompt for an AI to build a React Native mobile app. Let me first examine your backend structure and APIs.
-
-        week_end = current_date - timedelta(weeks=i)
-        week_key = f"Week {4-i}"
-        
-        week_videos = [
-            video for video in all_videos 
-            if video.get('published_at') and 
-            week_start <= datetime.fromisoformat(video['published_at'].replace('Z', '+00:00')) < week_end
-        ]
-        
-        week_views = sum(int(video.get('view_count', 0) or 0) for video in week_videos)
-        week_likes = sum(int(video.get('like_count', 0) or 0) for video in week_videos)
-        week_comments = sum(int(video.get('comment_count', 0) or 0) for video in week_videos)
-        week_engagement = ((week_likes + week_comments) / week_views * 100) if week_views > 0 else 0
-        
-        weekly_data[week_key] = {
-            'videos': len(week_videos),
-            'views': week_views,
-            'likes': week_likes,
-            'comments': week_comments,
-            'engagement_rate': round(week_engagement, 2)
-        }
+        for i in range(4):
+            week_start = current_date - timedelta(weeks=i+1)
+            week_end = current_date - timedelta(weeks=i)
+            week_key = f"Week {4-i}"
+            
+            week_videos = [
+                video for video in all_videos 
+                if video.get('published_at') and 
+                week_start <= datetime.fromisoformat(video['published_at'].replace('Z', '+00:00')) < week_end
+            ]
+            
+            week_views = sum(int(video.get('view_count', 0) or 0) for video in week_videos)
+            week_likes = sum(int(video.get('like_count', 0) or 0) for video in week_videos)
+            week_comments = sum(int(video.get('comment_count', 0) or 0) for video in week_videos)
+            week_engagement = ((week_likes + week_comments) / week_views * 100) if week_views > 0 else 0
+            
+            weekly_data[week_key] = {
+                'videos': len(week_videos),
+                'views': week_views,
+                'likes': week_likes,
+                'comments': week_comments,
+                'engagement_rate': round(week_engagement, 2)
+            }
         
         # Content type analysis
         content_types = {
