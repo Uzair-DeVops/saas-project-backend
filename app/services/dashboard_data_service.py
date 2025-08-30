@@ -575,6 +575,42 @@ class DashboardDataService:
             db.rollback()
             return False
 
+    @staticmethod
+    def store_playlist_videos_data(user_id: UUID, playlist_id: str, videos_data: List[Dict[str, Any]], db: Session) -> bool:
+        """Store playlist videos data in database"""
+        try:
+            # First, store the videos in the DashboardVideo table
+            success = DashboardDataService.store_videos_data(user_id, videos_data, db)
+            if not success:
+                return False
+            
+            # Clear existing playlist-video relationships for this playlist
+            db.query(DashboardPlaylistVideo).filter(
+                DashboardPlaylistVideo.user_id == user_id,
+                DashboardPlaylistVideo.playlist_id == playlist_id
+            ).delete()
+            
+            # Create playlist-video relationships
+            for position, video_data in enumerate(videos_data, 1):
+                video_id = video_data.get('video_id', '')
+                if video_id:
+                    relationship = DashboardPlaylistVideo(
+                        user_id=user_id,
+                        playlist_id=playlist_id,
+                        video_id=video_id,
+                        position=position
+                    )
+                    db.add(relationship)
+            
+            db.commit()
+            logger.info(f"Successfully stored {len(videos_data)} playlist videos for user_id: {user_id}, playlist_id: {playlist_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error storing playlist videos data for user_id {user_id}, playlist_id {playlist_id}: {e}")
+            db.rollback()
+            return False
+
 
 def parse_datetime(datetime_value):
     """Parse datetime value from various formats to datetime object"""

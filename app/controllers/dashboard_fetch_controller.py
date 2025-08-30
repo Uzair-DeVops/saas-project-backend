@@ -5,6 +5,7 @@ from typing import Dict, Any, List, Optional
 from uuid import UUID
 from sqlmodel import Session
 from fastapi import HTTPException
+from datetime import datetime
 
 from ..services.dashboard_data_service import DashboardDataService
 from ..services.dashboard_service import get_channel_info, get_all_playlists_comprehensive, get_all_user_videos_dashboard
@@ -17,6 +18,27 @@ def fetch_and_store_overview_data(user_id: UUID, db: Session) -> Dict[str, Any]:
     """Fetch overview data from YouTube and store in database"""
     try:
         logger.info(f"Fetching overview data for user_id: {user_id}")
+        
+        # Check cache first
+        from ..services.youtube_cache_service import YouTubeCacheService
+        cached_data = YouTubeCacheService.get_overview_cache(str(user_id), db)
+        
+        if cached_data:
+            cache_age = YouTubeCacheService.get_cache_age_minutes(cached_data)
+            logger.info(f"Using cached overview data for user {user_id} (age: {cache_age} minutes)")
+            return {
+                "success": True,
+                "message": f"Using cached overview data (age: {cache_age} minutes)",
+                "data": cached_data.model_dump(),
+                "cache_info": {
+                    "is_cached": True,
+                    "age_minutes": cache_age,
+                    "last_updated": cached_data.data_updated_at.isoformat()
+                }
+            }
+        
+        # Cache expired or doesn't exist, fetch fresh data
+        logger.info(f"Cache expired or missing, fetching fresh overview data for user_id: {user_id}")
         
         # Get YouTube client
         youtube = get_youtube_client(user_id, db)
@@ -47,12 +69,17 @@ def fetch_and_store_overview_data(user_id: UUID, db: Session) -> Dict[str, Any]:
                 detail="Failed to store overview data in database."
             )
         
-        logger.info(f"Successfully fetched and stored overview data for user_id: {user_id}")
+        logger.info(f"Successfully fetched and stored fresh overview data for user_id: {user_id}")
         
         return {
             "success": True,
-            "message": "Overview data fetched and stored successfully",
-            "data": overview_data
+            "message": "Fresh overview data fetched and stored successfully",
+            "data": overview_data,
+            "cache_info": {
+                "is_cached": False,
+                "age_minutes": 0,
+                "last_updated": datetime.now().isoformat()
+            }
         }
         
     except HTTPException:
@@ -68,6 +95,27 @@ def fetch_and_store_playlists_data(user_id: UUID, db: Session) -> Dict[str, Any]
     """Fetch playlists data from YouTube and store in database"""
     try:
         logger.info(f"Fetching playlists data for user_id: {user_id}")
+        
+        # Check cache first
+        from ..services.youtube_cache_service import YouTubeCacheService
+        cached_data = YouTubeCacheService.get_playlists_cache(str(user_id), db)
+        
+        if cached_data:
+            cache_age = YouTubeCacheService.get_cache_age_minutes(cached_data[0]) if cached_data else 0
+            logger.info(f"Using cached playlists data for user {user_id} (age: {cache_age} minutes)")
+            return {
+                "success": True,
+                "message": f"Using cached playlists data (age: {cache_age} minutes)",
+                "data": [playlist.model_dump() for playlist in cached_data],
+                "cache_info": {
+                    "is_cached": True,
+                    "age_minutes": cache_age,
+                    "last_updated": cached_data[0].data_updated_at.isoformat() if cached_data else None
+                }
+            }
+        
+        # Cache expired or doesn't exist, fetch fresh data
+        logger.info(f"Cache expired or missing, fetching fresh playlists data for user_id: {user_id}")
         
         # Get YouTube client
         youtube = get_youtube_client(user_id, db)
@@ -148,6 +196,28 @@ def fetch_and_store_videos_data(user_id: UUID, db: Session) -> Dict[str, Any]:
     try:
         logger.info(f"Fetching videos data for user_id: {user_id}")
         
+        # Check cache first
+        from ..services.youtube_cache_service import YouTubeCacheService
+        cached_data = YouTubeCacheService.get_videos_cache(str(user_id), db)
+        
+        if cached_data:
+            cache_age = YouTubeCacheService.get_cache_age_minutes(cached_data[0]) if cached_data else 0
+            logger.info(f"Using cached videos data for user {user_id} (age: {cache_age} minutes)")
+            return {
+                "success": True,
+                "message": f"Using cached videos data (age: {cache_age} minutes)",
+                "data": [video.model_dump() for video in cached_data],
+                "count": len(cached_data),
+                "cache_info": {
+                    "is_cached": True,
+                    "age_minutes": cache_age,
+                    "last_updated": cached_data[0].data_updated_at.isoformat() if cached_data else None
+                }
+            }
+        
+        # Cache expired or doesn't exist, fetch fresh data
+        logger.info(f"Cache expired or missing, fetching fresh videos data for user_id: {user_id}")
+        
         # Get YouTube client
         youtube = get_youtube_client(user_id, db)
         if not youtube:
@@ -174,13 +244,18 @@ def fetch_and_store_videos_data(user_id: UUID, db: Session) -> Dict[str, Any]:
                 detail="Failed to store videos data in database."
             )
         
-        logger.info(f"Successfully fetched and stored {len(videos_data)} videos for user_id: {user_id}")
+        logger.info(f"Successfully fetched and stored fresh {len(videos_data)} videos for user_id: {user_id}")
         
         return {
             "success": True,
-            "message": f"Videos data fetched and stored successfully ({len(videos_data)} videos)",
+            "message": f"Fresh videos data fetched and stored successfully ({len(videos_data)} videos)",
             "data": videos_data,
-            "count": len(videos_data)
+            "count": len(videos_data),
+            "cache_info": {
+                "is_cached": False,
+                "age_minutes": 0,
+                "last_updated": datetime.now().isoformat()
+            }
         }
         
     except HTTPException:

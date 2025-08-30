@@ -6,14 +6,14 @@ from fastapi import APIRouter, HTTPException, Depends, Path
 from sqlmodel import Session
 from pydantic import BaseModel
 
-from ..controllers.dashboard_fetch_controller import (
-    fetch_and_store_overview_data,
-    fetch_and_store_playlists_data,
-    fetch_and_store_videos_data,
-    fetch_and_store_single_playlist_data,
-    fetch_and_store_single_video_data,
-    fetch_and_store_playlist_videos_data,
-    fetch_and_store_single_playlist_video_data
+from ..controllers.dashboard_refresh_controller import (
+    force_refresh_overview_data,
+    force_refresh_playlists_data,
+    force_refresh_videos_data,
+    force_refresh_single_playlist_data,
+    force_refresh_single_video_data,
+    force_refresh_playlist_videos_data,
+    force_refresh_single_playlist_video_data
 )
 from ..services.dashboard_data_service import DashboardDataService
 from ..utils.database_dependency import get_database_session
@@ -57,7 +57,7 @@ async def refresh_dashboard_overview(
     try:
         logger.info(f"Refresh overview data request received for user_id: {current_user.id}")
         
-        result = fetch_and_store_overview_data(current_user.id, db)
+        result = force_refresh_overview_data(current_user.id, db)
         
         return RefreshResponse(
             success=result["success"],
@@ -98,7 +98,7 @@ async def refresh_dashboard_playlists(
     try:
         logger.info(f"Refresh playlists data request received for user_id: {current_user.id}")
         
-        result = fetch_and_store_playlists_data(current_user.id, db)
+        result = force_refresh_playlists_data(current_user.id, db)
         
         return RefreshResponse(
             success=result["success"],
@@ -139,7 +139,7 @@ async def refresh_dashboard_videos(
     try:
         logger.info(f"Refresh videos data request received for user_id: {current_user.id}")
         
-        result = fetch_and_store_videos_data(current_user.id, db)
+        result = force_refresh_videos_data(current_user.id, db)
         
         return RefreshResponse(
             success=result["success"],
@@ -182,7 +182,7 @@ async def refresh_dashboard_playlist_comprehensive(
     try:
         logger.info(f"Refresh single playlist data request received for playlist_id: {playlist_id}, user_id: {current_user.id}")
         
-        result = fetch_and_store_single_playlist_data(current_user.id, playlist_id, db)
+        result = force_refresh_single_playlist_data(current_user.id, playlist_id, db)
         
         return RefreshResponse(
             success=result["success"],
@@ -225,7 +225,7 @@ async def refresh_dashboard_video_details(
     try:
         logger.info(f"Refresh single video data request received for video_id: {video_id}, user_id: {current_user.id}")
         
-        result = fetch_and_store_single_video_data(current_user.id, video_id, db)
+        result = force_refresh_single_video_data(current_user.id, video_id, db)
         
         return RefreshResponse(
             success=result["success"],
@@ -268,7 +268,7 @@ async def refresh_dashboard_playlist_videos(
     try:
         logger.info(f"Refresh playlist videos data request received for playlist_id: {playlist_id}, user_id: {current_user.id}")
         
-        result = fetch_and_store_playlist_videos_data(current_user.id, playlist_id, db)
+        result = force_refresh_playlist_videos_data(current_user.id, playlist_id, db)
         
         return RefreshResponse(
             success=result["success"],
@@ -313,7 +313,7 @@ async def refresh_dashboard_playlist_video_details(
     try:
         logger.info(f"Refresh playlist video data request received for playlist_id: {playlist_id}, video_id: {video_id}, user_id: {current_user.id}")
         
-        result = fetch_and_store_single_playlist_video_data(current_user.id, playlist_id, video_id, db)
+        result = force_refresh_single_playlist_video_data(current_user.id, playlist_id, video_id, db)
         
         return RefreshResponse(
             success=result["success"],
