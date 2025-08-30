@@ -5130,3 +5130,42 @@ WHERE dashboard_overview.user_id = %(user_id_1)s ORDER BY dashboard_overview.dat
 2025-08-30 10:57:56 - data_migration.SMART_DASHBOARD_SERVICE - [92mℹ️ INFO[0m - get_playlist_data:147 - [92mSmart playlist request for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537, playlist_id: PLpVrhpreRHX54FLNlW5dLjrTDA-q7xQBf, refresh: False[0m
 2025-08-30 10:57:56 - data_migration.YOUTUBE_CACHE_SERVICE - [92mℹ️ INFO[0m - get_playlists_cache:78 - [92mUsing cached playlists data for user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
 2025-08-30 10:57:56 - data_migration.SMART_DASHBOARD_SERVICE - [92mℹ️ INFO[0m - get_playlist_data:168 - [92mUsing cached playlist data (age: 3 minutes)[0m
+2025-08-30 11:20:05 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:127 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-08-30 11:20:09 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-08-30 11:20:09 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-30 11:20:12 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-30 11:20:14 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:64 - [92m✅ Database tables created successfully[0m
+2025-08-30 11:21:16 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-30 11:21:18 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-30 11:21:18 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: uzairyasin83@gmail.com[0m
+2025-08-30 11:21:19 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: uzairyasin83@gmail.com[0m
+2025-08-30 11:21:19 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: uzair[0m
+2025-08-30 11:21:19 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: uzairyasin83@gmail.com[0m
+2025-08-30 11:22:20 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-30 11:22:23 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-30 11:22:23 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-30 11:22:23 - data_migration.DASHBOARD_ROUTES - [92mℹ️ INFO[0m - get_dashboard_overview:82 - [92mSmart overview request for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537, refresh: False[0m
+2025-08-30 11:22:23 - data_migration.SMART_DASHBOARD_SERVICE - [92mℹ️ INFO[0m - get_overview_data:25 - [92mSmart overview request for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537, refresh: False[0m
+2025-08-30 11:22:23 - data_migration.SMART_DASHBOARD_SERVICE - [92mℹ️ INFO[0m - get_overview_data:51 - [92mNo cached data found, fetching fresh overview data[0m
+2025-08-30 11:22:24 - data_migration.YOUTUBE_TOKEN_SERVICE - [91m❌ ERROR[0m - get_google_token_after_inspect_and_refresh:319 - [91mGoogle token expired for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537 - refreshing automatically...[0m
+2025-08-30 11:22:25 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - save_tokens_to_db:125 - [92mDEBUG: Google API response tokens keys: ['access_token', 'expires_in', 'scope', 'token_type', 'id_token'][0m
+2025-08-30 11:22:25 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - get_google_token_after_inspect_and_refresh:336 - [92mSuccessfully refreshed and saved Google tokens for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-30 11:22:26 - data_migration.YOUTUBE_AUTH_SERVICE - [92mℹ️ INFO[0m - get_youtube_client:72 - [92mSuccessfully created YouTube client for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-30 11:22:39 - data_migration.DASHBOARD_SERVICE - [92mℹ️ INFO[0m - get_user_videos:351 - [92mSuccessfully retrieved 49 videos with analytics[0m
+2025-08-30 11:22:40 - data_migration.DASHBOARD_DATA_SERVICE - [92mℹ️ INFO[0m - store_overview_data:132 - [92mSuccessfully stored overview data for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-30 11:22:40 - data_migration.SMART_DASHBOARD_SERVICE - [92mℹ️ INFO[0m - _fetch_and_store_overview:579 - [92mSuccessfully fetched and stored fresh overview data[0m
+2025-08-30 11:22:51 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-30 11:22:54 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-30 11:22:54 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-30 11:22:54 - data_migration.DASHBOARD_ROUTES - [92mℹ️ INFO[0m - get_dashboard_overview:82 - [92mSmart overview request for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537, refresh: False[0m
+2025-08-30 11:22:54 - data_migration.SMART_DASHBOARD_SERVICE - [92mℹ️ INFO[0m - get_overview_data:25 - [92mSmart overview request for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537, refresh: False[0m
+2025-08-30 11:22:55 - data_migration.YOUTUBE_CACHE_SERVICE - [92mℹ️ INFO[0m - get_overview_cache:46 - [92mUsing cached overview data for user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-30 11:22:55 - data_migration.SMART_DASHBOARD_SERVICE - [92mℹ️ INFO[0m - get_overview_data:38 - [92mUsing persistent cached overview data (age: 0 minutes)[0m
+2025-08-30 11:23:23 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-08-30 11:23:26 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-08-30 11:23:26 - data_migration.AUTH - [92mℹ️ INFO[0m - verify_token:68 - [92mToken verified for user: uzair[0m
+2025-08-30 11:23:26 - data_migration.DASHBOARD_ROUTES - [92mℹ️ INFO[0m - get_dashboard_overview:82 - [92mSmart overview request for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537, refresh: False[0m
+2025-08-30 11:23:26 - data_migration.SMART_DASHBOARD_SERVICE - [92mℹ️ INFO[0m - get_overview_data:25 - [92mSmart overview request for user_id: 71773ee9-78aa-4301-8e1e-1a2ed45dd537, refresh: False[0m
+2025-08-30 11:23:26 - data_migration.YOUTUBE_CACHE_SERVICE - [92mℹ️ INFO[0m - get_overview_cache:46 - [92mUsing cached overview data for user 71773ee9-78aa-4301-8e1e-1a2ed45dd537[0m
+2025-08-30 11:23:26 - data_migration.SMART_DASHBOARD_SERVICE - [92mℹ️ INFO[0m - get_overview_data:38 - [92mUsing persistent cached overview data (age: 0 minutes)[0m
+2025-08-30 11:25:02 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:123 - [92m🛑 Shutting down Data Migration Project...[0m
