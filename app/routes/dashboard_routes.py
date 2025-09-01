@@ -308,3 +308,54 @@ async def get_dashboard_playlist_videos(
             status_code=500,
             detail="Internal server error while getting playlist videos data"
         )
+
+@router.get("/playlists/names", response_model=PlaylistsResponse)
+async def get_dashboard_playlist_names(
+    refresh: bool = Query(False, description="Force refresh data from YouTube"),
+    current_user: UserSignUp = Depends(get_current_user),
+    db: Session = Depends(get_database_session)
+) -> PlaylistsResponse:
+    """
+    Get playlist names and IDs with persistent caching.
+    
+    This endpoint intelligently handles data retrieval:
+    - If no data exists: Fetches from YouTube and stores in database
+    - If cached data exists: Returns cached data (fast response, persists until refresh)
+    - If refresh=true: Forces fresh data from YouTube and updates cache
+    
+    Cache persists until user explicitly requests refresh - no automatic expiration.
+    
+    This endpoint provides a lightweight list of playlist names and IDs for navigation
+    and selection purposes, without the full analytics data.
+    
+    Args:
+        refresh: Force refresh data from YouTube (default: false)
+        current_user: The authenticated user from JWT token
+        db: Database session dependency
+    
+    Returns:
+        PlaylistsResponse: List of playlist names and IDs with cache information
+        
+    Raises:
+        HTTPException: If error occurs
+    """
+    try:
+        logger.info(f"Smart playlist names request for user_id: {current_user.id}, refresh: {refresh}")
+        
+        result = SmartDashboardService.get_playlist_names_data(current_user.id, db, refresh)
+        
+        return PlaylistsResponse(
+            success=result["success"],
+            message=result["message"],
+            data=result["data"],
+            count=result.get("count", 0)
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error in smart playlist names route for user_id {current_user.id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="Internal server error while getting playlist names data"
+        ) 

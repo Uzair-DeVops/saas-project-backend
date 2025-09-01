@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from uuid import UUID
 from pydantic import BaseModel, Field, validator
+from typing import Optional
 
 from ..controllers.youtube_credentials_controller import (
     create_youtube_credentials,
@@ -81,13 +82,14 @@ async def create_youtube_credentials_endpoint(
     )
 
 # Route 2: Get YouTube credentials
-@router.get("/", response_model=YouTubeCredentialsResponse)
+@router.get("/", response_model=Optional[YouTubeCredentialsResponse])
 async def get_youtube_credentials_endpoint(
     current_user: UserSignUp = Depends(get_current_user),
     db: Session = Depends(get_database_session)
 ):
     """
     Get the YouTube credentials for the authenticated user
+    Returns null if no credentials are found
     """
     return get_youtube_credentials(
         user_id=current_user.id,

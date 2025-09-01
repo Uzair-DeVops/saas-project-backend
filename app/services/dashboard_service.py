@@ -330,21 +330,71 @@ def get_user_videos(youtube) -> List[Dict[str, Any]]:
             # Get detailed video analytics
             video_analytics = get_video_analytics(youtube, video_id)
             
+            # Calculate additional fields
+            from datetime import datetime
+            
+            # Calculate days since published
+            days_since_published = 0
+            if item['snippet']['publishedAt']:
+                try:
+                    published_date = datetime.fromisoformat(item['snippet']['publishedAt'].replace('Z', '+00:00'))
+                    current_date = datetime.now(published_date.tzinfo)
+                    days_since_published = (current_date - published_date).days
+                except:
+                    days_since_published = 0
+            
+            # Calculate engagement rate
+            engagement_rate = 0
+            view_count = video_analytics.get('view_count', 0)
+            like_count = video_analytics.get('like_count', 0)
+            comment_count = video_analytics.get('comment_count', 0)
+            if view_count > 0:
+                total_engagement = like_count + comment_count
+                engagement_rate = round((total_engagement / view_count) * 100, 2)
+            
+            # Calculate performance score
+            performance_score = 0
+            if view_count:
+                performance_score = round(
+                    (view_count * 0.4) + 
+                    (like_count * 10) + 
+                    (comment_count * 5) + 
+                    (engagement_rate * 2), 1
+                )
+            
+            # Clean analytics object to only include non-repetitive fields
+            cleaned_analytics = {
+                'category_id': video_analytics.get('category_id'),
+                'default_language': video_analytics.get('default_language'),
+                'default_audio_language': video_analytics.get('default_audio_language')
+            }
+            
             video = {
                 'video_id': video_id,
                 'title': item['snippet']['title'],
+                'url': f"https://www.youtube.com/watch?v={video_id}",
                 'description': item['snippet']['description'],
                 'published_at': item['snippet']['publishedAt'],
                 'thumbnail_url': item['snippet']['thumbnails'].get('medium', {}).get('url', ''),
                 'channel_title': item['snippet']['channelTitle'],
+                'channel_id': item['snippet']['channelId'],
                 'tags': item['snippet'].get('tags', []),
-                # Add analytics data
-                'view_count': video_analytics.get('view_count', 0),
-                'like_count': video_analytics.get('like_count', 0),
-                'comment_count': video_analytics.get('comment_count', 0),
+                'view_count': view_count,
+                'like_count': like_count,
+                'comment_count': comment_count,
                 'duration': video_analytics.get('duration', 'PT0S'),
                 'duration_seconds': video_analytics.get('duration_seconds', 0),
-                'privacy_status': video_analytics.get('privacy_status', 'private')
+                'privacy_status': video_analytics.get('privacy_status', 'private'),
+                'upload_status': 'uploaded',  # Default for user's own videos
+                'license': 'youtube',  # Default license
+                'made_for_kids': False,  # Default value
+                'category_id': video_analytics.get('category_id'),
+                'default_language': video_analytics.get('default_language'),
+                'default_audio_language': video_analytics.get('default_audio_language'),
+                'engagement_rate': engagement_rate,
+                'performance_score': performance_score,
+                'days_since_published': days_since_published,
+                'analytics': cleaned_analytics
             }
             videos.append(video)
         
@@ -873,10 +923,6 @@ def get_video_analytics(youtube, video_id: str) -> Dict[str, Any]:
             'duration': duration_str,
             'duration_seconds': duration_seconds,
             'privacy_status': video['status'].get('privacyStatus', 'private'),
-            'published_at': snippet.get('publishedAt'),
-            'title': snippet.get('title'),
-            'description': snippet.get('description'),
-            'tags': snippet.get('tags', []),
             'category_id': snippet.get('categoryId'),
             'default_language': snippet.get('defaultLanguage'),
             'default_audio_language': snippet.get('defaultAudioLanguage')

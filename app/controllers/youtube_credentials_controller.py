@@ -70,7 +70,7 @@ def create_youtube_credentials(
 def get_youtube_credentials(
     user_id: UUID,
     db: Session
-) -> YouTubeCredentialsResponse:
+) -> Optional[YouTubeCredentialsResponse]:
     """Get YouTube credentials for a user"""
     try:
         credentials = db.exec(
@@ -78,10 +78,7 @@ def get_youtube_credentials(
         ).first()
         
         if not credentials:
-            raise HTTPException(
-                status_code=404,
-                detail="YouTube credentials not found for this user"
-            )
+            return None
         
         return YouTubeCredentialsResponse(
             id=credentials.id,
@@ -93,8 +90,6 @@ def get_youtube_credentials(
             updated_at=credentials.updated_at
         )
         
-    except HTTPException:
-        raise
     except Exception as e:
         logger.error(f"Error getting YouTube credentials for user_id {user_id}: {e}")
         raise HTTPException(

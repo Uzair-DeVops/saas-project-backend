@@ -68,7 +68,8 @@ class SmartDashboardService:
             if refresh:
                 logger.info(f"Refresh requested, clearing cache and fetching fresh data")
                 YouTubeCacheService.clear_playlists_cache(str(user_id), db)
-                return SmartDashboardService._fetch_and_store_playlists(user_id, db)
+                # For refresh, we'll fetch all playlists individually to ensure proper caching
+                return SmartDashboardService._fetch_all_playlists_individually(user_id, db)
             
             # Check if we have cached data (persistent until user refresh)
             cached_data = YouTubeCacheService.get_playlists_cache(str(user_id), db)
@@ -90,7 +91,7 @@ class SmartDashboardService:
             
             # No cached data, fetch fresh data
             logger.info(f"No cached data found, fetching fresh playlists data")
-            return SmartDashboardService._fetch_and_store_playlists(user_id, db)
+            return SmartDashboardService._fetch_all_playlists_individually(user_id, db)
             
         except Exception as e:
             logger.error(f"Error in smart playlists service: {e}")
@@ -153,29 +154,21 @@ class SmartDashboardService:
                 return SmartDashboardService._fetch_and_store_single_playlist(user_id, playlist_id, db)
             
             # Check if we have cached data
-            cached_data = YouTubeCacheService.get_playlists_cache(str(user_id), db)
+            cached_data = YouTubeCacheService.get_single_playlist_cache(str(user_id), playlist_id, db)
             
             if cached_data:
-                # Find the specific playlist
-                playlist_data = None
-                for playlist in cached_data:
-                    if playlist.playlist_id == playlist_id:
-                        playlist_data = playlist
-                        break
-                
-                if playlist_data:
-                    cache_age = YouTubeCacheService.get_cache_age_minutes(playlist_data)
-                    logger.info(f"Using cached playlist data (age: {cache_age} minutes)")
-                    return {
-                        "success": True,
-                        "message": f"Using cached playlist data (age: {cache_age} minutes)",
-                        "data": SmartDashboardService._convert_cached_playlist_to_original_structure(playlist_data),
-                        "cache_info": {
-                            "is_cached": True,
-                            "age_minutes": cache_age,
-                            "last_updated": playlist_data.data_updated_at.isoformat()
-                        }
+                cache_age = YouTubeCacheService.get_cache_age_minutes(cached_data)
+                logger.info(f"Using cached playlist data (age: {cache_age} minutes)")
+                return {
+                    "success": True,
+                    "message": f"Using cached playlist data (age: {cache_age} minutes)",
+                    "data": SmartDashboardService._convert_cached_playlist_to_original_structure(cached_data),
+                    "cache_info": {
+                        "is_cached": True,
+                        "age_minutes": cache_age,
+                        "last_updated": cached_data.data_updated_at.isoformat()
                     }
+                }
             
             # No cached data, fetch fresh data
             logger.info(f"No cached data found, fetching fresh playlist data")
@@ -200,29 +193,21 @@ class SmartDashboardService:
                 return SmartDashboardService._fetch_and_store_single_video(user_id, video_id, db)
             
             # Check if we have cached data
-            cached_data = YouTubeCacheService.get_videos_cache(str(user_id), db)
+            cached_data = YouTubeCacheService.get_single_video_cache(str(user_id), video_id, db)
             
             if cached_data:
-                # Find the specific video
-                video_data = None
-                for video in cached_data:
-                    if video.video_id == video_id:
-                        video_data = video
-                        break
-                
-                if video_data:
-                    cache_age = YouTubeCacheService.get_cache_age_minutes(video_data)
-                    logger.info(f"Using cached video data (age: {cache_age} minutes)")
-                    return {
-                        "success": True,
-                        "message": f"Using cached video data (age: {cache_age} minutes)",
-                        "data": SmartDashboardService._convert_cached_video_to_original_structure(video_data),
-                        "cache_info": {
-                            "is_cached": True,
-                            "age_minutes": cache_age,
-                            "last_updated": video_data.data_updated_at.isoformat()
-                        }
+                cache_age = YouTubeCacheService.get_cache_age_minutes(cached_data)
+                logger.info(f"Using cached video data (age: {cache_age} minutes)")
+                return {
+                    "success": True,
+                    "message": f"Using cached video data (age: {cache_age} minutes)",
+                    "data": SmartDashboardService._convert_cached_video_to_original_structure(cached_data),
+                    "cache_info": {
+                        "is_cached": True,
+                        "age_minutes": cache_age,
+                        "last_updated": cached_data.data_updated_at.isoformat()
                     }
+                }
             
             # No cached data, fetch fresh data
             logger.info(f"No cached data found, fetching fresh video data")
@@ -251,7 +236,9 @@ class SmartDashboardService:
             cached_data = YouTubeCacheService.get_playlist_videos_cache(str(user_id), playlist_id, db)
             
             if cached_data:
-                cache_age = YouTubeCacheService.get_cache_age_minutes(cached_data[0]) if cached_data else 0
+                # cached_data is now a list of tuples (video, position)
+                first_video = cached_data[0][0] if cached_data else None
+                cache_age = YouTubeCacheService.get_cache_age_minutes(first_video) if first_video else 0
                 logger.info(f"Using persistent cached playlist videos data (age: {cache_age} minutes)")
                 return {
                     "success": True,
@@ -261,7 +248,7 @@ class SmartDashboardService:
                     "cache_info": {
                         "is_cached": True,
                         "age_minutes": cache_age,
-                        "last_updated": cached_data[0].data_updated_at.isoformat() if cached_data else None
+                        "last_updated": first_video.data_updated_at.isoformat() if first_video else None
                     }
                 }
             
@@ -274,6 +261,56 @@ class SmartDashboardService:
             raise HTTPException(
                 status_code=500,
                 detail="Internal server error while getting playlist videos data"
+            )
+
+    @staticmethod
+    def get_playlist_names_data(user_id: UUID, db: Session, refresh: bool = False) -> Dict[str, Any]:
+        """Get playlist names and IDs with smart caching and refresh logic"""
+        try:
+            logger.info(f"Smart playlist names request for user_id: {user_id}, refresh: {refresh}")
+            
+            # If refresh is requested, clear cache and fetch fresh data
+            if refresh:
+                logger.info(f"Refresh requested, clearing cache and fetching fresh data")
+                YouTubeCacheService.clear_playlist_names_cache(str(user_id), db)
+                return SmartDashboardService._fetch_playlist_names_fresh(user_id, db)
+            
+            # Check if we have cached data (persistent until user refresh)
+            cached_data = YouTubeCacheService.get_playlist_names_cache(str(user_id), db)
+            
+            if cached_data:
+                cache_age = YouTubeCacheService.get_cache_age_minutes(cached_data[0]) if cached_data else 0
+                logger.info(f"Using persistent cached playlist names data (age: {cache_age} minutes)")
+                
+                # Convert cached data to simple name/ID format
+                playlist_names = []
+                for playlist in cached_data:
+                    playlist_names.append({
+                        'playlist_id': playlist.playlist_id,
+                        'title': playlist.title
+                    })
+                
+                return {
+                    "success": True,
+                    "message": f"Using cached playlist names data (age: {cache_age} minutes) - use ?refresh=true to get fresh data",
+                    "data": playlist_names,
+                    "count": len(playlist_names),
+                    "cache_info": {
+                        "is_cached": True,
+                        "age_minutes": cache_age,
+                        "last_updated": cached_data[0].data_updated_at.isoformat() if cached_data else None
+                    }
+                }
+            
+            # No cached data, fetch fresh data
+            logger.info(f"No cached data found, fetching fresh playlist names data")
+            return SmartDashboardService._fetch_playlist_names_fresh(user_id, db)
+            
+        except Exception as e:
+            logger.error(f"Error in smart playlist names service: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail="Internal server error while getting playlist names data"
             )
 
     # Private methods for fetching and storing data
@@ -420,39 +457,63 @@ class SmartDashboardService:
             return cached_data.model_dump()
 
     @staticmethod
-    def _convert_cached_playlist_videos_to_original_structure(cached_videos: List) -> List[Dict[str, Any]]:
+    def _convert_cached_playlist_videos_to_original_structure(cached_videos_with_positions: List) -> List[Dict[str, Any]]:
         """Convert cached playlist videos data back to original structure"""
         try:
             import json
+            from datetime import datetime
             
             converted_videos = []
-            for video in cached_videos:
+            for video, position in cached_videos_with_positions:
                 # Parse JSON strings back to objects
                 tags = json.loads(video.tags) if video.tags else []
                 analytics = json.loads(video.analytics) if video.analytics else {}
                 
+                # Clean up analytics object to only include non-repetitive fields
+                cleaned_analytics = {
+                    'category_id': analytics.get('category_id'),
+                    'default_language': analytics.get('default_language'),
+                    'default_audio_language': analytics.get('default_audio_language')
+                }
+                
+                # Calculate days since published
+                days_since_published = 0
+                if video.published_at:
+                    days_since_published = (datetime.now() - video.published_at).days
+                
+                # Calculate engagement rate
+                engagement_rate = 0
+                if video.view_count and video.view_count > 0:
+                    total_engagement = (video.like_count or 0) + (video.comment_count or 0)
+                    engagement_rate = round((total_engagement / video.view_count) * 100, 2)
+                
+                # Calculate performance score
+                performance_score = 0
+                if video.view_count:
+                    performance_score = round(
+                        (video.view_count * 0.4) + 
+                        ((video.like_count or 0) * 10) + 
+                        ((video.comment_count or 0) * 5) + 
+                        (engagement_rate * 2), 1
+                    )
+                
                 converted_video = {
-                    'video_id': video.video_id,
                     'title': video.title,
+                    'url': f"https://www.youtube.com/watch?v={video.video_id}",
+                    'video_id': video.video_id,
+                    'published_at': video.published_at.isoformat() + 'Z' if video.published_at else None,
                     'description': video.description,
                     'thumbnail_url': video.thumbnail_url,
-                    'published_at': video.published_at.isoformat() if video.published_at else None,
-                    'duration': video.duration,
-                    'duration_seconds': video.duration_seconds,
-                    'channel_id': video.channel_id,
-                    'channel_title': video.channel_title,
+                    'position': position,  # Use position from tuple
                     'view_count': video.view_count,
                     'like_count': video.like_count,
                     'comment_count': video.comment_count,
+                    'duration': video.duration,
                     'privacy_status': video.privacy_status,
-                    'upload_status': video.upload_status,
-                    'license': video.license,
-                    'made_for_kids': video.made_for_kids,
-                    'category_id': video.category_id,
-                    'tags': tags,
-                    'default_language': video.default_language,
-                    'default_audio_language': video.default_audio_language,
-                    'analytics': analytics
+                    'engagement_rate': engagement_rate,
+                    'performance_score': performance_score,
+                    'days_since_published': days_since_published,
+                    'analytics': cleaned_analytics
                 }
                 converted_videos.append(converted_video)
             
@@ -460,13 +521,14 @@ class SmartDashboardService:
         except Exception as e:
             logger.error(f"Error converting cached playlist videos data: {e}")
             # Fallback to model_dump if conversion fails
-            return [video.model_dump() for video in cached_videos]
+            return [video.model_dump() for video, _ in cached_videos_with_positions]
 
     @staticmethod
     def _convert_cached_videos_to_original_structure(cached_videos: List) -> List[Dict[str, Any]]:
         """Convert cached videos data back to original structure"""
         try:
             import json
+            from datetime import datetime
             
             converted_videos = []
             for video in cached_videos:
@@ -474,12 +536,41 @@ class SmartDashboardService:
                 tags = json.loads(video.tags) if video.tags else []
                 analytics = json.loads(video.analytics) if video.analytics else {}
                 
+                # Clean up analytics object to only include non-repetitive fields
+                cleaned_analytics = {
+                    'category_id': analytics.get('category_id'),
+                    'default_language': analytics.get('default_language'),
+                    'default_audio_language': analytics.get('default_audio_language')
+                }
+                
+                # Calculate days since published
+                days_since_published = 0
+                if video.published_at:
+                    days_since_published = (datetime.now() - video.published_at).days
+                
+                # Calculate engagement rate
+                engagement_rate = 0
+                if video.view_count and video.view_count > 0:
+                    total_engagement = (video.like_count or 0) + (video.comment_count or 0)
+                    engagement_rate = round((total_engagement / video.view_count) * 100, 2)
+                
+                # Calculate performance score
+                performance_score = 0
+                if video.view_count:
+                    performance_score = round(
+                        (video.view_count * 0.4) + 
+                        ((video.like_count or 0) * 10) + 
+                        ((video.comment_count or 0) * 5) + 
+                        (engagement_rate * 2), 1
+                    )
+                
                 converted_video = {
                     'video_id': video.video_id,
                     'title': video.title,
+                    'url': f"https://www.youtube.com/watch?v={video.video_id}",
                     'description': video.description,
                     'thumbnail_url': video.thumbnail_url,
-                    'published_at': video.published_at.isoformat() if video.published_at else None,
+                    'published_at': video.published_at.isoformat() + 'Z' if video.published_at else None,
                     'duration': video.duration,
                     'duration_seconds': video.duration_seconds,
                     'channel_id': video.channel_id,
@@ -495,7 +586,10 @@ class SmartDashboardService:
                     'tags': tags,
                     'default_language': video.default_language,
                     'default_audio_language': video.default_audio_language,
-                    'analytics': analytics
+                    'engagement_rate': engagement_rate,
+                    'performance_score': performance_score,
+                    'days_since_published': days_since_published,
+                    'analytics': cleaned_analytics
                 }
                 converted_videos.append(converted_video)
             
@@ -510,17 +604,47 @@ class SmartDashboardService:
         """Convert cached single video data back to original structure"""
         try:
             import json
+            from datetime import datetime
             
             # Parse JSON strings back to objects
             tags = json.loads(cached_video.tags) if cached_video.tags else []
             analytics = json.loads(cached_video.analytics) if cached_video.analytics else {}
             
+            # Clean up analytics object to only include non-repetitive fields
+            cleaned_analytics = {
+                'category_id': analytics.get('category_id'),
+                'default_language': analytics.get('default_language'),
+                'default_audio_language': analytics.get('default_audio_language')
+            }
+            
+            # Calculate days since published
+            days_since_published = 0
+            if cached_video.published_at:
+                days_since_published = (datetime.now() - cached_video.published_at).days
+            
+            # Calculate engagement rate
+            engagement_rate = 0
+            if cached_video.view_count and cached_video.view_count > 0:
+                total_engagement = (cached_video.like_count or 0) + (cached_video.comment_count or 0)
+                engagement_rate = round((total_engagement / cached_video.view_count) * 100, 2)
+            
+            # Calculate performance score
+            performance_score = 0
+            if cached_video.view_count:
+                performance_score = round(
+                    (cached_video.view_count * 0.4) + 
+                    ((cached_video.like_count or 0) * 10) + 
+                    ((cached_video.comment_count or 0) * 5) + 
+                    (engagement_rate * 2), 1
+                )
+            
             return {
                 'video_id': cached_video.video_id,
                 'title': cached_video.title,
+                'url': f"https://www.youtube.com/watch?v={cached_video.video_id}",
                 'description': cached_video.description,
                 'thumbnail_url': cached_video.thumbnail_url,
-                'published_at': cached_video.published_at.isoformat() if cached_video.published_at else None,
+                'published_at': cached_video.published_at.isoformat() + 'Z' if cached_video.published_at else None,
                 'duration': cached_video.duration,
                 'duration_seconds': cached_video.duration_seconds,
                 'channel_id': cached_video.channel_id,
@@ -536,7 +660,10 @@ class SmartDashboardService:
                 'tags': tags,
                 'default_language': cached_video.default_language,
                 'default_audio_language': cached_video.default_audio_language,
-                'analytics': analytics
+                'engagement_rate': engagement_rate,
+                'performance_score': performance_score,
+                'days_since_published': days_since_published,
+                'analytics': cleaned_analytics
             }
         except Exception as e:
             logger.error(f"Error converting cached video data: {e}")
@@ -598,9 +725,11 @@ class SmartDashboardService:
                 detail="Internal server error while fetching overview data"
             )
     
+
+    
     @staticmethod
-    def _fetch_and_store_playlists(user_id: UUID, db: Session) -> Dict[str, Any]:
-        """Fetch and store playlists data"""
+    def _fetch_all_playlists_individually(user_id: UUID, db: Session) -> Dict[str, Any]:
+        """Fetch and store all playlists individually to ensure proper caching"""
         try:
             # Get YouTube client
             youtube = get_youtube_client(user_id, db)
@@ -610,7 +739,7 @@ class SmartDashboardService:
                     detail="Failed to get YouTube client. Please check your YouTube API credentials."
                 )
             
-            # Get playlists data
+            # Get all playlists data
             raw_playlists_data = get_all_playlists_comprehensive(youtube)
             
             if not raw_playlists_data:
@@ -619,8 +748,8 @@ class SmartDashboardService:
                     detail="Failed to fetch playlists data from YouTube API."
                 )
             
-            # Transform data to match expected database format
-            playlists_data = []
+            # Store each playlist individually
+            stored_playlists = []
             for playlist in raw_playlists_data:
                 playlist_data = {
                     'playlist_info': {
@@ -647,24 +776,25 @@ class SmartDashboardService:
                     },
                     'analytics': playlist.get('analytics', {})
                 }
-                playlists_data.append(playlist_data)
+                
+                # Store individual playlist
+                success = DashboardDataService.store_single_playlist_data(user_id, playlist_data, db)
+                if success:
+                    stored_playlists.append(playlist_data)
             
-            # Store in database
-            success = DashboardDataService.store_playlists_data(user_id, playlists_data, db)
-            
-            if not success:
+            if not stored_playlists:
                 raise HTTPException(
                     status_code=500,
-                    detail="Failed to store playlists data in database."
+                    detail="Failed to store any playlists data in database."
                 )
             
-            logger.info(f"Successfully fetched and stored {len(playlists_data)} playlists")
+            logger.info(f"Successfully fetched and stored {len(stored_playlists)} playlists individually")
             
             return {
                 "success": True,
-                "message": f"Fresh playlists data fetched and stored successfully ({len(playlists_data)} playlists)",
-                "data": playlists_data,
-                "count": len(playlists_data),
+                "message": f"Fresh playlists data fetched and stored successfully ({len(stored_playlists)} playlists)",
+                "data": stored_playlists,
+                "count": len(stored_playlists),
                 "cache_info": {
                     "is_cached": False,
                     "age_minutes": 0,
@@ -680,7 +810,7 @@ class SmartDashboardService:
                 status_code=500,
                 detail="Internal server error while fetching playlists data"
             )
-    
+
     @staticmethod
     def _fetch_and_store_videos(user_id: UUID, db: Session) -> Dict[str, Any]:
         """Fetch and store videos data"""
@@ -749,7 +879,7 @@ class SmartDashboardService:
             # Import the existing comprehensive playlist logic
             from ..controllers.dashboard_controller import get_comprehensive_playlist_controller
             
-            # Get playlist data
+            # Get single playlist data
             playlist_data = get_comprehensive_playlist_controller(user_id, playlist_id, db)
             
             if not playlist_data:
@@ -758,9 +888,8 @@ class SmartDashboardService:
                     detail="Playlist not found or you don't have permission to access it"
                 )
             
-            # Store in database
-            playlists_data = [playlist_data]
-            success = DashboardDataService.store_playlists_data(user_id, playlists_data, db)
+            # Store single playlist in database (without deleting other playlists)
+            success = DashboardDataService.store_single_playlist_data(user_id, playlist_data, db)
             
             if not success:
                 raise HTTPException(
@@ -768,7 +897,7 @@ class SmartDashboardService:
                     detail="Failed to store playlist data in database."
                 )
             
-            logger.info(f"Successfully fetched and stored playlist data")
+            logger.info(f"Successfully fetched and stored single playlist data")
             
             return {
                 "success": True,
@@ -814,9 +943,8 @@ class SmartDashboardService:
                     detail="Video not found or you don't have permission to access it"
                 )
             
-            # Store in database
-            videos_data = [video_data]
-            success = DashboardDataService.store_videos_data(user_id, videos_data, db)
+            # Store single video in database (without deleting other videos)
+            success = DashboardDataService.store_single_video_data(user_id, video_data, db)
             
             if not success:
                 raise HTTPException(
@@ -824,7 +952,7 @@ class SmartDashboardService:
                     detail="Failed to store video data in database."
                 )
             
-            logger.info(f"Successfully fetched and stored video data")
+            logger.info(f"Successfully fetched and stored single video data")
             
             return {
                 "success": True,
@@ -907,4 +1035,72 @@ class SmartDashboardService:
             raise HTTPException(
                 status_code=500,
                 detail="Internal server error while fetching playlist videos data"
+            )
+
+    @staticmethod
+    def _fetch_playlist_names_fresh(user_id: UUID, db: Session) -> Dict[str, Any]:
+        """Fetch fresh playlist names and IDs from YouTube"""
+        try:
+            # Get YouTube client
+            youtube = get_youtube_client(user_id, db)
+            if not youtube:
+                raise HTTPException(
+                    status_code=500,
+                    detail="Failed to get YouTube client. Please check your YouTube API credentials."
+                )
+            
+            # Import the playlist service for simple playlist fetching
+            from ..services.playlist_service import get_user_playlists
+            
+            # Get all playlists (simple call without analytics)
+            playlists_data = get_user_playlists(youtube)
+            
+            if not playlists_data:
+                return {
+                    "success": True,
+                    "message": "No playlists found",
+                    "data": [],
+                    "count": 0,
+                    "cache_info": {
+                        "is_cached": False,
+                        "age_minutes": 0,
+                        "last_updated": datetime.now().isoformat()
+                    }
+                }
+            
+            # Extract only playlist_id and title
+            playlist_names = []
+            for playlist in playlists_data:
+                playlist_names.append({
+                    'playlist_id': playlist['id'],
+                    'title': playlist['title']
+                })
+            
+            # Store playlist names data in cache for future use
+            success = DashboardDataService.store_playlist_names_data(user_id, playlist_names, db)
+            
+            if not success:
+                logger.warning("Failed to store full playlist data in cache, but returning playlist names")
+            
+            logger.info(f"Successfully fetched {len(playlist_names)} playlist names")
+            
+            return {
+                "success": True,
+                "message": "Fresh playlist names data fetched successfully",
+                "data": playlist_names,
+                "count": len(playlist_names),
+                "cache_info": {
+                    "is_cached": False,
+                    "age_minutes": 0,
+                    "last_updated": datetime.now().isoformat()
+                }
+            }
+            
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Error fetching playlist names data: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail="Internal server error while fetching playlist names data"
             )

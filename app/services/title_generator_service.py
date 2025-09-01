@@ -105,7 +105,7 @@ async def generate_title_from_transcript(transcript: str, user_requirements: Opt
 
 
 
-async def generate_video_title(video_id: UUID, user_id: UUID, db: Session, user_requirements: Optional[str] = None, api_key: Optional[str] = None) -> TitleResponse:
+async def generate_video_title(video_id: UUID, user_id: UUID, db: Session, user_requirements: Optional[str] = None, selected_title: Optional[str] = None, api_key: Optional[str] = None) -> TitleResponse:
     """
     Generate title for a video using its transcript
     """
@@ -123,6 +123,10 @@ async def generate_video_title(video_id: UUID, user_id: UUID, db: Session, user_
         
         # Use transcript as is (JSON format)
         transcript_text = transcript
+        
+        # Use selected_title as user_requirements if provided and no user_requirements
+        if selected_title and not user_requirements:
+            user_requirements = selected_title
         
         # Generate titles
         title_output = await generate_title_from_transcript(transcript_text, user_requirements, api_key)
@@ -171,8 +175,8 @@ async def update_video_title(video_id: UUID, user_id: UUID, title: str, db: Sess
         logger.error(f"Error updating video title: {e}")
         return False
 
-async def regenerate_title(video_id: UUID, user_id: UUID, db: Session) -> TitleResponse:
+async def regenerate_title(video_id: UUID, user_id: UUID, db: Session, selected_title: Optional[str] = None) -> TitleResponse:
     """
     Regenerate title for a video
     """
-    return await generate_video_title(video_id, user_id, db)
+    return await generate_video_title(video_id, user_id, db, user_requirements=selected_title)

@@ -5,3 +5,4 @@ from .dashboard_overview_model import DashboardOverview
 from .dashboard_playlist_model import DashboardPlaylist
 from .dashboard_video_model import DashboardVideo
 from .dashboard_playlist_video_model import DashboardPlaylistVideo
+from .dashboard_playlist_names_model import DashboardPlaylistNames

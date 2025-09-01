@@ -8,6 +8,7 @@ from ..models.dashboard_overview_model import DashboardOverview
 from ..models.dashboard_playlist_model import DashboardPlaylist
 from ..models.dashboard_video_model import DashboardVideo
 from ..models.dashboard_playlist_video_model import DashboardPlaylistVideo
+from ..models.dashboard_playlist_names_model import DashboardPlaylistNames
 from ..utils.my_logger import get_logger
 
 logger = get_logger("YOUTUBE_CACHE_SERVICE")
@@ -85,6 +86,58 @@ class YouTubeCacheService:
             return None
     
     @staticmethod
+    def get_single_playlist_cache(user_id: str, playlist_id: str, db: Session) -> Optional[DashboardPlaylist]:
+        """Get cached single playlist data"""
+        try:
+            # Convert string user_id to UUID
+            from uuid import UUID
+            user_uuid = UUID(user_id)
+            
+            statement = select(DashboardPlaylist).where(
+                DashboardPlaylist.user_id == user_uuid,
+                DashboardPlaylist.playlist_id == playlist_id
+            ).order_by(DashboardPlaylist.data_updated_at.desc())
+            
+            logger.info(f"Executing query for user {user_id}, playlist {playlist_id}")
+            cached_data = db.exec(statement).first()
+            logger.info(f"Query result: {cached_data is not None}")
+            
+            if cached_data:
+                logger.info(f"Found cached playlist data for user {user_id}, playlist {playlist_id}")
+                if YouTubeCacheService.is_cache_valid(cached_data, 'playlists'):
+                    logger.info(f"Using cached single playlist data for user {user_id}, playlist {playlist_id}")
+                    return cached_data
+                else:
+                    logger.info(f"Cache not valid for user {user_id}, playlist {playlist_id}")
+            else:
+                logger.info(f"No cached playlist data found for user {user_id}, playlist {playlist_id}")
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting single playlist cache: {e}")
+            return None
+    
+    @staticmethod
+    def debug_list_all_playlists(user_id: str, db: Session) -> None:
+        """Debug method to list all playlists for a user"""
+        try:
+            from uuid import UUID
+            user_uuid = UUID(user_id)
+            
+            statement = select(DashboardPlaylist).where(
+                DashboardPlaylist.user_id == user_uuid
+            ).order_by(DashboardPlaylist.data_updated_at.desc())
+            
+            all_playlists = db.exec(statement).all()
+            logger.info(f"All playlists for user {user_id}: {len(all_playlists)} playlists")
+            for playlist in all_playlists:
+                logger.info(f"  - Playlist ID: {playlist.playlist_id}, Title: {playlist.title}, Updated: {playlist.data_updated_at}")
+            
+        except Exception as e:
+            logger.error(f"Error in debug_list_all_playlists: {e}")
+    
+    @staticmethod
     def get_videos_cache(user_id: str, db: Session) -> Optional[List[DashboardVideo]]:
         """Get cached videos data"""
         try:
@@ -114,6 +167,31 @@ class YouTubeCacheService:
             
         except Exception as e:
             logger.error(f"Error getting videos cache: {e}")
+            return None
+    
+    @staticmethod
+    def get_single_video_cache(user_id: str, video_id: str, db: Session) -> Optional[DashboardVideo]:
+        """Get cached single video data"""
+        try:
+            # Convert string user_id to UUID
+            from uuid import UUID
+            user_uuid = UUID(user_id)
+            
+            statement = select(DashboardVideo).where(
+                DashboardVideo.user_id == user_uuid,
+                DashboardVideo.video_id == video_id
+            ).order_by(DashboardVideo.data_updated_at.desc())
+            
+            cached_data = db.exec(statement).first()
+            
+            if cached_data and YouTubeCacheService.is_cache_valid(cached_data, 'videos'):
+                logger.info(f"Using cached single video data for user {user_id}, video {video_id}")
+                return cached_data
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting single video cache: {e}")
             return None
     
     @staticmethod
@@ -160,7 +238,17 @@ class YouTubeCacheService:
                     type('MockData', (), {'data_updated_at': latest_update})(), 'playlist_videos'
                 ):
                     logger.info(f"Using cached playlist videos data for user {user_id}, playlist {playlist_id}")
-                    return cached_videos
+                    
+                    # Create a map of video_id to position from playlist_videos relationships
+                    position_map = {pv.video_id: pv.position for pv in playlist_videos}
+                    
+                    # Create a list of tuples with (video, position)
+                    videos_with_positions = []
+                    for video in cached_videos:
+                        position = position_map.get(video.video_id, 0)
+                        videos_with_positions.append((video, position))
+                    
+                    return videos_with_positions
             
             return None
             
@@ -242,6 +330,57 @@ class YouTubeCacheService:
             return True
         except Exception as e:
             logger.error(f"Error clearing playlist videos cache: {e}")
+            db.rollback()
+            return False
+    
+    @staticmethod
+    def get_playlist_names_cache(user_id: str, db: Session) -> Optional[List[DashboardPlaylistNames]]:
+        """Get cached playlist names data"""
+        try:
+            # Convert string user_id to UUID
+            from uuid import UUID
+            user_uuid = UUID(user_id)
+            
+            statement = select(DashboardPlaylistNames).where(
+                DashboardPlaylistNames.user_id == user_uuid
+            ).order_by(DashboardPlaylistNames.data_updated_at.desc())
+            
+            cached_data = db.exec(statement).all()
+            
+            if cached_data:
+                # Check if any playlist names data is recent enough
+                latest_update = max(
+                    playlist.data_updated_at for playlist in cached_data
+                )
+                
+                if YouTubeCacheService.is_cache_valid(
+                    type('MockData', (), {'data_updated_at': latest_update})(), 'playlist_names'
+                ):
+                    logger.info(f"Using cached playlist names data for user {user_id}")
+                    return cached_data
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting playlist names cache: {e}")
+            return None
+    
+    @staticmethod
+    def clear_playlist_names_cache(user_id: str, db: Session) -> bool:
+        """Clear playlist names cache for user"""
+        try:
+            # Convert string user_id to UUID
+            from uuid import UUID
+            user_uuid = UUID(user_id)
+            
+            db.query(DashboardPlaylistNames).filter(
+                DashboardPlaylistNames.user_id == user_uuid
+            ).delete()
+            db.commit()
+            logger.info(f"Cleared playlist names cache for user {user_id}")
+            return True
+        except Exception as e:
+            logger.error(f"Error clearing playlist names cache: {e}")
             db.rollback()
             return False
     

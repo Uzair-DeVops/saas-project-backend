@@ -31,6 +31,7 @@ class TitleSaveRequest(BaseModel):
 
 class RegenerateWithRequirementsRequest(BaseModel):
     user_requirements: str
+    selected_title: str = Field(..., description="The currently selected title that the user wants to modify")
 
 # Route 1: Generate title from video ID
 @router.post("/{video_id}/generate", response_model=TitleResponse)
@@ -87,5 +88,6 @@ async def regenerate_with_requirements_endpoint(
         video_id=video_id,
         user_id=current_user.id,
         db=db,
-        user_requirements=request.user_requirements
+        user_requirements=request.user_requirements,
+        selected_title=request.selected_title
     ) 

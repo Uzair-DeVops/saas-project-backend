@@ -12,6 +12,7 @@ from ..models.dashboard_overview_model import DashboardOverview
 from ..models.dashboard_playlist_model import DashboardPlaylist
 from ..models.dashboard_video_model import DashboardVideo
 from ..models.dashboard_playlist_video_model import DashboardPlaylistVideo
+from ..models.dashboard_playlist_names_model import DashboardPlaylistNames
 from ..utils.my_logger import get_logger
 
 logger = get_logger("DASHBOARD_DATA_SERVICE")
@@ -463,6 +464,8 @@ class DashboardDataService:
             # Delete existing videos data for user
             db.query(DashboardVideo).filter(DashboardVideo.user_id == user_id).delete()
             
+            # Batch create all video records
+            video_records = []
             for video_data in videos_data:
                 # Create video record
                 video_record = DashboardVideo(
@@ -491,8 +494,10 @@ class DashboardDataService:
                     data_updated_at=datetime.utcnow()
                 )
                 
-                db.add(video_record)
+                video_records.append(video_record)
             
+            # Batch insert all video records at once
+            db.add_all(video_records)
             db.commit()
             logger.info(f"Successfully stored {len(videos_data)} videos for user_id: {user_id}")
             return True
@@ -579,10 +584,74 @@ class DashboardDataService:
     def store_playlist_videos_data(user_id: UUID, playlist_id: str, videos_data: List[Dict[str, Any]], db: Session) -> bool:
         """Store playlist videos data in database"""
         try:
-            # First, store the videos in the DashboardVideo table
-            success = DashboardDataService.store_videos_data(user_id, videos_data, db)
-            if not success:
-                return False
+            # Batch store all videos at once (without deleting other videos)
+            video_records = []
+            for video_data in videos_data:
+                video_id = video_data.get('video_id', '')
+                if not video_id:
+                    continue
+                
+                # Check if video already exists
+                existing_video = db.query(DashboardVideo).filter(
+                    DashboardVideo.user_id == user_id,
+                    DashboardVideo.video_id == video_id
+                ).first()
+                
+                if existing_video:
+                    # Update existing video
+                    existing_video.title = video_data.get('title', '')
+                    existing_video.description = video_data.get('description', '')
+                    existing_video.thumbnail_url = video_data.get('thumbnail_url', '')
+                    existing_video.published_at = parse_datetime(video_data.get('published_at', datetime.utcnow()))
+                    existing_video.duration = video_data.get('duration', '')
+                    existing_video.duration_seconds = video_data.get('duration_seconds', 0)
+                    existing_video.channel_id = video_data.get('channel_id', '')
+                    existing_video.channel_title = video_data.get('channel_title', '')
+                    existing_video.view_count = video_data.get('view_count', 0)
+                    existing_video.like_count = video_data.get('like_count', 0)
+                    existing_video.comment_count = video_data.get('comment_count', 0)
+                    existing_video.privacy_status = video_data.get('privacy_status', '')
+                    existing_video.upload_status = video_data.get('upload_status', '')
+                    existing_video.license = video_data.get('license', '')
+                    existing_video.made_for_kids = video_data.get('made_for_kids', False)
+                    existing_video.category_id = video_data.get('category_id', '')
+                    existing_video.tags = json.dumps(video_data.get('tags', []))
+                    existing_video.default_language = video_data.get('default_language', '')
+                    existing_video.default_audio_language = video_data.get('default_audio_language', '')
+                    existing_video.analytics = json.dumps(video_data.get('analytics', {}))
+                    existing_video.data_updated_at = datetime.utcnow()
+                else:
+                    # Create new video record
+                    video_record = DashboardVideo(
+                        user_id=user_id,
+                        video_id=video_id,
+                        title=video_data.get('title', ''),
+                        description=video_data.get('description', ''),
+                        thumbnail_url=video_data.get('thumbnail_url', ''),
+                        published_at=parse_datetime(video_data.get('published_at', datetime.utcnow())),
+                        duration=video_data.get('duration', ''),
+                        duration_seconds=video_data.get('duration_seconds', 0),
+                        channel_id=video_data.get('channel_id', ''),
+                        channel_title=video_data.get('channel_title', ''),
+                        view_count=video_data.get('view_count', 0),
+                        like_count=video_data.get('like_count', 0),
+                        comment_count=video_data.get('comment_count', 0),
+                        privacy_status=video_data.get('privacy_status', ''),
+                        upload_status=video_data.get('upload_status', ''),
+                        license=video_data.get('license', ''),
+                        made_for_kids=video_data.get('made_for_kids', False),
+                        category_id=video_data.get('category_id', ''),
+                        tags=json.dumps(video_data.get('tags', [])),
+                        default_language=video_data.get('default_language', ''),
+                        default_audio_language=video_data.get('default_audio_language', ''),
+                        analytics=json.dumps(video_data.get('analytics', {})),
+                        data_updated_at=datetime.utcnow()
+                    )
+                    video_records.append(video_record)
+            
+            # Batch add new video records
+            if video_records:
+                db.add_all(video_records)
             
             # Clear existing playlist-video relationships for this playlist
             db.query(DashboardPlaylistVideo).filter(
@@ -591,6 +660,7 @@ class DashboardDataService:
             ).delete()
             
             # Create playlist-video relationships
+            relationship_records = []
             for position, video_data in enumerate(videos_data, 1):
                 video_id = video_data.get('video_id', '')
                 if video_id:
@@ -600,7 +670,11 @@ class DashboardDataService:
                         video_id=video_id,
                         position=position
                     )
-                    db.add(relationship)
+                    relationship_records.append(relationship)
+            
+            # Batch add relationship records
+            if relationship_records:
+                db.add_all(relationship_records)
             
             db.commit()
             logger.info(f"Successfully stored {len(videos_data)} playlist videos for user_id: {user_id}, playlist_id: {playlist_id}")
@@ -608,6 +682,199 @@ class DashboardDataService:
             
         except Exception as e:
             logger.error(f"Error storing playlist videos data for user_id {user_id}, playlist_id {playlist_id}: {e}")
+            db.rollback()
+            return False
+
+    @staticmethod
+    def store_single_playlist_data(user_id: UUID, playlist_data: Dict[str, Any], db: Session) -> bool:
+        """Store single playlist data in database without deleting other playlists"""
+        try:
+            playlist_info = playlist_data.get('playlist_info', {})
+            analytics = playlist_data.get('analytics', {})
+            
+            # Check if playlist already exists
+            existing_playlist = db.query(DashboardPlaylist).filter(
+                DashboardPlaylist.user_id == user_id,
+                DashboardPlaylist.playlist_id == playlist_info.get('playlist_id', '')
+            ).first()
+            
+            if existing_playlist:
+                # Update existing playlist
+                existing_playlist.title = playlist_info.get('title', '')
+                existing_playlist.description = playlist_info.get('description', '')
+                existing_playlist.playlist_url = playlist_info.get('playlist_url', '')
+                existing_playlist.embed_html = playlist_info.get('embed_html', '')
+                existing_playlist.embed_url = playlist_info.get('embed_url', '')
+                existing_playlist.playlist_type = playlist_info.get('playlist_type', '')
+                existing_playlist.is_editable = playlist_info.get('is_editable', True)
+                existing_playlist.is_public = playlist_info.get('is_public', True)
+                existing_playlist.is_unlisted = playlist_info.get('is_unlisted', False)
+                existing_playlist.is_private = playlist_info.get('is_private', False)
+                existing_playlist.default_thumbnail = playlist_info.get('default_thumbnail', '')
+                existing_playlist.high_thumbnail = playlist_info.get('high_thumbnail', '')
+                existing_playlist.maxres_thumbnail = playlist_info.get('maxres_thumbnail', '')
+                existing_playlist.standard_thumbnail = playlist_info.get('standard_thumbnail', '')
+                existing_playlist.item_count = playlist_info.get('item_count', 0)
+                existing_playlist.video_count = playlist_info.get('video_count', 0)
+                existing_playlist.published_at = parse_datetime(playlist_info.get('published_at', datetime.utcnow()))
+                existing_playlist.channel_id = playlist_info.get('channel_id', '')
+                existing_playlist.channel_title = playlist_info.get('channel_title', '')
+                existing_playlist.analytics = json.dumps(analytics)
+                existing_playlist.data_updated_at = datetime.utcnow()
+            else:
+                # Create new playlist record
+                playlist_record = DashboardPlaylist(
+                    user_id=user_id,
+                    playlist_id=playlist_info.get('playlist_id', ''),
+                    title=playlist_info.get('title', ''),
+                    description=playlist_info.get('description', ''),
+                    playlist_url=playlist_info.get('playlist_url', ''),
+                    embed_html=playlist_info.get('embed_html', ''),
+                    embed_url=playlist_info.get('embed_url', ''),
+                    playlist_type=playlist_info.get('playlist_type', ''),
+                    is_editable=playlist_info.get('is_editable', True),
+                    is_public=playlist_info.get('is_public', True),
+                    is_unlisted=playlist_info.get('is_unlisted', False),
+                    is_private=playlist_info.get('is_private', False),
+                    default_thumbnail=playlist_info.get('default_thumbnail', ''),
+                    high_thumbnail=playlist_info.get('high_thumbnail', ''),
+                    maxres_thumbnail=playlist_info.get('maxres_thumbnail', ''),
+                    standard_thumbnail=playlist_info.get('standard_thumbnail', ''),
+                    item_count=playlist_info.get('item_count', 0),
+                    video_count=playlist_info.get('video_count', 0),
+                    published_at=parse_datetime(playlist_info.get('published_at', datetime.utcnow())),
+                    channel_id=playlist_info.get('channel_id', ''),
+                    channel_title=playlist_info.get('channel_title', ''),
+                    analytics=json.dumps(analytics),
+                    data_updated_at=datetime.utcnow()
+                )
+                db.add(playlist_record)
+            
+            # Clear existing playlist-video relationships for this specific playlist
+            db.query(DashboardPlaylistVideo).filter(
+                DashboardPlaylistVideo.user_id == user_id,
+                DashboardPlaylistVideo.playlist_id == playlist_info.get('playlist_id', '')
+            ).delete()
+            
+            # Store playlist-video relationships
+            videos = analytics.get('videos', [])
+            for position, video in enumerate(videos):
+                playlist_video_record = DashboardPlaylistVideo(
+                    user_id=user_id,
+                    playlist_id=playlist_info.get('playlist_id', ''),
+                    video_id=video.get('video_id', ''),
+                    position=position,
+                    data_updated_at=datetime.utcnow()
+                )
+                db.add(playlist_video_record)
+            
+            db.commit()
+            logger.info(f"Successfully stored single playlist for user_id: {user_id}, playlist_id: {playlist_info.get('playlist_id', '')}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error storing single playlist data for user_id {user_id}: {e}")
+            db.rollback()
+            return False
+
+    @staticmethod
+    def store_single_video_data(user_id: UUID, video_data: Dict[str, Any], db: Session) -> bool:
+        """Store single video data in database without deleting other videos"""
+        try:
+            # Check if video already exists
+            existing_video = db.query(DashboardVideo).filter(
+                DashboardVideo.user_id == user_id,
+                DashboardVideo.video_id == video_data.get('video_id', '')
+            ).first()
+            
+            if existing_video:
+                # Update existing video
+                existing_video.title = video_data.get('title', '')
+                existing_video.description = video_data.get('description', '')
+                existing_video.thumbnail_url = video_data.get('thumbnail_url', '')
+                existing_video.published_at = parse_datetime(video_data.get('published_at', datetime.utcnow()))
+                existing_video.duration = video_data.get('duration', '')
+                existing_video.duration_seconds = video_data.get('duration_seconds', 0)
+                existing_video.channel_id = video_data.get('channel_id', '')
+                existing_video.channel_title = video_data.get('channel_title', '')
+                existing_video.view_count = video_data.get('view_count', 0)
+                existing_video.like_count = video_data.get('like_count', 0)
+                existing_video.comment_count = video_data.get('comment_count', 0)
+                existing_video.privacy_status = video_data.get('privacy_status', 'private')
+                existing_video.upload_status = video_data.get('upload_status', 'processed')
+                existing_video.license = video_data.get('license', 'youtube')
+                existing_video.made_for_kids = video_data.get('made_for_kids', False)
+                existing_video.category_id = video_data.get('category_id', '')
+                existing_video.tags = json.dumps(video_data.get('tags', []))
+                existing_video.default_language = video_data.get('default_language', '')
+                existing_video.default_audio_language = video_data.get('default_audio_language', '')
+                existing_video.analytics = json.dumps(video_data.get('analytics', {}))
+                existing_video.data_updated_at = datetime.utcnow()
+            else:
+                # Create new video record
+                video_record = DashboardVideo(
+                    user_id=user_id,
+                    video_id=video_data.get('video_id', ''),
+                    title=video_data.get('title', ''),
+                    description=video_data.get('description', ''),
+                    thumbnail_url=video_data.get('thumbnail_url', ''),
+                    published_at=parse_datetime(video_data.get('published_at', datetime.utcnow())),
+                    duration=video_data.get('duration', ''),
+                    duration_seconds=video_data.get('duration_seconds', 0),
+                    channel_id=video_data.get('channel_id', ''),
+                    channel_title=video_data.get('channel_title', ''),
+                    view_count=video_data.get('view_count', 0),
+                    like_count=video_data.get('like_count', 0),
+                    comment_count=video_data.get('comment_count', 0),
+                    privacy_status=video_data.get('privacy_status', 'private'),
+                    upload_status=video_data.get('upload_status', 'processed'),
+                    license=video_data.get('license', 'youtube'),
+                    made_for_kids=video_data.get('made_for_kids', False),
+                    category_id=video_data.get('category_id', ''),
+                    tags=json.dumps(video_data.get('tags', [])),
+                    default_language=video_data.get('default_language', ''),
+                    default_audio_language=video_data.get('default_audio_language', ''),
+                    analytics=json.dumps(video_data.get('analytics', {})),
+                    data_updated_at=datetime.utcnow()
+                )
+                db.add(video_record)
+            
+            db.commit()
+            logger.info(f"Successfully stored single video for user_id: {user_id}, video_id: {video_data.get('video_id', '')}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error storing single video data for user_id {user_id}: {e}")
+            db.rollback()
+            return False
+
+    @staticmethod
+    def store_playlist_names_data(user_id: UUID, playlist_names_data: List[Dict[str, Any]], db: Session) -> bool:
+        """Store playlist names data in database"""
+        try:
+            # Delete existing playlist names data for user
+            db.query(DashboardPlaylistNames).filter(DashboardPlaylistNames.user_id == user_id).delete()
+            
+            # Create new playlist names records
+            playlist_names_records = []
+            for playlist_data in playlist_names_data:
+                playlist_names_record = DashboardPlaylistNames(
+                    user_id=user_id,
+                    playlist_id=playlist_data.get('playlist_id', ''),
+                    title=playlist_data.get('title', ''),
+                    data_updated_at=datetime.utcnow()
+                )
+                playlist_names_records.append(playlist_names_record)
+            
+            # Add all records to database
+            db.add_all(playlist_names_records)
+            db.commit()
+            
+            logger.info(f"Successfully stored {len(playlist_names_records)} playlist names for user_id: {user_id}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error storing playlist names data for user_id {user_id}: {e}")
             db.rollback()
             return False
 

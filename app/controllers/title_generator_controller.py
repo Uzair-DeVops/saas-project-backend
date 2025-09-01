@@ -17,6 +17,7 @@ async def generate_title_for_video(
     user_id: UUID,
     db: Session,
     user_requirements: Optional[str] = None,
+    selected_title: Optional[str] = None,
     api_key: Optional[str] = None
 ) -> TitleResponse:
     """
@@ -25,7 +26,7 @@ async def generate_title_for_video(
     try:
         logger.info(f"Generating title for video {video_id} by user {user_id}")
         
-        result = await generate_video_title(video_id, user_id, db, user_requirements, api_key)
+        result = await generate_video_title(video_id, user_id, db, user_requirements, selected_title, api_key)
         
         if not result.success:
             logger.error(f"Failed to generate title for video {video_id}: {result.message}")
@@ -85,7 +86,8 @@ async def save_video_title(
 async def regenerate_video_title(
     video_id: UUID,
     user_id: UUID,
-    db: Session
+    db: Session,
+    selected_title: Optional[str] = None
 ) -> TitleResponse:
     """
     Regenerate title for a video
@@ -93,7 +95,7 @@ async def regenerate_video_title(
     try:
         logger.info(f"Regenerating title for video {video_id} by user {user_id}")
         
-        result = await regenerate_title(video_id, user_id, db)
+        result = await regenerate_title(video_id, user_id, db, selected_title)
         
         if not result.success:
             logger.error(f"Failed to regenerate title for video {video_id}: {result.message}")
