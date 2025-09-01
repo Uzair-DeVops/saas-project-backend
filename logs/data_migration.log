@@ -12914,3 +12914,4 @@ WHERE dashboard_overview.user_id = %(user_id_1)s ORDER BY dashboard_overview.dat
 2025-09-01 18:32:20 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
 2025-09-01 18:32:23 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
 2025-09-01 18:32:25 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:64 - [92m✅ Database tables created successfully[0m
+2025-09-01 19:06:53 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:123 - [92m🛑 Shutting down Data Migration Project...[0m
