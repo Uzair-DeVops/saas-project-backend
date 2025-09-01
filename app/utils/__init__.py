@@ -11,6 +11,10 @@ from .database_dependency import (
     get_database_session,
 )
 
+from .ffmpeg_finder import (
+    find_ffmpeg,
+    test_ffmpeg
+)
 
 
 __all__ = [
@@ -18,4 +22,6 @@ __all__ = [
     "get_logger", 
     "setup_logger",
     "get_database_session",
+    "find_ffmpeg",
+    "test_ffmpeg",
 ] 

@@ -8,24 +8,9 @@ from pathlib import Path
 from sqlmodel import Session, select
 from uuid import UUID
 from ..utils.my_logger import get_logger
+from ..utils.ffmpeg_finder import find_ffmpeg, test_ffmpeg
 from ..models.video_model import Video  
 logger = get_logger("VIDEO_TRANSCRIPT_GENERATOR")
-
-# Get ffmpeg path - try multiple locations
-def get_ffmpeg_path():
-    """Get the path to ffmpeg executable"""
-    possible_paths = [
-        '/usr/bin/ffmpeg',  # Standard Linux location
-        '/usr/local/bin/ffmpeg',  # Alternative location
-        'ffmpeg',  # Fallback to PATH
-    ]
-    
-    for path in possible_paths:
-        if os.path.exists(path) or shutil.which(path):
-            logger.info(f"Found ffmpeg at: {path}")
-            return path
-    
-    raise FileNotFoundError("ffmpeg not found in any of the expected locations")
 
 
 class TranscriptSegment(BaseModel):
@@ -56,8 +41,13 @@ def generate_video_transcript(video_path: str) -> TranscriptOutput:
     audio_path = str(Path(video_path).with_suffix('.mp3'))
 
     try:
-        # Get ffmpeg path
-        ffmpeg_path = get_ffmpeg_path()
+        # Get ffmpeg path using comprehensive finder
+        logger.info("🔍 Locating ffmpeg executable...")
+        ffmpeg_path = find_ffmpeg()
+        
+        # Test if ffmpeg is working
+        if not test_ffmpeg(ffmpeg_path):
+            raise Exception("ffmpeg found but not working properly")
         
         # Extract audio using ffmpeg
         cmd = [
@@ -69,9 +59,9 @@ def generate_video_transcript(video_path: str) -> TranscriptOutput:
             audio_path
         ]
         
-        logger.info(f"Running ffmpeg command: {' '.join(cmd)}")
+        logger.info(f"🎬 Running ffmpeg command: {' '.join(cmd)}")
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        logger.info(f"Audio extracted successfully to: {audio_path}")
+        logger.info(f"✅ Audio extracted successfully to: {audio_path}")
 
         # Generate transcript
         client = genai.Client()
@@ -107,23 +97,23 @@ def generate_video_transcript(video_path: str) -> TranscriptOutput:
             }
         )
         
-        logger.info("Transcript generated successfully")
+        logger.info("✅ Transcript generated successfully")
         
         # Parse response and clean up audio file
         transcript_data = json.loads(response.text)
         os.remove(audio_path)
-        logger.info(f"Temporary audio file removed: {audio_path}")
+        logger.info(f"🗑️ Temporary audio file removed: {audio_path}")
         
         return TranscriptOutput(**transcript_data)
         
     except subprocess.CalledProcessError as e:
-        error_msg = f"Error extracting audio: {e.stderr if e.stderr else str(e)}"
+        error_msg = f"❌ Error extracting audio: {e.stderr if e.stderr else str(e)}"
         logger.error(error_msg)
         if os.path.exists(audio_path):
             os.remove(audio_path)
         raise Exception(error_msg)
     except Exception as e:
-        error_msg = f"Error in transcript generation: {e}"
+        error_msg = f"❌ Error in transcript generation: {e}"
         logger.error(error_msg)
         if os.path.exists(audio_path):
             os.remove(audio_path)
