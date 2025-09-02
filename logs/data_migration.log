@@ -12918,3 +12918,24 @@ WHERE dashboard_overview.user_id = %(user_id_1)s ORDER BY dashboard_overview.dat
 2025-09-02 00:16:30 - data_migration.FFMPEG_FINDER - [92mℹ️ INFO[0m - find_ffmpeg:25 - [92m🔍 Searching for ffmpeg executable...[0m
 2025-09-02 00:16:30 - data_migration.FFMPEG_FINDER - [92mℹ️ INFO[0m - find_ffmpeg:31 - [92m✅ Found ffmpeg at: /usr/bin/ffmpeg[0m
 2025-09-02 00:16:31 - data_migration.FFMPEG_FINDER - [92mℹ️ INFO[0m - test_ffmpeg:179 - [92m✅ ffmpeg test successful[0m
+2025-09-03 00:37:02 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-09-03 00:37:02 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-09-03 00:37:05 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-09-03 00:37:08 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:64 - [92m✅ Database tables created successfully[0m
+2025-09-03 00:37:08 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:123 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-09-02 19:37:42 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-09-02 19:37:42 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-09-02 19:37:45 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-09-02 19:37:48 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:64 - [92m✅ Database tables created successfully[0m
+2025-09-02 20:36:01 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-09-02 20:36:03 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-09-02 20:36:04 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:87 - [92mDEBUG: Google token exchange response status: 200[0m
+2025-09-02 20:36:04 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - exchange_code_for_tokens:88 - [92mDEBUG: Google token exchange response: {
+  "access_token": "ya29.A0AS3H6NwmExOQCbv_Ygxne3sBCzPTg4eLXclyzZuu0FfCkrorlmzj1BQxQG_uV8MUibahFr40y7oHVHN-8o24zCCXeDZj9DKjkDHsZwwiCcO6LEH8GNWFQ4o0rEFauxAFXnn8keyk8WQbAPy85mS9C8qYj9XPjtjXLQEiR-CHz5DhFEVsbH_-9posDNUBCvIxCpcso6IaCgYKAQUSARUSFQHGX2MiA0GwHUyl7WS0HuspzTCjew0206",
+  "expires_in": 3599,
+  "refresh_token": "1//039Ker9SW3ErtCgYIARAAGAMSNwF-L9IrzxKGyJG2dPOfbsEDqcFwe0YTuKvKMp-Hlg1oW_FZgwrH_dN_JlVRsdBpP4bSsdxQNjI",
+  "scope": "https://www.googleapis.com/auth/cloud-platform.read-only https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/devstorage.read_only https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/bigquery https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/devstorage.full_control https://www.googleapis.com/auth/youtube https://www.googleapis.com/auth/youtube.force-ssl https://www.googleapis.com/auth/bigquery.readonly https://www.googleapis.com/auth/youtube.readonly https://www.googleapis.com/auth/devstorage.read_write openid",
+  "token_type": "Bearer",
+  "id_token": "eyJhbGciOiJSUzI1NiIsImtpZCI6IjJkN2VkMzM4YzBmMTQ1N2IyMTRhMjc0YjVlMGU2NjdiNDRhNDJkZGUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2FjY291bnRzLmdvb2dsZS5jb20iLCJhenAiOiI0NTk2OTQzNTY4NDktMTE0dnVtcWhnamg1ZWdvOGJhYnVndHA3YmNxMXRuajcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJhdWQiOiI0NTk2OTQzNTY4NDktMTE0dnVtcWhnamg1ZWdvOGJhYnVndHA3YmNxMXRuajcuYXBwcy5nb29nbGV1c2VyY29udGVudC5jb20iLCJzdWIiOiIxMDEzNjA3MjExMTg3ODE2OTg4MzQiLCJlbWFpbCI6InV6YWlyeWFzaW4zOTVAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF0X2hhc2giOiJNNElIZ296dFF2Uk10NmNIRTBqWWt3IiwibmFtZSI6Ik11aGFtbWFkIFV6YWlyIiwicGljdHVyZSI6Imh0dHBzOi8vbGgzLmdvb2dsZXVzZXJjb250ZW50LmNvbS9hL0FDZzhvY0xSeU1DRGFCR00yam1STFdwM0RqMkZUekxVSkRienRfWFQyUlM2aVBDZWZaRk5GMGM9czk2LWMiLCJnaXZlbl9uYW1lIjoiTXVoYW1tYWQgVXphaXIiLCJpYXQiOjE3NTY4NDUzNjQsImV4cCI6MTc1Njg0ODk2NH0.WttjeP5rPOz1s2MPeHSpMZH7Q0aVhuH_h7DSRbh69vxGlL81DDbtnvbeSqmAP7OBLQyYlgLDus-4eqDH5MH0wez1RA0zgbQpMVvulhMUsrZa1zfLxzO3S4CX67xjYDLBmgCriZ_2GOzUEDHeAjDO8pfljJnUJnmzRNOT_2wXQgkkny1Rj7PDpAr_KkWuKgboULovNEAqzLK-z9hV5vHrdPKSrHdVg08orsq-zpmfUKqvq7wgcTViTEh_SC9M8W03wSv3NkjZYjaKL-ykpQNKNWlK-VJJQIxtIvLrQ69aDdbXS6TScE7HjVTFdmuAQxDL8DQAt2XOuS-GbzXRNIaZLA"
+}[0m
+2025-09-02 20:36:04 - data_migration.YOUTUBE_TOKEN_SERVICE - [92mℹ️ INFO[0m - save_tokens_to_db:125 - [92mDEBUG: Google API response tokens keys: ['access_token', 'expires_in', 'refresh_token', 'scope', 'token_type', 'id_token'][0m

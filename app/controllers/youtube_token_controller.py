@@ -17,7 +17,7 @@ import secrets
 from urllib.parse import urlencode
 
 # Configuration
-REDIRECT_URI = "http://localhost:8000/youtube/oauth/callback"
+REDIRECT_URI = "https://saas-backend.duckdns.org/youtube/oauth/callback"
 
 # Google API endpoints
 GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/auth"
