@@ -36,9 +36,19 @@ async def generate_timestamps_for_video(
             logger.error(f"Video transcript not found for video {video_id}")
             raise HTTPException(status_code=400, detail="Video transcript not found or not generated yet")
         
-        # Generate timestamps
+        # Check if user has Gemini API key
         api_key = get_user_gemini_api_key(user_id, db)
-        timestamps = await time_stamps_generator(transcript,api_key)
+        if not api_key:
+            logger.warning(f"No Gemini API key found for user {user_id}")
+            return TimeStampsResponse(
+                video_id=video_id,
+                generated_timestamps="",
+                success=False,
+                message="No Gemini API key found. Please add your Gemini API key in settings to generate timestamps."
+            )
+        
+        # Generate timestamps
+        timestamps = await time_stamps_generator(transcript, api_key)
         
         logger.info(f"Timestamps generated successfully for video {video_id}")
         return TimeStampsResponse(

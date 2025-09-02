@@ -37,6 +37,17 @@ async def generate_description_for_video(
             logger.error(f"Video transcript not found for video {video_id}")
             raise HTTPException(status_code=400, detail="Video transcript not found or not generated yet")
         
+        # Check if user has Gemini API key
+        api_key = get_user_gemini_api_key(user_id, db)
+        if not api_key:
+            logger.warning(f"No Gemini API key found for user {user_id}")
+            return DescriptionResponse(
+                video_id=video_id,
+                generated_description="",
+                success=False,
+                message="No Gemini API key found. Please add your Gemini API key in settings to generate descriptions."
+            )
+        
         # Use default template if none provided
         if not custom_template:
             custom_template = """
@@ -47,9 +58,9 @@ async def generate_description_for_video(
 
 #Education #Learning #Tutorial
 """
-        api_key = get_user_gemini_api_key(user_id, db)
+        
         # Generate description
-        description = await video_summary_generator_agent(transcript, custom_template,api_key)
+        description = await video_summary_generator_agent(transcript, custom_template, api_key)
         
         logger.info(f"Description generated successfully for video {video_id}")
         return DescriptionResponse(

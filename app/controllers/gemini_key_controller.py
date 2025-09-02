@@ -67,9 +67,10 @@ def create_gemini_key(
 def get_gemini_key(
     user_id: UUID,
     db: Session
-) -> GeminiKeyResponse:
+) -> Optional[GeminiKeyResponse]:
     """
     Get Gemini API key for a user
+    Returns None if no key is found instead of throwing 404 error
     """
     try:
         logger.info(f"Fetching Gemini API key for user {user_id}")
@@ -79,11 +80,8 @@ def get_gemini_key(
         ).first()
         
         if not gemini_key:
-            logger.warning(f"No Gemini API key found for user {user_id}")
-            raise HTTPException(
-                status_code=404, 
-                detail="Gemini API key not found"
-            )
+            logger.info(f"No Gemini API key found for user {user_id}")
+            return None
         
         return GeminiKeyResponse(
             id=gemini_key.id,
@@ -94,8 +92,6 @@ def get_gemini_key(
             updated_at=gemini_key.updated_at
         )
         
-    except HTTPException:
-        raise
     except Exception as e:
         logger.error(f"Error fetching Gemini API key for user {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch Gemini API key")
@@ -105,9 +101,10 @@ def update_gemini_key(
     api_key: Optional[str] = None,
     is_active: Optional[bool] = None,
     db: Session = None
-) -> GeminiKeyResponse:
+) -> Optional[GeminiKeyResponse]:
     """
     Update Gemini API key for a user
+    Returns None if no key is found instead of throwing 404 error
     """
     try:
         logger.info(f"Updating Gemini API key for user {user_id}")
@@ -117,11 +114,8 @@ def update_gemini_key(
         ).first()
         
         if not gemini_key:
-            logger.warning(f"No Gemini API key found for user {user_id}")
-            raise HTTPException(
-                status_code=404, 
-                detail="Gemini API key not found"
-            )
+            logger.info(f"No Gemini API key found for user {user_id}")
+            return None
         
         # Update fields if provided
         if api_key is not None:
@@ -144,8 +138,6 @@ def update_gemini_key(
             updated_at=gemini_key.updated_at
         )
         
-    except HTTPException:
-        raise
     except Exception as e:
         logger.error(f"Error updating Gemini API key for user {user_id}: {e}")
         db.rollback()
@@ -157,6 +149,7 @@ def delete_gemini_key(
 ) -> dict:
     """
     Delete Gemini API key for a user
+    Returns success message even if no key exists
     """
     try:
         logger.info(f"Deleting Gemini API key for user {user_id}")
@@ -166,11 +159,11 @@ def delete_gemini_key(
         ).first()
         
         if not gemini_key:
-            logger.warning(f"No Gemini API key found for user {user_id}")
-            raise HTTPException(
-                status_code=404, 
-                detail="Gemini API key not found"
-            )
+            logger.info(f"No Gemini API key found for user {user_id}")
+            return {
+                "success": True,
+                "message": "No Gemini API key found to delete"
+            }
         
         db.delete(gemini_key)
         db.commit()
@@ -182,8 +175,6 @@ def delete_gemini_key(
             "message": "Gemini API key deleted successfully"
         }
         
-    except HTTPException:
-        raise
     except Exception as e:
         logger.error(f"Error deleting Gemini API key for user {user_id}: {e}")
         db.rollback()

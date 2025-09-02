@@ -45,6 +45,16 @@ async def generate_title_endpoint(
     User sends video ID → get transcript → generate title → return to user
     """
     api_key = get_user_gemini_api_key(current_user.id, db)
+    if not api_key:
+        # Return error response instead of failing
+        from ..services.title_generator_service import TitleResponse
+        return TitleResponse(
+            video_id=video_id,
+            generated_titles=[],
+            success=False,
+            message="No Gemini API key found. Please add your Gemini API key in settings to generate titles."
+        )
+    
     return await generate_title_for_video(
         video_id=video_id,
         user_id=current_user.id,
@@ -84,10 +94,22 @@ async def regenerate_with_requirements_endpoint(
     Regenerate title with user requirements
     User wants changes → send video ID + requirements → regenerate title
     """
+    api_key = get_user_gemini_api_key(current_user.id, db)
+    if not api_key:
+        # Return error response instead of failing
+        from ..services.title_generator_service import TitleResponse
+        return TitleResponse(
+            video_id=video_id,
+            generated_titles=[],
+            success=False,
+            message="No Gemini API key found. Please add your Gemini API key in settings to generate titles."
+        )
+    
     return await generate_title_for_video(
         video_id=video_id,
         user_id=current_user.id,
         db=db,
         user_requirements=request.user_requirements,
-        selected_title=request.selected_title
+        selected_title=request.selected_title,
+        api_key=api_key
     ) 

@@ -28,9 +28,21 @@ async def generate_thumbnail_for_video(
             logger.error(f"No transcript available for video {video_id}")
             raise HTTPException(status_code=400, detail="No transcript available for this video")
         
-        # Generate thumbnail using the service
+        # Check if user has Gemini API key
         api_key = get_user_gemini_api_key(user_id, db)
-        result = await agent_runner(transcript,api_key)
+        if not api_key:
+            logger.warning(f"No Gemini API key found for user {user_id}")
+            return {
+                "success": False,
+                "message": "No Gemini API key found. Please add your Gemini API key in settings to generate thumbnails.",
+                "video_id": str(video_id),
+                "image_url": None,
+                "width": None,
+                "height": None,
+            }
+        
+        # Generate thumbnail using the service
+        result = await agent_runner(transcript, api_key)
         
         if not result:
             logger.error(f"Failed to generate thumbnail for video {video_id}")

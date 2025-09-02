@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session
 from uuid import UUID
 from pydantic import BaseModel, Field, validator
+from typing import Optional
 
 from ..controllers.gemini_key_controller import (
     create_gemini_key,
@@ -45,6 +46,12 @@ class GeminiKeyUpdateRequest(BaseModel):
             raise ValueError("API key must be at least 10 characters long")
         return v.strip()
 
+class GeminiKeyNotFoundResponse(BaseModel):
+    """Response when no Gemini API key is found"""
+    success: bool = False
+    message: str = "No Gemini API key found"
+    data: Optional[dict] = None
+
 # Route 1: Create Gemini API key
 @router.post("/", response_model=GeminiKeyResponse)
 async def create_gemini_key_endpoint(
@@ -62,21 +69,27 @@ async def create_gemini_key_endpoint(
     )
 
 # Route 2: Get Gemini API key
-@router.get("/", response_model=GeminiKeyResponse)
+@router.get("/", response_model=Optional[GeminiKeyResponse])
 async def get_gemini_key_endpoint(
     current_user: UserSignUp = Depends(get_current_user),
     db: Session = Depends(get_database_session)
 ):
     """
     Get the Gemini API key for the authenticated user
+    Returns null with message if no key is found
     """
-    return get_gemini_key(
+    result = get_gemini_key(
         user_id=current_user.id,
         db=db
     )
+    
+    if result is None:
+        return None
+    
+    return result
 
 # Route 3: Update Gemini API key
-@router.put("/", response_model=GeminiKeyResponse)
+@router.put("/", response_model=Optional[GeminiKeyResponse])
 async def update_gemini_key_endpoint(
     request: GeminiKeyUpdateRequest,
     current_user: UserSignUp = Depends(get_current_user),
@@ -84,13 +97,19 @@ async def update_gemini_key_endpoint(
 ):
     """
     Update the Gemini API key for the authenticated user
+    Returns null with message if no key is found
     """
-    return update_gemini_key(
+    result = update_gemini_key(
         user_id=current_user.id,
         api_key=request.api_key,
         is_active=request.is_active,
         db=db
     )
+    
+    if result is None:
+        return None
+    
+    return result
 
 # Route 4: Delete Gemini API key
 @router.delete("/")
@@ -100,6 +119,7 @@ async def delete_gemini_key_endpoint(
 ):
     """
     Delete the Gemini API key for the authenticated user
+    Returns success message even if no key exists
     """
     return delete_gemini_key(
         user_id=current_user.id,
