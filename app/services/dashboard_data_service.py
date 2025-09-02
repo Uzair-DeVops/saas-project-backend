@@ -1,4 +1,5 @@
 """
+
 Dashboard Data Service - Handles database operations for dashboard data
 """
 import json
@@ -7,7 +8,7 @@ from uuid import UUID
 from sqlmodel import Session, select
 from datetime import datetime
 import re
-
+from sqlalchemy.orm import joinedload
 from ..models.dashboard_overview_model import DashboardOverview
 from ..models.dashboard_playlist_model import DashboardPlaylist
 from ..models.dashboard_video_model import DashboardVideo
@@ -301,66 +302,49 @@ class DashboardDataService:
     
     @staticmethod
     def get_playlists_data(user_id: UUID, db: Session) -> List[Dict[str, Any]]:
-        """Get dashboard playlists data from database"""
+        """Get dashboard playlists data from database using an optimized single query."""
         try:
-            playlists_records = db.query(DashboardPlaylist).filter(
+            # Use joinedload to fetch playlists and all related video data in ONE query
+            playlists = db.query(DashboardPlaylist).filter(
                 DashboardPlaylist.user_id == user_id
+            ).options(
+                joinedload(DashboardPlaylist.videos).joinedload(DashboardPlaylistVideo.video)
             ).all()
             
             playlists_data = []
-            for playlist_record in playlists_records:
-                # Get playlist-video relationships
-                playlist_videos = db.query(DashboardPlaylistVideo).filter(
-                    DashboardPlaylistVideo.user_id == user_id,
-                    DashboardPlaylistVideo.playlist_id == playlist_record.playlist_id
-                ).order_by(DashboardPlaylistVideo.position).all()
-                
-                # Get video IDs from relationships
-                video_ids = [pv.video_id for pv in playlist_videos]
-                
-                # Get video details from dashboard_videos table
+            for playlist_record in playlists:
+                # All data is already loaded in memory, no new queries are needed
                 videos_data = []
-                if video_ids:
-                    video_records = db.query(DashboardVideo).filter(
-                        DashboardVideo.user_id == user_id,
-                        DashboardVideo.video_id.in_(video_ids)
-                    ).all()
-                    
-                    # Create a map for quick lookup
-                    video_map = {v.video_id: v for v in video_records}
-                    
-                    # Build videos list in correct order
-                    for pv in playlist_videos:
-                        if pv.video_id in video_map:
-                            video_record = video_map[pv.video_id]
-                            video_data = {
-                                'video_id': video_record.video_id,
-                                'title': video_record.title,
-                                'description': video_record.description,
-                                'thumbnail_url': video_record.thumbnail_url,
-                                'published_at': video_record.published_at.isoformat(),
-                                'duration': video_record.duration,
-                                'duration_seconds': video_record.duration_seconds,
-                                'channel_id': video_record.channel_id,
-                                'channel_title': video_record.channel_title,
-                                'view_count': video_record.view_count,
-                                'like_count': video_record.like_count,
-                                'comment_count': video_record.comment_count,
-                                'privacy_status': video_record.privacy_status,
-                                'upload_status': video_record.upload_status,
-                                'license': video_record.license,
-                                'made_for_kids': video_record.made_for_kids,
-                                'category_id': video_record.category_id,
-                                'tags': json.loads(video_record.tags),
-                                'default_language': video_record.default_language,
-                                'default_audio_language': video_record.default_audio_language,
-                                'analytics': json.loads(video_record.analytics)
-                            }
-                            videos_data.append(video_data)
+                for playlist_video_record in playlist_record.videos:
+                    video_record = playlist_video_record.video
+                    if video_record:
+                        video_data = {
+                            'video_id': video_record.video_id,
+                            'title': video_record.title,
+                            'description': video_record.description,
+                            'thumbnail_url': video_record.thumbnail_url,
+                            'published_at': video_record.published_at.isoformat(),
+                            'duration': video_record.duration,
+                            'duration_seconds': video_record.duration_seconds,
+                            'channel_id': video_record.channel_id,
+                            'channel_title': video_record.channel_title,
+                            'view_count': video_record.view_count,
+                            'like_count': video_record.like_count,
+                            'comment_count': video_record.comment_count,
+                            'privacy_status': video_record.privacy_status,
+                            'upload_status': video_record.upload_status,
+                            'license': video_record.license,
+                            'made_for_kids': video_record.made_for_kids,
+                            'category_id': video_record.category_id,
+                            'tags': json.loads(video_record.tags),
+                            'default_language': video_record.default_language,
+                            'default_audio_language': video_record.default_audio_language,
+                            'analytics': json.loads(video_record.analytics)
+                        }
+                        videos_data.append(video_data)
                 
-                # Get analytics from playlist record
+                # The rest of the code is simplified to create the final data structure
                 analytics = json.loads(playlist_record.analytics)
-                # Update videos in analytics with the actual video data
                 analytics['videos'] = videos_data
                 
                 playlist_data = {
@@ -393,39 +377,29 @@ class DashboardDataService:
             return playlists_data
             
         except Exception as e:
-            logger.error(f"Error getting playlists data for user_id {user_id}: {e}")
-            return []
+            # It's good practice to log the full exception traceback for debugging
+            logger.error(f"Error getting playlists data for user_id {user_id}: {e}", exc_info=True)
+            return []    
     
     @staticmethod
     def get_playlist_videos(user_id: UUID, playlist_id: str, db: Session) -> List[Dict[str, Any]]:
-        """Get videos for a specific playlist using relationship table"""
+        """
+        Get videos for a specific playlist using a single, optimized query.
+        """
         try:
-            # Get playlist-video relationships for the specific playlist
+            # Optimized query: Fetch playlist videos and eagerly load video details
+            # The .options(joinedload(...)) tells SQLAlchemy to perform a JOIN
             playlist_videos = db.query(DashboardPlaylistVideo).filter(
                 DashboardPlaylistVideo.user_id == user_id,
                 DashboardPlaylistVideo.playlist_id == playlist_id
+            ).options(
+                joinedload(DashboardPlaylistVideo.video)
             ).order_by(DashboardPlaylistVideo.position).all()
             
-            if not playlist_videos:
-                return []
-            
-            # Get video IDs
-            video_ids = [pv.video_id for pv in playlist_videos]
-            
-            # Get video details from dashboard_videos table
-            video_records = db.query(DashboardVideo).filter(
-                DashboardVideo.user_id == user_id,
-                DashboardVideo.video_id.in_(video_ids)
-            ).all()
-            
-            # Create a map for quick lookup
-            video_map = {v.video_id: v for v in video_records}
-            
-            # Build videos list in correct order
             videos_data = []
             for pv in playlist_videos:
-                if pv.video_id in video_map:
-                    video_record = video_map[pv.video_id]
+                video_record = pv.video
+                if video_record:
                     video_data = {
                         'video_id': video_record.video_id,
                         'title': video_record.title,
@@ -454,9 +428,9 @@ class DashboardDataService:
             return videos_data
             
         except Exception as e:
-            logger.error(f"Error getting playlist videos for user_id {user_id}, playlist_id {playlist_id}: {e}")
+            # Log the full exception for better debugging
+            logger.error(f"Error getting playlist videos for user_id {user_id}, playlist_id {playlist_id}: {e}", exc_info=True)
             return []
-    
     @staticmethod
     def store_videos_data(user_id: UUID, videos_data: List[Dict[str, Any]], db: Session) -> bool:
         """Store dashboard videos data in database"""

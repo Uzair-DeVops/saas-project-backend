@@ -12918,3 +12918,32 @@ WHERE dashboard_overview.user_id = %(user_id_1)s ORDER BY dashboard_overview.dat
 2025-09-02 00:16:30 - data_migration.FFMPEG_FINDER - [92mℹ️ INFO[0m - find_ffmpeg:25 - [92m🔍 Searching for ffmpeg executable...[0m
 2025-09-02 00:16:30 - data_migration.FFMPEG_FINDER - [92mℹ️ INFO[0m - find_ffmpeg:31 - [92m✅ Found ffmpeg at: /usr/bin/ffmpeg[0m
 2025-09-02 00:16:31 - data_migration.FFMPEG_FINDER - [92mℹ️ INFO[0m - test_ffmpeg:179 - [92m✅ ffmpeg test successful[0m
+2025-09-02 19:31:06 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-09-02 19:31:06 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-09-02 19:31:09 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-09-02 19:31:11 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:64 - [92m✅ Database tables created successfully[0m
+2025-09-02 19:31:11 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:123 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-09-02 19:36:02 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-09-02 19:36:02 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-09-02 19:36:05 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-09-02 19:36:08 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:64 - [92m✅ Database tables created successfully[0m
+2025-09-02 20:19:05 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-09-02 20:19:05 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-09-02 20:19:09 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-09-02 20:19:11 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:64 - [92m✅ Database tables created successfully[0m
+2025-09-02 22:13:49 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-09-02 22:13:53 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-09-02 22:13:53 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - signup:38 - [92mSignup request received for email: alishakayani.ai@gmail.com[0m
+2025-09-02 22:13:57 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - create_user:81 - [92mUser created successfully: alishakayani.ai@gmail.com[0m
+2025-09-02 22:14:58 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-09-02 22:15:01 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-09-02 22:15:01 - data_migration.AUTH_ROUTES - [92mℹ️ INFO[0m - login:49 - [92mLogin request received for email: alishakayani.ai@gmail.com[0m
+2025-09-02 22:15:02 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - authenticate_user:120 - [92mUser authenticated successfully: alishakayani.ai@gmail.com[0m
+2025-09-02 22:15:02 - data_migration.AUTH - [92mℹ️ INFO[0m - create_access_token:51 - [92mAccess token created for user: alisha[0m
+2025-09-02 22:15:02 - data_migration.USER_CONTROLLER - [92mℹ️ INFO[0m - login_user:140 - [92mUser logged in successfully: alishakayani.ai@gmail.com[0m
+2025-09-02 22:28:44 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:123 - [92m🛑 Shutting down Data Migration Project...[0m
+2025-09-02 22:47:46 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:44 - [92m🚀 Starting up Data Migration Project...[0m
+2025-09-02 22:47:46 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:16 - [92m🔧 Initializing Database engine...[0m
+2025-09-02 22:47:50 - data_migration.UZAIR - [92mℹ️ INFO[0m - initialize_database_engine:33 - [92m✅ Database engine initialized successfully[0m
+2025-09-02 22:47:54 - data_migration.UZAIR - [92mℹ️ INFO[0m - startup_event:64 - [92m✅ Database tables created successfully[0m
+2025-09-02 23:18:59 - data_migration.UZAIR - [92mℹ️ INFO[0m - shutdown_event:123 - [92m🛑 Shutting down Data Migration Project...[0m

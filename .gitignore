@@ -7,5 +7,7 @@ __pycache__
 *.pyz
 *.pywz
 
+.env
+
 logs
 data_migration.log
